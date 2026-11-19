@@ -685,7 +685,7 @@ window.CONTENU = {
        "c": {
         "disposition": "puzzle",
         "colonnes": 3,
-        "colonnesM": 2,
+        "colonnesM": 3,
         "espacement": 12,
         "ratio": "4/3",
         "hauteurRang": 220,
@@ -844,10 +844,14 @@ window.CONTENU = {
        }
       },
       {
-       "id": "b7sz83h65",
-       "k": "texte",
+       "id": "bxogo7h65",
+       "k": "tags",
        "c": {
-        "html": "<p>Coordination des équipes techniques, budget, planning global et journalier, recherche de lieux, négociation des prix, recrutement, supervision production, autorisations de tournage, location matériel, recherche de festivals et distributeurs</p>"
+        "tags": [
+         "Producteur",
+         "Directeur de production",
+         "Distribution"
+        ]
        },
        "s": {},
        "t": {},
@@ -856,12 +860,10 @@ window.CONTENU = {
        }
       },
       {
-       "id": "bxogo7h65",
-       "k": "tags",
+       "id": "b7sz83h65",
+       "k": "texte",
        "c": {
-        "tags": [
-         "Producteur"
-        ]
+        "html": "<p></p><ul><li>Coordination des équipes et différents départements</li><li>Elaboration du budget global et détaillé</li><li>Planning général et détaillé</li><li>Recherche de lieux et négociation des prix</li><li>Recrutements</li><li>Supervision production</li><li>Gestion des autorisations de tournage, locations matériel, transports, chartes VHSS</li><li>Recherche de festivals et diffuseurs</li></ul><p></p>"
        },
        "s": {},
        "t": {},
@@ -903,10 +905,22 @@ window.CONTENU = {
         "survol": "",
         "images": [
          {
-          "src": "images/films/freres/still-1.jpg"
+          "src": "images/bibliotheque/8-312zv.webp"
          },
          {
-          "src": "images/films/freres/still-3.jpg"
+          "src": "images/bibliotheque/7-311mn.webp"
+         },
+         {
+          "src": "images/bibliotheque/6-3107c.webp"
+         },
+         {
+          "src": "images/bibliotheque/5-30yjf.webp"
+         },
+         {
+          "src": "images/bibliotheque/4-30xac.webp"
+         },
+         {
+          "src": "images/bibliotheque/img-20260804-wa0018-4nsm2.webp"
          }
         ]
        },
@@ -1507,6 +1521,14 @@ window.CONTENU = {
   }
  ],
  "bibliotheque": [
+  {
+   "src": "images/bibliotheque/img-20260804-wa0018-4nsm2.webp",
+   "nom": "IMG-20260804-WA0018"
+  },
+  {
+   "src": "images/bibliotheque/sans-titre-314ew-rognee-4m757.webp",
+   "nom": "Sans titre (rognée)"
+  },
   {
    "src": "images/bibliotheque/sans-titre-314ew.webp",
    "nom": "Sans titre"
