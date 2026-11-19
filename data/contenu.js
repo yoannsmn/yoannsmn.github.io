@@ -60,7 +60,7 @@ window.CONTENU = {
        "src": "images/accueil/hero.jpg",
        "video": ""
       },
-      "hauteur": 75,
+      "hauteur": 25,
       "pos": {
        "x": 50,
        "y": 50
@@ -146,7 +146,7 @@ window.CONTENU = {
         "ordreGenres": [],
         "genre": "",
         "colonnes": 2,
-        "colonnesM": 1,
+        "colonnesM": 2,
         "ratio": "16/9",
         "animation": "cinema",
         "afficherGenre": true,
@@ -158,7 +158,7 @@ window.CONTENU = {
        "s": {},
        "t": {},
        "a": {
-        "type": ""
+        "type": "fade-up"
        }
       }
      ],
@@ -484,7 +484,7 @@ window.CONTENU = {
          {
           "sousTitre": "",
           "logo": {
-           "src": ""
+           "src": "images/bibliotheque/sans-titre-314ew.webp"
           },
           "lien": "",
           "date": "2024",
@@ -895,7 +895,7 @@ window.CONTENU = {
        "k": "galerie",
        "c": {
         "disposition": "mosaique",
-        "colonnes": 2,
+        "colonnes": 3,
         "colonnesM": 2,
         "espacement": 12,
         "ratio": "4/3",
@@ -968,18 +968,6 @@ window.CONTENU = {
      "c": {},
      "blocs": [
       {
-       "id": "b8wsv6h65",
-       "k": "pastille",
-       "c": {
-        "texte": "Mini-série"
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
        "id": "bv2ge4h65",
        "k": "titre",
        "c": {
@@ -995,10 +983,10 @@ window.CONTENU = {
        }
       },
       {
-       "id": "bkook3h65",
-       "k": "soustitre",
+       "id": "bq8lio56g",
+       "k": "pastille",
        "c": {
-        "texte": "Mini-série en 8 épisodes"
+        "texte": "Mini-série"
        },
        "s": {},
        "t": {},
@@ -1026,13 +1014,29 @@ window.CONTENU = {
      "c": {},
      "blocs": [
       {
-       "id": "beopfih65",
-       "k": "image",
+       "id": "b9rj8shey",
+       "k": "galerie",
        "c": {
-        "img": {
-         "src": "images/films/2072/still-2.jpg"
-        },
-        "legende": ""
+        "disposition": "puzzle",
+        "colonnes": 3,
+        "colonnesM": 2,
+        "espacement": 39,
+        "ratio": "4/3",
+        "hauteurRang": 220,
+        "hauteurBande": 440,
+        "defilementAuto": false,
+        "survol": "",
+        "images": [
+         {
+          "src": "images/bibliotheque/still-2026-09-04-221813-1-8-1-4uyzw.webp"
+         },
+         {
+          "src": "images/bibliotheque/still-2026-09-04-221708-1-2-1-4usxw.webp"
+         },
+         {
+          "src": "images/bibliotheque/still-2026-09-04-221743-1-5-1-4uuoq.webp"
+         }
+        ]
        },
        "s": {},
        "t": {},
@@ -1045,7 +1049,7 @@ window.CONTENU = {
       "largeur": "large"
      },
      "a": {
-      "type": "",
+      "type": "zoom-in",
       "duree": 0.9,
       "delai": 0,
       "cible": "section"
@@ -1232,13 +1236,22 @@ window.CONTENU = {
         "survol": "",
         "images": [
          {
-          "src": "images/films/2072/still-1.jpg"
+          "src": "images/bibliotheque/still-2026-09-04-221806-1-7-1-4uxmc.webp"
          },
          {
-          "src": "images/films/2072/still-3.jpg"
+          "src": "images/bibliotheque/still-2026-09-04-230610-1-4-1-4v3ht.webp"
          },
          {
-          "src": "images/films/2072/vignette.jpg"
+          "src": "images/bibliotheque/whatsapp-image-2026-10-23-at-18-41-12-4xa91.webp"
+         },
+         {
+          "src": "images/bibliotheque/still-2026-09-04-221758-1-6-1-4uw5p.webp"
+         },
+         {
+          "src": "images/bibliotheque/still-2026-09-04-221825-1-12-1-4v1us.webp"
+         },
+         {
+          "src": "images/bibliotheque/still-2026-09-04-221819-1-10-1-4v09f.webp"
          }
         ]
        },
@@ -1261,7 +1274,7 @@ window.CONTENU = {
   },
   {
    "id": "projet-3",
-   "titre": "TITRE DU PROJET 3",
+   "titre": "NEURONA",
    "type": "projet",
    "menu": false,
    "masquer": false,
@@ -1391,7 +1404,7 @@ window.CONTENU = {
   },
   {
    "id": "projet-4",
-   "titre": "TITRE DU PROJET 4",
+   "titre": "DEPARTURE",
    "type": "projet",
    "menu": false,
    "masquer": false,
@@ -1518,9 +1531,603 @@ window.CONTENU = {
      }
     }
    ]
+  },
+  {
+   "id": "nouveau-projet",
+   "titre": "RESONANCES",
+   "type": "projet",
+   "menu": false,
+   "navigation": true,
+   "carte": {
+    "vignette": "",
+    "genre": "",
+    "roles": [],
+    "animation": "",
+    "sousTitre": ""
+   },
+   "sections": [
+    {
+     "id": "s6jo01qls",
+     "type": "entete",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bu0iunqls",
+       "k": "pastille",
+       "c": {
+        "texte": "Court-métrage"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "bvwmnnqls",
+       "k": "titre",
+       "c": {
+        "texte": "RESONANCES",
+        "niveau": "h1",
+        "taille": "page",
+        "lettres": false
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "bylf83qls",
+       "k": "soustitre",
+       "c": {
+        "texte": "Sous-titre"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {
+      "align": "center",
+      "pt": 36,
+      "pb": 24
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "swce0oqls",
+     "type": "video",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "b1olvmqls",
+       "k": "video",
+       "c": {
+        "url": "",
+        "poster": "",
+        "ratio": "16/9",
+        "legende": ""
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {},
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "swbfq7qls",
+     "type": "fiche",
+     "layout": "deux",
+     "c": {
+      "proportion": 57
+     },
+     "blocs": [
+      {
+       "id": "boczhaqls",
+       "k": "texte",
+       "c": {
+        "html": "<h2>Titre</h2><p>Raconte le projet.</p>"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "g"
+      },
+      {
+       "id": "bnizauqls",
+       "k": "infos",
+       "c": {
+        "lignes": [
+         {
+          "label": "Durée",
+          "valeur": ""
+         },
+         {
+          "label": "Format",
+          "valeur": ""
+         }
+        ],
+        "colonnes": 1
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      },
+      {
+       "id": "btetdmqls",
+       "k": "credits",
+       "c": {
+        "lignes": [
+         {
+          "fonction": "Réalisation",
+          "noms": "Prénom NOM"
+         }
+        ]
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      }
+     ],
+     "s": {},
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "s5lrlfqls",
+     "type": "encadre",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bf7mbrqls",
+       "k": "surtitre",
+       "c": {
+        "texte": "Mon rôle"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "btdr9uqls",
+       "k": "titre",
+       "c": {
+        "texte": "Mon travail sur le projet",
+        "niveau": "h2",
+        "taille": "texte",
+        "lettres": false
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "btp0aqqls",
+       "k": "texte",
+       "c": {
+        "html": "<p>Ce que j’ai fait sur ce projet.</p>"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "bgth4xqls",
+       "k": "tags",
+       "c": {
+        "tags": []
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {
+      "encadre": true
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "s1oexmqls",
+     "type": "galerie",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "b6hcu8qls",
+       "k": "galerie",
+       "c": {
+        "disposition": "puzzle",
+        "colonnes": 3,
+        "colonnesM": 2,
+        "espacement": 12,
+        "ratio": "4/3",
+        "hauteurRang": 220,
+        "hauteurBande": 440,
+        "defilementAuto": false,
+        "survol": "",
+        "images": []
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {},
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    }
+   ]
+  },
+  {
+   "id": "the-north-face-x-inoxtag",
+   "titre": "THE NORTH FACE x INOXTAG",
+   "type": "projet",
+   "menu": false,
+   "navigation": true,
+   "carte": {
+    "vignette": "",
+    "genre": "",
+    "roles": [],
+    "animation": "",
+    "sousTitre": ""
+   },
+   "sections": [
+    {
+     "id": "spcqh19hw",
+     "type": "entete",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bb3nif9hw",
+       "k": "pastille",
+       "c": {
+        "texte": "Court-métrage"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "bsto549hw",
+       "k": "titre",
+       "c": {
+        "texte": "THE NORTH FACE x INOXTAG",
+        "niveau": "h1",
+        "taille": "page",
+        "lettres": false
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "bf6k3h9hw",
+       "k": "soustitre",
+       "c": {
+        "texte": "Sous-titre"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {
+      "align": "center",
+      "pt": 36,
+      "pb": 24
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "s8jfgx9hw",
+     "type": "video",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bku9ox9hw",
+       "k": "video",
+       "c": {
+        "url": "",
+        "poster": "",
+        "ratio": "16/9",
+        "legende": ""
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {},
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "s71fg99hw",
+     "type": "fiche",
+     "layout": "deux",
+     "c": {
+      "proportion": 57
+     },
+     "blocs": [
+      {
+       "id": "bwk9t79hw",
+       "k": "texte",
+       "c": {
+        "html": "<h2>Titre</h2><p>Raconte le projet.</p>"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "g"
+      },
+      {
+       "id": "bm2opt9hw",
+       "k": "infos",
+       "c": {
+        "lignes": [
+         {
+          "label": "Durée",
+          "valeur": ""
+         },
+         {
+          "label": "Format",
+          "valeur": ""
+         }
+        ],
+        "colonnes": 1
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      },
+      {
+       "id": "bw6efi9hw",
+       "k": "credits",
+       "c": {
+        "lignes": [
+         {
+          "fonction": "Réalisation",
+          "noms": "Prénom NOM"
+         }
+        ]
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      }
+     ],
+     "s": {},
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "sa9trw9hw",
+     "type": "encadre",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bl4jj49hw",
+       "k": "surtitre",
+       "c": {
+        "texte": "Mon rôle"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "bxee189hw",
+       "k": "titre",
+       "c": {
+        "texte": "Mon travail sur le projet",
+        "niveau": "h2",
+        "taille": "texte",
+        "lettres": false
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "beu4yt9hw",
+       "k": "texte",
+       "c": {
+        "html": "<p>Ce que j’ai fait sur ce projet.</p>"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "bv0hgn9hw",
+       "k": "tags",
+       "c": {
+        "tags": []
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {
+      "encadre": true
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "sr0tof9hw",
+     "type": "galerie",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "b67muw9hw",
+       "k": "galerie",
+       "c": {
+        "disposition": "puzzle",
+        "colonnes": 3,
+        "colonnesM": 2,
+        "espacement": 12,
+        "ratio": "4/3",
+        "hauteurRang": 220,
+        "hauteurBande": 440,
+        "defilementAuto": false,
+        "survol": "",
+        "images": []
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {},
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    }
+   ]
   }
  ],
  "bibliotheque": [
+  {
+   "src": "images/bibliotheque/whatsapp-image-2026-10-23-at-18-41-12-4xa91.webp",
+   "nom": "WhatsApp Image 2026-10-23 at 18.41.12"
+  },
+  {
+   "src": "images/bibliotheque/still-2026-09-04-230610-1-4-1-4v3ht.webp",
+   "nom": "Still 2026-09-04 230610_1.4.1"
+  },
+  {
+   "src": "images/bibliotheque/still-2026-09-04-221825-1-12-1-4v1us.webp",
+   "nom": "Still 2026-09-04 221825_1.12.1"
+  },
+  {
+   "src": "images/bibliotheque/still-2026-09-04-221819-1-10-1-4v09f.webp",
+   "nom": "Still 2026-09-04 221819_1.10.1"
+  },
+  {
+   "src": "images/bibliotheque/still-2026-09-04-221813-1-8-1-4uyzw.webp",
+   "nom": "Still 2026-09-04 221813_1.8.1"
+  },
+  {
+   "src": "images/bibliotheque/still-2026-09-04-221806-1-7-1-4uxmc.webp",
+   "nom": "Still 2026-09-04 221806_1.7.1"
+  },
+  {
+   "src": "images/bibliotheque/still-2026-09-04-221758-1-6-1-4uw5p.webp",
+   "nom": "Still 2026-09-04 221758_1.6.1"
+  },
+  {
+   "src": "images/bibliotheque/still-2026-09-04-221743-1-5-1-4uuoq.webp",
+   "nom": "Still 2026-09-04 221743_1.5.1"
+  },
+  {
+   "src": "images/bibliotheque/still-2026-09-04-221708-1-2-1-4usxw.webp",
+   "nom": "Still 2026-09-04 221708_1.2.1"
+  },
   {
    "src": "images/bibliotheque/img-20260804-wa0018-4nsm2.webp",
    "nom": "IMG-20260804-WA0018"
@@ -1626,22 +2233,6 @@ window.CONTENU = {
    "nom": "projet-3 · vignette"
   },
   {
-   "src": "images/films/2072/vignette.jpg",
-   "nom": "2072 · vignette"
-  },
-  {
-   "src": "images/films/2072/still-3.jpg",
-   "nom": "2072 · still-3"
-  },
-  {
-   "src": "images/films/2072/still-2.jpg",
-   "nom": "2072 · still-2"
-  },
-  {
-   "src": "images/films/2072/still-1.jpg",
-   "nom": "2072 · still-1"
-  },
-  {
    "src": "images/films/2072-echos-du-futur/still-2026-09-04-221806-1-7-1-scqjl.webp",
    "nom": "2072-echos-du-futur · still-2026-09-04-221806-1-7-1-scqjl"
   },
@@ -1671,6 +2262,22 @@ window.CONTENU = {
   },
   {
    "src": "images/films/freres/still-1.jpg",
+   "nom": "still-1"
+  },
+  {
+   "src": "images/films/2072/still-3.jpg",
+   "nom": "still-3"
+  },
+  {
+   "src": "images/films/2072/vignette.jpg",
+   "nom": "vignette"
+  },
+  {
+   "src": "images/films/2072/still-2.jpg",
+   "nom": "still-2"
+  },
+  {
+   "src": "images/films/2072/still-1.jpg",
    "nom": "still-1"
   }
  ],
