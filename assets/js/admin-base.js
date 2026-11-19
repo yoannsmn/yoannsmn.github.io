@@ -48,7 +48,7 @@
   };
   ED.b64ToText = b64 => new TextDecoder().decode(Uint8Array.from(atob(String(b64).replace(/\s/g, '')), c => c.charCodeAt(0)));
   ED.blobToB64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
-  const HEADER = '/* ==========================================================\n   CONTENU DU SITE (version 2)\n   À modifier avec l’éditeur visuel : admin.html\n   ========================================================== */\n';
+  const HEADER = '/* ==========================================================\n   CONTENU DU SITE (version 3)\n   À modifier avec l’éditeur visuel : admin.html\n   ========================================================== */\n';
   ED.serialize = d => HEADER + 'window.CONTENU = ' + JSON.stringify(d, null, 1) + ';\n';
   ED.parseContenu = text => {
     const i = text.indexOf('window.CONTENU');
@@ -130,12 +130,30 @@
       if (blob.size > 25 * 1024 * 1024) throw Object.assign(new Error(), { status: 413 });
       const base = M.slugify(file.name.replace(/\.[^.]+$/, '')).slice(0, 40) || 'fichier';
       const path = `${raw ? 'documents' : 'images/' + folder}/${base}-${Date.now().toString(36).slice(-5)}.${ext}`;
-      await ED.ghReq(`/contents/${ED.encPath(path)}`, { method: 'PUT', body: JSON.stringify({ message: `Ajout : ${path}`, content: await ED.blobToB64(blob), branch: ED.gh.branch }) });
+      await ED.uploadBlob(blob, path);
       if (!raw) { ED.blobs.set(path, URL.createObjectURL(blob)); ED.uploaded.unshift(path); }
+      if (ED.onUploaded) ED.onUploaded(path, file.name, raw);
       t.done(`Envoyé ✓ (${Math.max(1, Math.round(blob.size / 1024))} Ko)`);
       return path;
     } catch (e) { t.fail(`Échec de l’envoi de ${file.name} : ` + (e.status !== undefined ? ED.ghError(e) : e.message)); return null; }
     finally { ED.uploading--; ED.onState && ED.onState(); }
+  };
+  ED.uploadBlob = async (blob, path) => ED.ghReq(`/contents/${ED.encPath(path)}`, { method: 'PUT', body: JSON.stringify({ message: `Ajout : ${path}`, content: await ED.blobToB64(blob), branch: ED.gh.branch }) });
+  // Fichier brut depuis GitHub (marche même avant la mise en ligne)
+  ED.ghRaw = async path => {
+    const g = ED.gh;
+    const r = await fetch(`https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}/contents/${ED.encPath(path)}?ref=${encodeURIComponent(g.branch)}`,
+      { headers: { Authorization: `Bearer ${g.token}`, Accept: 'application/vnd.github.raw', 'X-GitHub-Api-Version': '2022-11-28' } });
+    if (!r.ok) throw Object.assign(new Error(r.statusText), { status: r.status });
+    return r.blob();
+  };
+  ED.ghTree = async () => (await ED.ghReq(`/git/trees/${encodeURIComponent(ED.gh.branch)}?recursive=1`)).tree || [];
+  // Charge une image en local pour pouvoir la recadrer
+  ED.loadBlobUrl = async src => {
+    if (ED.blobs.has(src)) return ED.blobs.get(src);
+    try { const r = await fetch(src, { cache: 'no-store' }); if (r.ok && (r.headers.get('content-type') || '').startsWith('image')) return URL.createObjectURL(await r.blob()); } catch (e) { /* suite */ }
+    if (ED.gh && !/^https?:/.test(src)) return URL.createObjectURL(await ED.ghRaw(src));
+    throw new Error('image introuvable');
   };
   ED.src = p => {
     if (!p) return '';

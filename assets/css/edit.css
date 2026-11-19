@@ -54,3 +54,25 @@ html.ed-dragging, html.ed-dragging * { cursor: grabbing !important; user-select:
 #edo .edo-rt button:hover { background: #2c2c36; }
 .edo-color { position: relative; color: #fff; font-weight: 700; padding: 5px 9px; border-radius: 6px; cursor: pointer; border-bottom: 3px solid #8a9bff; }
 .edo-color input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* ---------- v3 : éléments à l'intérieur des sections ---------- */
+.edo-bbox, .edo-bsel { pointer-events: none; border-radius: 4px; }
+.edo-bbox { border: 1px dashed rgba(255, 196, 92, .9); }
+.edo-bsel { border: 2px solid #ffc45c; box-shadow: 0 0 0 1px rgba(0, 0, 0, .35); }
+.edo-bbar { pointer-events: auto; align-items: center; gap: 0; background: #ffc45c; border-radius: 7px; padding: 2px; box-shadow: 0 6px 20px rgba(0, 0, 0, .45); }
+#edo .edo-bbar button { padding: 5px 7px; font-size: 12px; color: #1b1400; }
+#edo .edo-bbar button:hover { background: rgba(255, 255, 255, .55); }
+#edo .edo-bbar .danger { color: #a40000; }
+.edo-bname { white-space: nowrap; padding: 0 6px 0 5px; font-weight: 700; font-size: 10.5px; color: #3d2b00; text-transform: uppercase; letter-spacing: .05em; }
+#edo .edo-badd { pointer-events: auto; width: 24px; height: 24px; padding: 0; border-radius: 50%; background: #ffc45c; color: #1b1400; font-weight: 800; font-size: 16px; align-items: center; justify-content: center; transform: translate(-50%, -50%); box-shadow: 0 4px 12px rgba(0, 0, 0, .45); }
+#edo .edo-badd:hover { background: #ffd789; }
+[data-bid] { min-height: 8px; }
+.ed-empty.small { padding: 16px 12px; font-size: 13px; border-radius: 8px; margin: 6px 0; }
+.stack:empty, .deux-g:empty, .deux-d:empty { min-height: 40px; }
+.tl-logo-vide { border: 1px dashed rgba(255, 255, 255, .3); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #888; font: 11px system-ui, sans-serif; cursor: pointer; aspect-ratio: 1; }
+.tl-logo-vide:hover { border-color: #ffc45c; color: #fff; }
+.gi-empty { cursor: pointer; }
+#edo .ico { display: none; }
+.edo-bar.compact .edo-name, .edo-bar.compact .lbl { display: none; }
+.edo-bar.compact [data-a="s-style"] { display: none !important; }
+#edo .edo-bar.compact button { padding: 6px 7px; }

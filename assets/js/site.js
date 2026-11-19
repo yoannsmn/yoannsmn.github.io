@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Portfolio : moteur d'affichage (version 2, sections)
+   Portfolio : moteur d'affichage (version 3, sections et éléments)
    Le contenu est dans data/contenu.js. On le modifie avec l'éditeur visuel (admin.html).
    ========================================================================== */
 (() => {
@@ -92,7 +92,7 @@
     if (s.lien && s.lien.survol) cls.push('lk-' + s.lien.survol);
     if (s.align) inner.push(`text-align:${s.align}`), cls.push('al-' + s.align);
     if (s.couleur) inner.push(`--s-c:${s.couleur};color:${s.couleur}`);
-    if (+s.decalX || +s.decalY) inner.push(`transform:translate(${+s.decalX || 0}px,${+s.decalY || 0}px)`);
+    if (+s.decalX || +s.decalY) inner.push(`translate:${+s.decalX || 0}px ${+s.decalY || 0}px`);
     if (s.lien && s.lien.couleur) inner.push(`--lk-c:${s.lien.couleur}`);
     inner.push(...typo(s.t, 't'), ...typo(s.tt, 'tt'));
     return { cls: cls.join(' '), style: st.join(';'), inner: inner.join(';') };
@@ -156,85 +156,55 @@
   const socials = d => arr(d.site.reseaux).filter(r => r && r.url && r.nom);
 
   /* ==========================================================================
-     Rendu des sections
+     Rendu des éléments (ce qu'il y a DANS une section)
      ========================================================================== */
-  const R = {};
-
-  R.couverture = (sec, d) => {
-    const c = sec.c, m = c.media || {}, ov = c.superposition || {}, pos = c.pos || { x: 50, y: 50 };
-    const op = +ov.opacite || 0;
-    const ovCss = ov.degrade
-      ? `linear-gradient(180deg,${M.rgba(ov.couleur, op * 0.7)},${M.rgba(ov.couleur, op)} 55%,${M.rgba(ov.couleur, Math.min(100, op * 2.4))})`
-      : M.rgba(ov.couleur, op);
-    const title = c.titre || '';
-    const letters = !EDIT && c.animTitre === 'lettres' && !reduceMotion
-      ? `<h1 class="t-ttl cov-title lettres" aria-label="${esc(title)}">${[...title].map((ch, i) => `<span style="--l:${i}">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`).join('')}</h1>`
-      : txt('h1', 't-ttl cov-title', title, 'c.titre', 'Titre');
-    const vid = m.type === 'video' && m.video ? ` data-bgvideo="${esc(m.video)}"` : '';
-    return `<div class="cov" style="--cov-h:${Math.min(100, Math.max(25, +c.hauteur || 70))}">
-      <div class="cov-media"${vid}${EDIT ? ' data-img="c.media"' : ''}>${m.src ? `<img src="${esc(m.src)}" alt="" fetchpriority="high" decoding="async" style="object-position:${m.posX ?? 50}% ${m.posY ?? 50}%">` : (EDIT ? '<div class="gi-empty">Clique pour choisir l’image de couverture</div>' : '')}
-        ${EDIT && vid ? '<span class="ed-badge">Vidéo d’arrière-plan : visible sur le site</span>' : ''}</div>
-      <div class="cov-ov" style="background:${ovCss}"></div>
-      <div class="cov-box${c.animTitre === 'lettres' && !EDIT ? ' cov-intro' : ''}" style="left:${+pos.x}%;top:${+pos.y}%;text-align:${esc(c.alignTexte || 'center')};max-width:min(${+c.largeurTexte || 680}px,92%)"${EDIT ? ' data-drag="cov"' : ''}>
-        ${letters}
-        ${rich('cov-txt', c.html, 'c.html', 'Texte par-dessus l’image')}
-        ${buttons(c.boutons, 'c.boutons', d)}
-      </div>
-      ${!EDIT ? '<a href="#main-2" class="cov-scroll" aria-label="Descendre"><span></span></a>' : ''}
-    </div>`;
+  const BR = {};
+  const empty = (msg, act = 'edit-bloc', extra = '') => EDIT ? `<div class="ed-empty small" data-act="${act}"${extra}>${msg}</div>` : '';
+  const socialList = (d, style, size, cls = '') => {
+    const soc = socials(d);
+    if (!soc.length) return '';
+    style = style || 'icones';
+    return `<ul class="soc soc-${esc(style)} ${cls}">${soc.map(r => {
+      const k = M.socialKind(r.url, r.nom);
+      return `<li><a href="${esc(r.url)}" target="_blank" rel="noopener" aria-label="${esc(r.nom)}" title="${esc(r.nom)}">${style === 'texte' ? '' : M.icon(k, size)}${style === 'icones' ? '' : `<span>${esc(r.nom)}</span>`}</a></li>`;
+    }).join('')}</ul>`;
   };
 
-  R.entete = sec => {
-    const c = sec.c;
-    return `<header class="p-head">
-      ${c.pastille || EDIT ? `<span class="pill"${ED('c.pastille', 'text', 'Pastille')}>${esc(c.pastille || '')}</span>` : ''}
-      ${txt('h1', 't-ttl p-title', c.titre, 'c.titre', 'Titre')}
-      ${txt('p', 'p-sub', c.sousTitre, 'c.sousTitre', 'Sous-titre')}
-    </header>`;
+  BR.pastille = (b, p) => (!EDIT && !b.c.texte) ? '' : `<span class="pill"${ED(p + '.c.texte', 'text', 'Pastille')}>${esc(b.c.texte)}</span>`;
+  BR.surtitre = (b, p) => txt('span', 'eyebrow', b.c.texte, p + '.c.texte', 'Surtitre');
+  BR.soustitre = (b, p) => txt('p', 'p-sub', b.c.texte, p + '.c.texte', 'Sous-titre');
+  BR.titre = (b, p) => {
+    const c = b.c, tag = /^h[1-4]$/.test(c.niveau) ? c.niveau : 'h2', cls = `t-ttl ttl-${esc(c.taille || 'bloc')}`;
+    if (!EDIT && c.lettres && !reduceMotion && c.texte) return `<${tag} class="${cls} lettres" aria-label="${esc(c.texte)}">${[...c.texte].map((ch, i) => `<span style="--l:${i}">${ch === ' ' ? '&nbsp;' : esc(ch)}</span>`).join('')}</${tag}>`;
+    return txt(tag, cls, c.texte, p + '.c.texte', 'Titre');
   };
-
-  const textBlock = c => `
-    ${txt('span', 'eyebrow', c.surtitre, 'c.surtitre', 'Surtitre')}
-    ${txt('h2', 't-ttl tx-title', c.titre, 'c.titre', 'Titre')}
-    ${txt('h3', 'tx-sub', c.sousTitre, 'c.sousTitre', 'Sous-titre')}
-    ${rich('t-body', c.html, 'c.html', 'Écris ton texte ici')}
-    ${chips(c.tags)}`;
-  R.texte = (sec, d) => `<div class="tx">${textBlock(sec.c)}${buttons(sec.c.boutons, 'c.boutons', d)}</div>`;
-  R.encadre = (sec, d) => `<div class="tx box-accent">${textBlock(sec.c)}${buttons(sec.c.boutons, 'c.boutons', d)}</div>`;
-
-  R.colonnes = (sec, d) => {
-    const c = sec.c;
-    return `<div class="cols${c.imageCote === 'droite' ? ' img-droite' : ''}" style="--prop:${Math.min(75, Math.max(25, +c.proportion || 45))}%">
-      ${figure(M.img(c.img), 'c.img', { cls: 'cols-img', ratio: c.img && c.img.ratio, caption: false })}
-      <div class="tx">${textBlock(c)}${buttons(c.boutons, 'c.boutons', d)}</div>
-    </div>`;
+  BR.texte = (b, p) => rich('t-body', b.c.html, p + '.c.html', 'Écris ton texte ici');
+  BR.tags = b => chips(b.c.tags) || empty('+ Ajoute des mots-clés (réglages de l’élément)');
+  BR.boutons = (b, p, sec, d) => buttons(b.c.boutons, p + '.c.boutons', d) || empty('+ Ajoute un bouton (réglages de l’élément)');
+  BR.document = (b, p) => {
+    const c = b.c;
+    if (!c.src && !EDIT) return '';
+    return `<div class="btns"><a class="btn btn-${esc(c.style || 'contour')} btn-doc" href="${esc(c.src || '#')}" download target="_blank" rel="noopener">${M.icon('document', 17)}<span${ED(p + '.c.texte', 'text', 'Texte du bouton')}>${esc(c.texte)}</span></a></div>${EDIT && !c.src ? '<p class="ed-hint">Choisis le document dans les réglages de l’élément</p>' : ''}`;
   };
-
-  R.image = sec => {
-    const c = sec.c;
-    return figure(M.img(c.img), 'c.img', { cls: 'one', ratio: c.img && c.img.ratio }) + txt('p', 'one-cap', c.legende, 'c.legende', 'Légende');
-  };
-
-  R.galerie = sec => {
-    const c = sec.c, imgs = arr(c.images), disp = c.disposition || 'puzzle';
+  BR.image = (b, p) => figure(M.img(b.c.img), p + '.c.img', { cls: 'one', ratio: b.c.img && b.c.img.ratio, caption: false }) + txt('p', 'one-cap', b.c.legende, p + '.c.legende', 'Légende');
+  BR.galerie = (b, p) => {
+    const c = b.c, imgs = arr(c.images), disp = c.disposition || 'puzzle';
     const cols = Math.max(1, Math.min(6, +c.colonnes || 3)), colsM = Math.max(1, Math.min(3, +c.colonnesM || 2));
-    const head = (c.titre || c.sousTitre || EDIT) ? `<div class="gal-head">${txt('h2', 't-ttl gal-title', c.titre, 'c.titre', 'Titre de la galerie (optionnel)')}${txt('p', 'gal-sub', c.sousTitre, 'c.sousTitre', 'Description (optionnel)')}</div>` : '';
-    if (!imgs.length) return head + (EDIT ? '<div class="ed-empty" data-act="add-images">+ Ajouter des images à cette galerie</div>' : '');
+    if (!imgs.length) return empty('+ Ajouter des images à cette galerie', 'add-images');
     const vars = `--cols:${cols};--cols-m:${colsM};--gap:${+c.espacement >= 0 ? +c.espacement : 12}px;--ratio:${c.ratio && c.ratio !== 'auto' ? c.ratio : '4/3'};--row:${+c.hauteurRang || 220}px;--band:${+c.hauteurBande || 440}px`;
-    const o = i => ({ cols, colsM, ratio: disp === 'grille' ? (c.ratio || '4/3') : null, hover: c.survol, eager: i < 2, captionEdit: disp !== 'puzzle' });
+    const P = i => `${p}.c.images.${i}`;
     if (disp === 'diaporama') {
-      return head + `<div class="slider" style="${vars}" data-auto="${c.defilementAuto ? 1 : 0}">
-        <div class="sl-track">${imgs.map((it, i) => `<div class="sl-slide">${figure(it, 'c.images.' + i, { ratio: c.ratio && c.ratio !== 'auto' ? c.ratio : '16/9', eager: i === 0 })}</div>`).join('')}</div>
+      return `<div class="slider" style="${vars}" data-auto="${c.defilementAuto ? 1 : 0}">
+        <div class="sl-track">${imgs.map((it, i) => `<div class="sl-slide">${figure(it, P(i), { ratio: c.ratio && c.ratio !== 'auto' ? c.ratio : '16/9', eager: i === 0, hover: c.survol })}</div>`).join('')}</div>
         ${imgs.length > 1 ? `<button class="sl-btn sl-prev" type="button" aria-label="Image précédente">‹</button><button class="sl-btn sl-next" type="button" aria-label="Image suivante">›</button>
         <div class="sl-dots">${imgs.map((_, i) => `<button type="button" aria-label="Image ${i + 1}"${i ? '' : ' class="on"'}></button>`).join('')}</div>` : ''}
       </div>`;
     }
-    return head + `<div class="gal gal-${disp}" style="${vars}">${imgs.map((it, i) => figure(it, 'c.images.' + i, o(i))).join('')}</div>`;
+    return `<div class="gal gal-${esc(disp)}" style="${vars}">${imgs.map((it, i) => figure(it, P(i), { cols, colsM, ratio: disp === 'grille' ? (c.ratio || '4/3') : null, hover: c.survol, eager: i < 2, captionEdit: disp !== 'puzzle' })).join('')}</div>`;
   };
-
-  R.video = sec => {
-    const c = sec.c, v = M.video(c.url);
-    if (!v) return EDIT ? '<div class="ed-empty" data-act="edit">+ Colle un lien YouTube ou Vimeo dans les réglages de la section</div>' : '';
+  BR.video = (b, p) => {
+    const c = b.c, v = M.video(c.url);
+    if (!v) return empty('+ Colle un lien YouTube ou Vimeo (réglages de l’élément)');
     let player;
     if (v.type === 'file') player = `<video src="${esc(v.src)}" controls playsinline preload="none"${c.poster ? ` poster="${esc(c.poster)}"` : ''}></video>`;
     else {
@@ -242,7 +212,54 @@
       const img = c.poster || (v.type === 'youtube' ? `https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg` : '');
       player = `<button class="vfacade" type="button" data-embed="${esc(src)}" aria-label="Lire la vidéo">${img ? `<img src="${esc(img)}" alt="" loading="lazy" decoding="async"${v.type === 'youtube' && !c.poster ? ` data-yt="${v.id}"` : ''}>` : ''}<span class="vplay" aria-hidden="true"></span></button>`;
     }
-    return `<div class="p-video" style="aspect-ratio:${esc(c.ratio || '16/9')}">${player}</div>${txt('p', 'one-cap', c.legende, 'c.legende', 'Légende')}`;
+    return `<div class="p-video" style="aspect-ratio:${esc(c.ratio || '16/9')}">${player}</div>${txt('p', 'one-cap', c.legende, p + '.c.legende', 'Légende')}`;
+  };
+  BR.spotify = b => {
+    const c = b.c, list = arr(c.liens).map(M.spotify).filter(Boolean), hgt = c.taille === 'grand' ? 352 : 152;
+    return list.length ? `<div class="spot" style="--cols:${Math.max(1, Math.min(3, +c.colonnes || 1))}">${list.map(s => `<iframe src="https://open.spotify.com/embed/${s.type}/${s.id}?utm_source=generator&amp;theme=0" height="${hgt}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="Lecteur Spotify"></iframe>`).join('')}</div>`
+      : empty('+ Colle un lien Spotify (réglages de l’élément)');
+  };
+  BR.fichiers = b => {
+    const f = arr(b.c.fichiers).filter(x => x && x.src);
+    return f.length ? `<div class="dls">${f.map(x => `<a class="dl" href="${esc(x.src)}" download target="_blank" rel="noopener"><span class="dl-ext">${esc(M.ext(x.src).toUpperCase().slice(0, 4) || 'FICHIER')}</span><span class="dl-name">${esc(x.nom || x.src.split('/').pop())}</span><span class="dl-ico" aria-hidden="true">↓</span></a>`).join('')}</div>`
+      : empty('+ Ajoute des fichiers (réglages de l’élément)');
+  };
+  BR.reseaux = (b, p, sec, d) => socialList(d, b.c.style, +b.c.taille || 22) || empty('+ Ajoute tes réseaux : Réglages du site → Réseaux sociaux', 'site-reseaux');
+  BR.coordonnees = b => {
+    const c = b.c;
+    if (!c.email && !c.telephone && !c.lieu) return empty('+ Ajoute ton e-mail, téléphone, ville (réglages de l’élément)');
+    return `${c.email ? `<a class="big-link" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : ''}
+      ${c.telephone ? `<a class="contact-line" href="tel:${esc(String(c.telephone).replace(/[^\d+]/g, ''))}">${esc(c.telephone)}</a>` : ''}
+      ${c.lieu ? `<p class="contact-line muted">${esc(c.lieu)}</p>` : ''}`;
+  };
+  BR.formulaire = (b, p, sec) => {
+    const c = b.c;
+    const mail = c.email || (arr(sec.blocs).find(x => x.k === 'coordonnees' && x.c.email) || { c: {} }).c.email || '';
+    return `<form class="form" data-formspree="${esc(c.formspree || '')}" data-email="${esc(mail)}" novalidate>
+      <label><span>Nom</span><input name="nom" autocomplete="name" required></label>
+      <label><span>E-mail</span><input name="email" type="email" autocomplete="email" required></label>
+      <label><span>Sujet</span><input name="sujet"></label>
+      <label><span>Message</span><textarea name="message" rows="6" required></textarea></label>
+      <button class="btn btn-contour" type="submit">Envoyer</button>
+      <p class="form-msg" role="status"></p>
+    </form>`;
+  };
+  BR.infos = (b, p) => `<dl class="p-details infos cols-${+b.c.colonnes === 2 ? 2 : 1}">${dlInfos(b.c.lignes, p + '.c.lignes')}</dl>`;
+  BR.credits = (b, p) => `<dl class="p-credits">${dlCredits(b.c.lignes, p + '.c.lignes')}</dl>`;
+  BR.liste = (b, p) => {
+    const c = b.c, items = arr(c.items);
+    const anyLogo = EDIT || items.some(it => it.logo && it.logo.src);
+    return `<div class="timeline logos-${esc(c.logos || 'nb')}${anyLogo ? ' has-logos' : ''}" style="--logo:${Math.max(24, Math.min(140, +c.tailleLogo || 56))}px">${items.map((it, i) => {
+      const q = `${p}.c.items.${i}`, lg = it.logo && it.logo.src;
+      const logo = !anyLogo ? '' : lg ? `<figure class="tl-logo"${EDIT ? ` data-img="${q}.logo"` : ''}><img src="${esc(lg)}" alt="${esc(it.sousTitre || it.titre || '')}" loading="lazy" decoding="async"></figure>`
+        : EDIT ? `<figure class="tl-logo tl-logo-vide" data-img="${q}.logo"><span>+ Logo</span></figure>` : '<span class="tl-logo"></span>';
+      const t = txt('h3', 'tl-ttl', it.titre, q + '.titre', 'Intitulé');
+      return `<div class="tl"><div class="tl-when"${ED(q + '.date', 'text', 'Date')}>${esc(it.date)}</div>${logo}<div class="tl-body">${it.lien && !EDIT ? `<a class="tl-link" href="${esc(it.lien)}" target="_blank" rel="noopener">${t}</a>` : t}${txt('p', 'tl-sub', it.sousTitre, q + '.sousTitre', 'École, structure, lieu…')}${rich('t-body', it.html, q + '.html', 'Description (optionnel)')}</div></div>`;
+    }).join('')}</div>${EDIT && !items.length ? empty('+ Ajoute une ligne (réglages de l’élément)') : ''}`;
+  };
+  BR.espace = b => {
+    const c = b.c;
+    return `<div class="spacer" style="height:${Math.max(0, +c.hauteur || 0)}px">${c.ligne ? `<hr style="border-top:${+c.epaisseur || 1}px solid ${esc(c.couleurLigne || 'rgba(255,255,255,.15)')};width:${+c.largeurLigne || 100}%">` : ''}</div>`;
   };
 
   function card(p, i, c) {
@@ -254,7 +271,9 @@
     const meta = [];
     if (c.afficherGenre !== false && k.genre) meta.push(`<span class="card-genre">${esc(k.genre)}</span>`);
     if (c.afficherRoles !== false && roles.length) meta.push(`<span class="card-roles">${roles.map(esc).join(' - ')}</span>`);
-    return `<a class="card anim-${esc(anim)} reveal" data-genre="${esc(k.genre || '')}" data-pid="${esc(p.id)}" style="--d:${(i % 3) * 90}ms" href="${M.pageUrl(p)}">
+    const entree = c.animEntree === undefined ? 'fade-up' : c.animEntree;
+    const ent = entree ? ` anim" data-anim="${esc(entree)}" style="--ad:${+c.animDuree || 0.9}s;--adl:${((i % 6) * (+c.animEcart >= 0 ? +c.animEcart : 0.12)).toFixed(2)}s` : ` reveal" style="--d:${(i % 3) * 90}ms`;
+    return `<a class="card anim-${esc(anim)}${ent}" data-genre="${esc(k.genre || '')}" data-pid="${esc(p.id)}" href="${M.pageUrl(p)}">
       <div class="thumb">
         ${img ? `<img src="${esc(img)}" alt="${esc(p.titre)}" loading="${i < 2 ? 'eager' : 'lazy'}" decoding="async">` : '<div class="thumb-empty">Vignette à ajouter</div>'}
         ${anim === 'glitch' ? `<span class="fx fx-g fx-g1"${bg}></span><span class="fx fx-g fx-g2"${bg}></span>` : ''}
@@ -265,22 +284,18 @@
       ${meta.length ? `<p class="card-meta">${meta.join('<span class="card-sep" aria-hidden="true">·</span>')}</p>` : ''}
     </a>`;
   }
-  R.projets = (sec, d) => {
-    const c = sec.c;
-    const all = d.pages.filter(p => p.type === 'projet' && !p.masquer);
-    const list = c.genre ? all.filter(p => (p.carte || {}).genre === c.genre) : all;
-    const found = M.genres(d);
-    const order = arr(c.ordreGenres).filter(g => found.includes(g));
+  BR.projets = (b, p, sec, d) => {
+    const c = b.c;
+    const all = d.pages.filter(x => x.type === 'projet' && !x.masquer);
+    const list = c.genre ? all.filter(x => (x.carte || {}).genre === c.genre) : all;
+    const found = M.genres(d), order = arr(c.ordreGenres).filter(g => found.includes(g));
     const genres = [...order, ...found.filter(g => !order.includes(g))];
     const filters = c.filtres !== false && !c.genre && genres.length > 1
-      ? `<div class="filtres" role="tablist" aria-label="Filtrer par genre">
-          <button type="button" role="tab" class="on" aria-selected="true" data-g="">${esc(c.tousLabel || 'Tous')}</button>
-          ${genres.map(g => `<button type="button" role="tab" aria-selected="false" data-g="${esc(g)}">${esc(g)}</button>`).join('')}
-        </div>` : '';
-    return `${txt('h2', 't-ttl sec-title', c.titre, 'c.titre', 'Titre (optionnel)')}${filters}
+      ? `<div class="filtres" role="tablist" aria-label="Filtrer par genre"><button type="button" role="tab" class="on" aria-selected="true" data-g="">${esc(c.tousLabel || 'Tous')}</button>${genres.map(g => `<button type="button" role="tab" aria-selected="false" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>` : '';
+    return `<div class="pj" data-projets data-ecart="${+c.animEcart >= 0 ? +c.animEcart : 0.12}">${filters}
       <div class="grid pgrid" style="--cols:${Math.max(1, Math.min(4, +c.colonnes || 2))};--cols-m:${Math.max(1, Math.min(2, +c.colonnesM || 1))};--ratio:${esc(c.ratio || '16/9')}">
-        ${list.map((p, i) => card(p, i, c)).join('') || '<p class="empty">Aucun projet pour le moment.</p>'}
-      </div>`;
+        ${list.map((x, i) => card(x, i, c)).join('') || '<p class="empty">Aucun projet pour le moment.</p>'}
+      </div></div>`;
   };
 
   function dlInfos(list, path) {
@@ -288,82 +303,107 @@
       `<div><dt${ED(`${path}.${i}.label`, 'text', 'Intitulé')}>${esc(x.label)}</dt><dd${ED(`${path}.${i}.valeur`, 'text', 'Valeur')}>${esc(x.valeur)}</dd></div>`).join('');
   }
   function dlCredits(list, path) {
-    return arr(list).filter(x => EDIT || x.fonction || x.noms).map((x, i) => {
+    return arr(list).map((x, i) => {
+      if (!EDIT && !x.fonction && !x.noms) return '';
       const names = String(x.noms || '').split(/\s+-\s+|\n/).map(n => n.trim()).filter(Boolean);
       const long = String(x.noms || '').length > 38 || names.length > 2;
       const dd = EDIT ? esc(x.noms || '') : names.map(n => `<span>${esc(n)}</span>`).join('<i> - </i>');
       return `<div class="cr${long ? ' cr-long' : ''}"><dt${ED(`${path}.${i}.fonction`, 'text', 'Fonction')}>${esc(x.fonction)}</dt><dd${ED(`${path}.${i}.noms`, 'text', 'Noms (séparés par « - »)')}>${dd}</dd></div>`;
     }).join('');
   }
-  R.fiche = sec => {
+
+  /* ---------- Style d'un élément ---------- */
+  function blocParts(b, layout) {
+    const s = b.s || {}, cls = ['bl', 'bl-' + b.k], st = [];
+    const num = v => v !== undefined && v !== null && v !== '' && !isNaN(+v);
+    if (num(s.mt)) st.push(`--mt:${+s.mt}px`);
+    if (num(s.mb)) st.push(`--mb:${+s.mb}px`);
+    if (num(s.mtM)) st.push(`--mtm:${+s.mtM}px`);
+    if (s.align) { st.push(`text-align:${s.align}`); cls.push('al-' + s.align); }
+    if (+s.largeurMax) { st.push(`max-width:${+s.largeurMax}px`); cls.push('bl-mw'); }
+    if (s.fond) st.push(`background-color:${s.fond}`);
+    if (s.degrade && s.degrade.actif) st.push(`background-image:linear-gradient(${+s.degrade.angle || 180}deg,${s.degrade.c1 || '#000'},${s.degrade.c2 || '#222'})`);
+    if (+s.padding) st.push(`padding:${+s.padding}px`);
+    const bo = s.bordure || {};
+    if (+bo.largeur) st.push(`border:${+bo.largeur}px ${bo.style || 'solid'} ${bo.couleur || 'rgba(255,255,255,.2)'}`);
+    if (+bo.rayon) st.push(`border-radius:${+bo.rayon}px`);
+    if (s.ombre && M.BOX_SHADOWS[s.ombre]) st.push(`box-shadow:${M.BOX_SHADOWS[s.ombre]}`);
+    if (s.couleur) st.push(`--s-c:${s.couleur};color:${s.couleur}`);
+    if (+s.decalX || +s.decalY) st.push(`translate:${+s.decalX || 0}px ${+s.decalY || 0}px`);
+    if (num(s.calque) && +s.calque) st.push(`position:relative;z-index:${+s.calque}`);
+    if (s.masquerMobile) cls.push('hide-m');
+    if (s.masquerOrdi) cls.push('hide-d');
+    if (s.encadre) cls.push('box-accent');
+    const t = b.t || {};
+    st.push(...typo(t, 't'), ...typo(t, 'tt'));
+    if (t.degrade && t.degrade.actif) cls.push('has-t-g', 'has-tt-g');
+    if (t.fond) cls.push(b.k === 'titre' ? 'has-tt-bg' : 'has-t-bg');
+    if (s.lien && s.lien.couleur) st.push(`--lk-c:${s.lien.couleur}`);
+    if (s.lien && s.lien.survol) cls.push('lk-' + s.lien.survol);
+    let anim = '';
+    if (b.a && b.a.type) { cls.push('anim'); anim = ` data-anim="${esc(b.a.type)}"`; st.push(`--ad:${+b.a.duree || 0.9}s`, `--adl:${+b.a.delai || 0}s`); }
+    if (layout === 'libre') {
+      const ps = b.pos || {};
+      cls.push('fr-it');
+      st.push(`left:${+ps.x || 0}%`, `top:${+ps.y || 0}%`, `width:${+ps.w || 30}%`, `z-index:${+ps.z || 1}`);
+    }
+    return { cls: cls.join(' '), style: st.join(';'), anim };
+  }
+  function renderBloc(b, i, sec, d, page) {
+    const fn = BR[b.k];
+    if (!fn) return '';
+    const inner = fn(b, 'blocs.' + i, sec, d, page);
+    if (!inner && !EDIT) return '';
+    const bp = blocParts(b, sec.layout);
+    return `<div class="${bp.cls}"${EDIT ? ` data-bid="${esc(b.id)}"` : ''}${bp.anim} style="${bp.style}">${inner}</div>`;
+  }
+  const stackOf = (sec, d, page, idx) => idx.map(i => renderBloc(sec.blocs[i], i, sec, d, page)).join('');
+  const allIdx = sec => sec.blocs.map((_, i) => i);
+  const emptyHint = sec => EDIT && !sec.blocs.length ? '<div class="ed-empty" data-act="add-bloc">+ Ajouter un élément dans cette section</div>' : '';
+
+  /* ---------- Mises en page des sections ---------- */
+  const L = {};
+  L.pile = (sec, d, page) => `<div class="stack${sec.s.encadre ? ' box-accent' : ''}">${stackOf(sec, d, page, allIdx(sec))}${emptyHint(sec)}</div>`;
+  L.colonnes = (sec, d, page) => {
     const c = sec.c;
-    const infos = dlInfos(c.infos, 'c.infos'), cr = dlCredits(c.credits, 'c.credits');
-    return `<div class="fiche">
-      <div class="fiche-l">${rich('t-body', c.html, 'c.html', 'Raconte le projet')}</div>
-      ${(infos || cr || EDIT) ? `<aside class="fiche-r">${infos ? `<dl class="p-details">${infos}</dl>` : ''}${cr ? `<dl class="p-credits">${cr}</dl>` : ''}</aside>` : ''}
+    return `<div class="cols${c.imageCote === 'droite' ? ' img-droite' : ''}" style="--prop:${Math.min(75, Math.max(25, +c.proportion || 45))}%">
+      ${figure(M.img(c.img), 'c.img', { cls: 'cols-img', ratio: c.img && c.img.ratio, caption: false })}
+      <div class="stack${sec.s.encadre ? ' box-accent' : ''}">${stackOf(sec, d, page, allIdx(sec))}${emptyHint(sec)}</div>
     </div>`;
   };
-  R.infos = sec => {
-    const c = sec.c;
-    return `${txt('h2', 't-ttl sec-title small', c.titre, 'c.titre', 'Titre (optionnel)')}<dl class="p-details infos cols-${+c.colonnes === 2 ? 2 : 1}">${dlInfos(c.lignes, 'c.lignes')}</dl>`;
+  L.deux = (sec, d, page) => {
+    const segs = [];
+    let cur = null;
+    sec.blocs.forEach((b, i) => {
+      if (b.col === 'plein') { segs.push({ full: true, items: [i] }); cur = null; return; }
+      if (!cur) { cur = { full: false, g: [], d: [] }; segs.push(cur); }
+      (b.col === 'd' ? cur.d : cur.g).push(i);
+    });
+    if (EDIT && !segs.some(s => !s.full)) segs.push({ full: false, g: [], d: [] });
+    const col = (idx, side) => `<div class="stack deux-${side}"${EDIT ? ` data-dropcol="${side}"` : ''}>${stackOf(sec, d, page, idx)}${EDIT && !idx.length ? `<div class="ed-empty small" data-act="add-bloc" data-col="${side}">+ Ajouter un élément dans cette colonne</div>` : ''}</div>`;
+    return `<div class="deux" style="--prop:${Math.min(75, Math.max(25, +sec.c.proportion || 57))}%">${segs.map(s => s.full
+      ? `<div class="stack deux-full">${stackOf(sec, d, page, s.items)}</div>`
+      : `<div class="deux-row">${col(s.g, 'g')}${col(s.d, 'd')}</div>`).join('')}</div>`;
   };
-  R.credits = sec => `${txt('h2', 't-ttl sec-title small', sec.c.titre, 'c.titre', 'Titre (optionnel)')}<dl class="p-credits standalone">${dlCredits(sec.c.lignes, 'c.lignes')}</dl>`;
-  R.liste = sec => {
-    const c = sec.c;
-    return `${txt('h2', 't-ttl sec-title small', c.titre, 'c.titre', 'Titre (optionnel)')}<div class="timeline">${arr(c.items).map((it, i) =>
-      `<div class="tl"><div class="tl-when"${ED(`c.items.${i}.date`, 'text', 'Date')}>${esc(it.date)}</div><div>${txt('h3', 'tl-ttl', it.titre, `c.items.${i}.titre`, 'Intitulé')}${rich('t-body', it.html, `c.items.${i}.html`, 'Description')}</div></div>`).join('')}</div>`;
+  L.couverture = (sec, d, page) => {
+    const c = sec.c, m = c.media || {}, ov = c.superposition || {}, pos = c.pos || { x: 50, y: 50 };
+    const op = +ov.opacite || 0;
+    const ovCss = ov.degrade ? `linear-gradient(180deg,${M.rgba(ov.couleur, op * 0.7)},${M.rgba(ov.couleur, op)} 55%,${M.rgba(ov.couleur, Math.min(100, op * 2.4))})` : M.rgba(ov.couleur, op);
+    const vid = m.type === 'video' && m.video ? ` data-bgvideo="${esc(m.video)}"` : '';
+    const intro = !EDIT && sec.blocs.some(b => b.k === 'titre' && b.c.lettres);
+    return `<div class="cov" style="--cov-h:${Math.min(100, Math.max(25, +c.hauteur || 70))}">
+      <div class="cov-media"${vid}${EDIT ? ' data-img="c.media"' : ''}>${m.src ? `<img src="${esc(m.src)}" alt="" fetchpriority="high" decoding="async" style="object-position:${m.posX ?? 50}% ${m.posY ?? 50}%">` : (EDIT ? '<div class="gi-empty">Clique pour choisir l’image de couverture</div>' : '')}
+        ${EDIT && vid ? '<span class="ed-badge">Vidéo d’arrière-plan : visible sur le site</span>' : ''}</div>
+      <div class="cov-ov" style="background:${ovCss}"></div>
+      <div class="cov-box${intro ? ' cov-intro' : ''}" style="left:${+pos.x}%;top:${+pos.y}%;text-align:${esc(c.alignTexte || 'center')};max-width:min(${+c.largeurTexte || 680}px,92%)"${EDIT ? ' data-drag="cov"' : ''}>
+        <div class="stack">${stackOf(sec, d, page, allIdx(sec))}${emptyHint(sec)}</div>
+      </div>
+      ${!EDIT ? '<a href="#main-2" class="cov-scroll" aria-label="Descendre"><span></span></a>' : ''}
+    </div>`;
   };
-  R.tags = sec => `${txt('h2', 't-ttl sec-title small', sec.c.titre, 'c.titre', 'Titre (optionnel)')}${chips(sec.c.tags, 'chips big')}${EDIT && !arr(sec.c.tags).length ? '<div class="ed-empty" data-act="edit">+ Ajoute des mots-clés dans les réglages</div>' : ''}`;
-
-  R.contact = (sec, d) => {
-    const c = sec.c, soc = c.reseaux !== false ? socials(d) : [];
-    return `${txt('h1', 't-ttl page-title', c.titre, 'c.titre', 'Titre')}
-      <div class="contact-grid${c.formulaire ? '' : ' single'}">
-        <div class="contact-info">
-          ${rich('t-body', c.html, 'c.html', 'Texte d’accroche')}
-          ${c.email ? `<a class="big-link" href="mailto:${esc(c.email)}">${esc(c.email)}</a>` : (EDIT ? '<p class="ed-hint">Ajoute ton e-mail dans les réglages de la section (crayon)</p>' : '')}
-          ${c.telephone ? `<a class="contact-line" href="tel:${esc(String(c.telephone).replace(/[^\d+]/g, ''))}">${esc(c.telephone)}</a>` : ''}
-          ${c.lieu ? `<p class="contact-line muted">${esc(c.lieu)}</p>` : ''}
-          ${soc.length ? `<ul class="socials">${soc.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.nom)} <span aria-hidden="true">↗</span></a></li>`).join('')}</ul>` : ''}
-        </div>
-        ${c.formulaire ? `<form class="form" data-formspree="${esc(c.formspree || '')}" data-email="${esc(c.email || '')}" novalidate>
-          <label><span>Nom</span><input name="nom" autocomplete="name" required></label>
-          <label><span>E-mail</span><input name="email" type="email" autocomplete="email" required></label>
-          <label><span>Sujet</span><input name="sujet"></label>
-          <label><span>Message</span><textarea name="message" rows="6" required></textarea></label>
-          <button class="btn btn-contour" type="submit">Envoyer</button>
-          <p class="form-msg" role="status"></p>
-        </form>` : ''}
-      </div>`;
-  };
-  R.reseaux = (sec, d) => {
-    const soc = socials(d);
-    return `${txt('h2', 't-ttl sec-title small', sec.c.titre, 'c.titre', 'Titre (optionnel)')}${soc.length ? `<ul class="socials big">${soc.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.nom)} <span aria-hidden="true">↗</span></a></li>`).join('')}</ul>` : (EDIT ? '<div class="ed-empty" data-act="site-reseaux">+ Ajoute tes réseaux dans Réglages du site → Réseaux sociaux</div>' : '')}`;
-  };
-  R.boutons = (sec, d) => buttons(sec.c.boutons, 'c.boutons', d) || (EDIT ? '<div class="ed-empty" data-act="edit">+ Ajoute un bouton dans les réglages</div>' : '');
-  R.fichiers = sec => {
-    const c = sec.c, f = arr(c.fichiers).filter(x => x && x.src);
-    return `${txt('h2', 't-ttl sec-title small', c.titre, 'c.titre', 'Titre (optionnel)')}${f.length ? `<div class="dls">${f.map(x => `<a class="dl" href="${esc(x.src)}" download target="_blank" rel="noopener"><span class="dl-ext">${esc(M.ext(x.src).toUpperCase().slice(0, 4) || 'FICHIER')}</span><span class="dl-name">${esc(x.nom || x.src.split('/').pop())}</span><span class="dl-ico" aria-hidden="true">↓</span></a>`).join('')}</div>` : (EDIT ? '<div class="ed-empty" data-act="edit">+ Ajoute des fichiers (CV, PDF…) dans les réglages</div>' : '')}`;
-  };
-  R.spotify = sec => {
-    const c = sec.c, list = arr(c.liens).map(M.spotify).filter(Boolean);
-    const hgt = c.taille === 'grand' ? 352 : 152;
-    return `${txt('h2', 't-ttl sec-title small', c.titre, 'c.titre', 'Titre (optionnel)')}${list.length ? `<div class="spot" style="--cols:${Math.max(1, Math.min(3, +c.colonnes || 1))}">${list.map(s => `<iframe src="https://open.spotify.com/embed/${s.type}/${s.id}?utm_source=generator&amp;theme=0" height="${hgt}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="Lecteur Spotify"></iframe>`).join('')}</div>` : (EDIT ? '<div class="ed-empty" data-act="edit">+ Colle un lien Spotify (titre, album, playlist) dans les réglages</div>' : '')}`;
-  };
-  R.espace = sec => {
-    const c = sec.c;
-    return `<div class="spacer" style="height:${Math.max(0, +c.hauteur || 0)}px">${c.ligne ? `<hr style="border-top:${+c.epaisseur || 1}px solid ${esc(c.couleurLigne || 'rgba(255,255,255,.15)')};width:${+c.largeurLigne || 100}%">` : ''}</div>`;
-  };
-  R.libre = (sec, d) => {
-    const c = sec.c, items = arr(c.items);
-    const order = items.map((it, i) => ({ it, i })).sort((a, b) => (+a.it.y || 0) - (+b.it.y || 0));
-    return `<div class="libre" style="--lh:${Math.max(200, +c.hauteur || 560)}px">${order.map(({ it, i }) => {
-      let inner = '';
-      if (it.k === 'image') inner = figure(Object.assign({}, it, { w: 1, h: 1 }), `c.items.${i}`, { caption: false });
-      else if (it.k === 'bouton') inner = buttons([it.bouton || { texte: 'Bouton' }], `c.items.${i}.bouton`, d).replace(`c.items.${i}.bouton.0.texte`, `c.items.${i}.bouton.texte`);
-      else inner = rich('t-body', it.html, `c.items.${i}.html`, 'Texte libre');
-      return `<div class="fr-it fr-${esc(it.k)}${animCls(it.anim)}" style="left:${+it.x || 0}%;top:${+it.y || 0}%;width:${+it.w || 30}%;z-index:${+it.z || 1}"${EDIT ? ` data-item="${i}"` : ''}${it.anim && it.anim.type ? ` data-anim="${esc(it.anim.type)}"` : ''}>${inner}</div>`;
-    }).join('')}${EDIT && !items.length ? '<div class="ed-empty" data-act="edit">+ Ajoute des éléments dans les réglages</div>' : ''}</div>`;
+  L.libre = (sec, d, page) => {
+    const order = allIdx(sec).sort((a, b) => (+(sec.blocs[a].pos || {}).y || 0) - (+(sec.blocs[b].pos || {}).y || 0));
+    return `<div class="libre" style="--lh:${Math.max(200, +sec.c.hauteur || 560)}px">${stackOf(sec, d, page, order)}${emptyHint(sec)}</div>`;
   };
 
   /* ---------- Page entière ---------- */
@@ -379,9 +419,8 @@
   function footer(d) {
     const s = d.site, f = s.pied || {};
     if (f.afficher === false) return EDIT ? '<footer class="ftr ftr-off" data-zone="pied">Pied de page masqué (Réglages du site)</footer>' : '';
-    const soc = f.reseaux !== false ? socials(d) : [];
     return `<footer class="ftr"${EDIT ? ' data-zone="pied"' : ''}>
-      ${soc.length ? `<ul class="ftr-soc">${soc.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.nom)}</a></li>`).join('')}</ul>` : ''}
+      ${f.reseaux !== false ? socialList(d, f.reseauxStyle || 'icones', 18, 'ftr-soc') : ''}
       <div class="ftr-copy">© ${new Date().getFullYear()} ${esc(s.nom)}${f.texte ? ' · ' + esc(f.texte) : ''}</div>
     </footer>`;
   }
@@ -392,37 +431,32 @@
     const home = d.pages.find(p => p.accueil);
     const k = next && next.carte || {};
     return `<nav class="wrap p-nav" aria-label="Navigation entre projets">
-      <a class="p-nav-back" href="${M.pageUrl(home)}#projets"><span aria-hidden="true">←</span> Retour à l’accueil</a>
+      <a class="p-nav-back" href="${M.pageUrl(home)}"><span aria-hidden="true">←</span> Retour à l’accueil</a>
       ${next && next !== page ? `<a class="p-nav-next" href="${M.pageUrl(next)}">${k.vignette ? `<img src="${esc(k.vignette)}" alt="" loading="lazy">` : ''}<span class="p-nav-label">Projet suivant</span><strong>${esc(next.titre)} <span aria-hidden="true">→</span></strong></a>` : ''}
     </nav>`;
   }
-  function renderSection(sec, d, page, i) {
-    const fn = R[sec.type];
+  function renderSection(sec, d, page) {
+    const fn = L[sec.layout];
     if (!fn) return '';
     const p = sectionParts(sec);
     const a = sec.a || {};
     const stagger = a.type && a.cible === 'elements';
-    let innerAnim = '';
-    let innerStyle = p.inner;
-    if (a.type && !stagger) {
-      innerAnim = ` data-anim="${esc(a.type)}"`;
-      innerStyle += `;--ad:${+a.duree || 0.9}s;--adl:${+a.delai || 0}s`;
-    }
-    const body = fn(sec, d, page, i);
-    return `<section class="${p.cls}" id="${esc(sec.id)}"${sec.type === 'projets' ? ' data-projets' : ''}${EDIT ? ` data-sid="${esc(sec.id)}"` : ''} style="${p.style}">
-      <div class="sec-in${a.type && !stagger ? ' anim' : ''}"${innerAnim}${stagger ? ` data-stagger="${esc(a.type)}" data-sd="${+a.duree || 0.9}" data-sdl="${+a.delai || 0}"` : ''} style="${innerStyle}">${body}</div>
+    let innerStyle = p.inner, innerAnim = '';
+    if (a.type && !stagger) { innerAnim = ` data-anim="${esc(a.type)}"`; innerStyle += `;--ad:${+a.duree || 0.9}s;--adl:${+a.delai || 0}s`; }
+    return `<section class="${p.cls} lay-${esc(sec.layout)}" id="${esc(sec.id)}"${EDIT ? ` data-sid="${esc(sec.id)}"` : ''} style="${p.style}">
+      <div class="sec-in${a.type && !stagger ? ' anim' : ''}"${innerAnim}${stagger ? ` data-stagger="${esc(a.type)}" data-sd="${+a.duree || 0.9}" data-sdl="${+a.delai || 0}"` : ''} style="${innerStyle}">${fn(sec, d, page)}</div>
     </section>`;
   }
   function renderPage(d, page) {
     const secs = arr(page.sections);
     return (page.masquerMenu ? '' : header(d, page)) +
-      `<main id="main" class="page-${esc(page.id)}">${secs.map((s, i) => renderSection(s, d, page, i)).join('')}
+      `<main id="main" class="page-${esc(page.id)}">${secs.map(s => renderSection(s, d, page)).join('')}
       ${EDIT && !secs.length ? '<div class="ed-empty big" data-act="add-first">+ Ajouter une première section</div>' : ''}
       ${page.type === 'projet' && page.navigation !== false ? projectNav(d, page) : ''}<span id="main-2"></span></main>` +
       (page.masquerPied ? '' : footer(d));
   }
   function notFound(d) {
-    return header(d, {}) + `<main id="main"><section class="sec w-normale"><div class="sec-in notfound"><h1 class="t-ttl page-title">Oups</h1><p>Cette page n’existe pas.</p><a class="btn btn-contour" href="index.html">Retour à l’accueil</a></div></section></main>` + footer(d);
+    return header(d, {}) + `<main id="main"><section class="sec w-normale"><div class="sec-in notfound"><h1 class="t-ttl ttl-page">Oups</h1><p>Cette page n’existe pas.</p><a class="btn btn-contour" href="index.html">Retour à l’accueil</a></div></section></main>` + footer(d);
   }
 
   /* ---------- Thème ---------- */
@@ -453,8 +487,8 @@
   function animations() {
     $$('[data-stagger]').forEach(box => {
       const type = box.dataset.stagger, dur = +box.dataset.sd || 0.9, del = +box.dataset.sdl || 0;
-      let kids = [...box.children];
-      if (kids.length === 1 && kids[0].children.length > 1) kids = [...kids[0].children];
+      let kids = [...box.querySelectorAll('.bl')];
+      if (!kids.length) kids = [...box.children];
       kids.forEach((k, i) => { k.classList.add('anim'); k.dataset.anim = type; k.style.setProperty('--ad', dur + 's'); k.style.setProperty('--adl', (del + i * 0.12).toFixed(2) + 's'); });
     });
     const els = $$('.anim, .reveal');
@@ -535,10 +569,18 @@
       if (!btns.length) return;
       const apply = (g, animate) => {
         btns.forEach(b => { const on = b.dataset.g === g; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
-        $$('.card', sec).forEach((c, k) => {
+        let vis = 0;
+        const ecart = +sec.dataset.ecart || 0;
+        $$('.card', sec).forEach(c => {
           const show = !g || c.dataset.genre === g;
           c.hidden = !show;
-          if (show && animate && !reduceMotion) { c.classList.remove('in'); c.style.setProperty('--d', (k % 3) * 70 + 'ms'); requestAnimationFrame(() => requestAnimationFrame(() => c.classList.add('in'))); }
+          if (show && animate && !reduceMotion) {
+            c.classList.remove('in');
+            c.style.setProperty('--d', (vis % 3) * 70 + 'ms');
+            c.style.setProperty('--adl', ((vis % 6) * ecart).toFixed(2) + 's');
+            requestAnimationFrame(() => requestAnimationFrame(() => c.classList.add('in')));
+          }
+          if (show) vis++;
         });
         if (!EDIT) history.replaceState(null, '', g ? '#genre-' + M.slugify(g) : location.pathname + location.search);
       };
@@ -690,7 +732,7 @@
   }
 
   const pageId = params.get('p') || params.get('id') || (document.body.dataset.page !== 'films' ? document.body.dataset.page : '') || '';
-  window.SITE = { render, renderSection: (sec, d, page) => renderSection(sec, M.normalize(d), page, 0), isEdit: EDIT };
+  window.SITE = { render, isEdit: EDIT };
 
   if (EDIT) {
     render(ED_PARENT.data, pageId);
