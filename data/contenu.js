@@ -32,14 +32,6 @@ window.CONTENU = {
    {
     "nom": "Instagram",
     "url": "https://instagram.com/y"
-   },
-   {
-    "nom": "YouTube",
-    "url": "https://youtube.com/"
-   },
-   {
-    "nom": "LinkedIn",
-    "url": "https://linkedin.com/"
    }
   ]
  },
@@ -162,7 +154,9 @@ window.CONTENU = {
        }
       }
      ],
-     "s": {},
+     "s": {
+      "pt": 0
+     },
      "a": {
       "type": "",
       "duree": 0.9,
@@ -474,15 +468,15 @@ window.CONTENU = {
          {
           "sousTitre": "",
           "logo": {
-           "src": ""
+           "src": "images/bibliotheque/still-2026-09-04-221806-1-7-1-4uxmc.webp"
           },
           "lien": "",
           "date": "2024 — 2025",
           "titre": "2072 - Echos du Futur",
-          "html": "<p>Réalisation et production d&#39;une mini-série en 8 épisodes.</p>"
+          "html": "<p>Réalisation et production d'une mini-série en 8 épisodes.</p>"
          },
          {
-          "sousTitre": "",
+          "sousTitre": "Association Omira Films",
           "logo": {
            "src": "images/bibliotheque/sans-titre-314ew.webp"
           },
@@ -686,7 +680,7 @@ window.CONTENU = {
         "disposition": "puzzle",
         "colonnes": 3,
         "colonnesM": 3,
-        "espacement": 12,
+        "espacement": 23,
         "ratio": "4/3",
         "hauteurRang": 220,
         "hauteurBande": 440,
@@ -1296,22 +1290,10 @@ window.CONTENU = {
      "c": {},
      "blocs": [
       {
-       "id": "by2738h65",
-       "k": "pastille",
-       "c": {
-        "texte": "Court-métrage"
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
        "id": "bvcr4oh65",
        "k": "titre",
        "c": {
-        "texte": "TITRE DU PROJET 3",
+        "texte": "NEURONA",
         "niveau": "h1",
         "taille": "page",
         "lettres": false
@@ -1323,10 +1305,10 @@ window.CONTENU = {
        }
       },
       {
-       "id": "brcll3h65",
-       "k": "soustitre",
+       "id": "by2738h65",
+       "k": "pastille",
        "c": {
-        "texte": "Sous-titre à compléter"
+        "texte": "Album"
        },
        "s": {},
        "t": {},
@@ -1348,6 +1330,55 @@ window.CONTENU = {
      }
     },
     {
+     "id": "s80yadnat",
+     "type": "galerie",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bpbmvcnat",
+       "k": "galerie",
+       "c": {
+        "disposition": "puzzle",
+        "colonnes": 3,
+        "colonnesM": 2,
+        "espacement": 41,
+        "ratio": "4/3",
+        "hauteurRang": 220,
+        "hauteurBande": 440,
+        "defilementAuto": false,
+        "survol": "",
+        "images": [
+         {
+          "src": "images/bibliotheque/vlcsnap-2026-03-17-19h05m41s333-fjuuz.webp"
+         },
+         {
+          "src": "images/bibliotheque/vlcsnap-2026-03-17-19h04m49s336-fjtb7.webp"
+         },
+         {
+          "src": "images/bibliotheque/vlcsnap-2026-03-17-19h07m45s189-fjwff.webp"
+         }
+        ]
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {
+      "largeur": "large",
+      "pt": 0
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
      "id": "s1r5hhh64",
      "type": "fiche",
      "layout": "deux",
@@ -1359,7 +1390,7 @@ window.CONTENU = {
        "id": "bjfkmdh65",
        "k": "texte",
        "c": {
-        "html": "<h2>Titre du texte</h2><p>Raconte ici l&#39;histoire du projet.</p>"
+        "html": "<h2>Studio 205</h2><p>Une intelligence artificielle nommée \"NEURONA\" prend peu à peu le contrôle du cerveau d'un patient, le forçant à oublier son passé douloureux en contrepartie de changements d'humeur parfois très brusques et inattendus. Cette dynamique influe sur le comportement du patient qui ne se reconnais plus. Au fur et à mesure que l'histoire avance, il embrasse son destin, et est forcé de reconnaitre qu'il ne peut plus rien maîtriser.</p><p><br></p><p>C'est un album riche sur le plan musical qui mêle les genres Dark-pop et rap, afin de donner une atmosphère sombre, en cohérence avec le thème choisi. Avec une grande variété d'instrumentales, Studio 205 parvient à rendre le tout cohérent, renforcé par des visuels prenants et dystopiques.</p><p><br></p><p>\"NEURONA\" s'inscrit dans notre société actuelle, non seulement sur le sujet des IA qui prennent une place de plus en plus importante dans notre vie, mais également avec la volonté de changement de la jeune génération qui s'embarque sur des chemins remplis d'embûches, parfois au péril de leur innocence.</p>"
        },
        "s": {},
        "t": {},
@@ -1374,12 +1405,12 @@ window.CONTENU = {
        "c": {
         "lignes": [
          {
-          "label": "Durée",
-          "valeur": ""
+          "label": "Production Musicale",
+          "valeur": "Studio 205"
          },
          {
-          "label": "Format",
-          "valeur": ""
+          "label": "Visualizers",
+          "valeur": "Yoann SIMONNEAU"
          }
         ],
         "colonnes": 1
@@ -1390,6 +1421,167 @@ window.CONTENU = {
         "type": ""
        },
        "col": "d"
+      }
+     ],
+     "s": {
+      "pb": 14
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "sgf3x0iyl",
+     "type": "reseaux",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bnkfsgiyl",
+       "k": "reseaux",
+       "c": {
+        "style": "icones",
+        "taille": 22
+       },
+       "s": {
+        "mt": 0
+       },
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "b4zia6hp2",
+       "k": "pastille",
+       "c": {
+        "texte": "Studio 205"
+       },
+       "s": {
+        "mt": 0
+       },
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {
+      "align": "center",
+      "pt": 0,
+      "pb": 0
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "s1kq3420f",
+     "type": "spotify",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bwahng20f",
+       "k": "spotify",
+       "c": {
+        "liens": [
+         "https://open.spotify.com/embed/track/1He15cQklcMYSLABD7yAYV?utm_source=generator&si=eb26f284b9344101"
+        ],
+        "taille": "compact",
+        "colonnes": 1
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {
+      "pt": 24,
+      "fond": ""
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "s5a6zxnc7",
+     "type": "galerie",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bxfr5vnc7",
+       "k": "galerie",
+       "c": {
+        "disposition": "puzzle",
+        "colonnes": 3,
+        "colonnesM": 2,
+        "espacement": 42,
+        "ratio": "4/3",
+        "hauteurRang": 220,
+        "hauteurBande": 440,
+        "defilementAuto": false,
+        "survol": "",
+        "images": [
+         {
+          "src": "images/bibliotheque/still-2026-09-04-234347-3-1-1-gi1q5.webp"
+         },
+         {
+          "src": "images/bibliotheque/still-2026-09-04-234617-3-1-1-gi2vx.webp"
+         },
+         {
+          "src": "images/bibliotheque/still-2026-09-04-235236-2-1-1-gi430.webp"
+         }
+        ]
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {
+      "largeur": "pleine"
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "srjymdb3k",
+     "type": "spotify",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "btfwwtb3k",
+       "k": "spotify",
+       "c": {
+        "liens": [],
+        "taille": "compact",
+        "colonnes": 1
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
       }
      ],
      "s": {},
@@ -2092,6 +2284,30 @@ window.CONTENU = {
   }
  ],
  "bibliotheque": [
+  {
+   "src": "images/bibliotheque/still-2026-09-04-235236-2-1-1-gi430.webp",
+   "nom": "Still 2026-09-04 235236_2.1.1"
+  },
+  {
+   "src": "images/bibliotheque/still-2026-09-04-234617-3-1-1-gi2vx.webp",
+   "nom": "Still 2026-09-04 234617_3.1.1"
+  },
+  {
+   "src": "images/bibliotheque/still-2026-09-04-234347-3-1-1-gi1q5.webp",
+   "nom": "Still 2026-09-04 234347_3.1.1"
+  },
+  {
+   "src": "images/bibliotheque/vlcsnap-2026-03-17-19h07m45s189-fjwff.webp",
+   "nom": "vlcsnap-2026-03-17-19h07m45s189"
+  },
+  {
+   "src": "images/bibliotheque/vlcsnap-2026-03-17-19h05m41s333-fjuuz.webp",
+   "nom": "vlcsnap-2026-03-17-19h05m41s333"
+  },
+  {
+   "src": "images/bibliotheque/vlcsnap-2026-03-17-19h04m49s336-fjtb7.webp",
+   "nom": "vlcsnap-2026-03-17-19h04m49s336"
+  },
   {
    "src": "images/bibliotheque/whatsapp-image-2026-10-23-at-18-41-12-4xa91.webp",
    "nom": "WhatsApp Image 2026-10-23 at 18.41.12"
