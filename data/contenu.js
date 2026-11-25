@@ -31,7 +31,7 @@ window.CONTENU = {
   "reseaux": [
    {
     "nom": "Instagram",
-    "url": "https://instagram.com/20"
+    "url": "https://instagram.com/205.mp3"
    }
   ],
   "genres": [
@@ -1430,7 +1430,7 @@ window.CONTENU = {
        "id": "bjfkmdh65",
        "k": "texte",
        "c": {
-        "html": "<h2>Studio 205</h2><p>Une intelligence artificielle nommée \"NEURONA\" prend peu à peu le contrôle du cerveau d'un patient, le forçant à oublier son passé douloureux en contrepartie de changements d'humeur parfois très brusques et inattendus. Cette dynamique influe sur le comportement du patient qui ne se reconnais plus. Au fur et à mesure que l'histoire avance, il embrasse son destin, et est forcé de reconnaitre qu'il ne peut plus rien maîtriser.</p><p><br></p><p>C'est un album riche sur le plan musical qui mêle les genres Dark-pop et rap, afin de donner une atmosphère sombre, en cohérence avec le thème choisi. Avec une grande variété d'instrumentales, Studio 205 parvient à rendre le tout cohérent, renforcé par des visuels prenants et dystopiques.</p><p><br></p><p>\"NEURONA\" s'inscrit dans notre société actuelle, non seulement sur le sujet des IA qui prennent une place de plus en plus importante dans notre vie, mais également avec la volonté de changement de la jeune génération qui s'embarque sur des chemins remplis d'embûches, parfois au péril de leur innocence.</p>"
+        "html": "<h2>Studio 205</h2><p>Une intelligence artificielle nommée \"NEURONA\" prend peu à peu le contrôle du cerveau d'un patient, le forçant à oublier son passé douloureux en contrepartie de changements d'humeur parfois très brusques et inattendus. Cette dynamique influe sur le comportement du patient qui ne se reconnais plus. Au fur et à mesure que l'histoire avance, il embrasse son destin, et est forcé de reconnaitre qu'il ne peut plus rien maîtriser.</p><p>C'est un album riche sur le plan musical qui mêle les genres Dark-pop et rap, afin de donner une atmosphère sombre, en cohérence avec le thème choisi. Avec une grande variété d'instrumentales, Studio 205 parvient à rendre le tout cohérent, renforcé par des visuels prenants et dystopiques.</p><p>\"NEURONA\" s'inscrit dans notre société actuelle, non seulement sur le sujet des IA qui prennent une place de plus en plus importante dans notre vie, mais également avec la volonté de changement de la jeune génération qui s'embarque sur des chemins remplis d'embûches, parfois au péril de leur innocence.</p>"
        },
        "s": {},
        "t": {},
@@ -1455,7 +1455,9 @@ window.CONTENU = {
         ],
         "colonnes": 1
        },
-       "s": {},
+       "s": {
+        "mt": 0
+       },
        "t": {},
        "a": {
         "type": ""
@@ -1472,7 +1474,9 @@ window.CONTENU = {
         "taille": "compact",
         "colonnes": 1
        },
-       "s": {},
+       "s": {
+        "mt": 0
+       },
        "t": {},
        "a": {
         "type": ""
@@ -1506,7 +1510,8 @@ window.CONTENU = {
         ]
        },
        "s": {
-        "align": "center"
+        "align": "center",
+        "largeur": 38
        },
        "t": {},
        "a": {
@@ -1516,140 +1521,8 @@ window.CONTENU = {
       }
      ],
      "s": {
-      "pb": 14
-     },
-     "a": {
-      "type": "",
-      "duree": 0.9,
-      "delai": 0,
-      "cible": "section"
-     }
-    },
-    {
-     "id": "sgf3x0iyl",
-     "type": "reseaux",
-     "layout": "pile",
-     "c": {},
-     "blocs": [
-      {
-       "id": "bnkfsgiyl",
-       "k": "reseaux",
-       "c": {
-        "style": "icones",
-        "taille": 22
-       },
-       "s": {
-        "mt": 0
-       },
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
-       "id": "b4zia6hp2",
-       "k": "pastille",
-       "c": {
-        "texte": "Studio 205",
-        "textes": [
-         "Studio 205"
-        ]
-       },
-       "s": {
-        "mt": 0
-       },
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      }
-     ],
-     "s": {
-      "align": "center",
-      "pt": 0,
-      "pb": 0
-     },
-     "a": {
-      "type": "",
-      "duree": 0.9,
-      "delai": 0,
-      "cible": "section"
-     }
-    },
-    {
-     "id": "s1kq3420f",
-     "type": "spotify",
-     "layout": "pile",
-     "c": {},
-     "blocs": [
-      {
-       "id": "bwahng20f",
-       "k": "spotify",
-       "c": {
-        "liens": [
-         "https://open.spotify.com/embed/track/1He15cQklcMYSLABD7yAYV?utm_source=generator&si=eb26f284b9344101"
-        ],
-        "taille": "compact",
-        "colonnes": 1
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      }
-     ],
-     "s": {
-      "pt": 24,
-      "fond": ""
-     },
-     "a": {
-      "type": "",
-      "duree": 0.9,
-      "delai": 0,
-      "cible": "section"
-     }
-    },
-    {
-     "id": "s5a6zxnc7",
-     "type": "galerie",
-     "layout": "pile",
-     "c": {},
-     "blocs": [
-      {
-       "id": "bxfr5vnc7",
-       "k": "galerie",
-       "c": {
-        "disposition": "puzzle",
-        "colonnes": 3,
-        "colonnesM": 2,
-        "espacement": 42,
-        "ratio": "4/3",
-        "hauteurRang": 220,
-        "hauteurBande": 440,
-        "defilementAuto": false,
-        "survol": "",
-        "images": [
-         {
-          "src": "images/bibliotheque/still-2026-09-04-234347-3-1-1-gi1q5.webp"
-         },
-         {
-          "src": "images/bibliotheque/still-2026-09-04-234617-3-1-1-gi2vx.webp"
-         },
-         {
-          "src": "images/bibliotheque/still-2026-09-04-235236-2-1-1-gi430.webp"
-         }
-        ]
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      }
-     ],
-     "s": {
-      "largeur": "pleine"
+      "pb": 14,
+      "pt": 0
      },
      "a": {
       "type": "",
@@ -1665,12 +1538,17 @@ window.CONTENU = {
      "c": {},
      "blocs": [
       {
-       "id": "btfwwtb3k",
-       "k": "spotify",
+       "id": "b07fapkgz",
+       "k": "image",
        "c": {
-        "liens": [],
-        "taille": "compact",
-        "colonnes": 1
+        "img": {
+         "src": "images/bibliotheque/still-2026-09-04-234347-3-1-1-gi1q5.webp",
+         "posX": 55
+        },
+        "legende": "",
+        "legendeOn": false,
+        "largeur": 100,
+        "hauteur": 0
        },
        "s": {},
        "t": {},
@@ -1679,7 +1557,12 @@ window.CONTENU = {
        }
       }
      ],
-     "s": {},
+     "s": {
+      "pb": 0,
+      "pt": 37,
+      "largeurPx": 432,
+      "align": "left"
+     },
      "a": {
       "type": "",
       "duree": 0.9,
