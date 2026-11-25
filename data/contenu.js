@@ -1616,8 +1616,7 @@ window.CONTENU = {
       }
      ],
      "s": {
-      "encadre": true,
-      "pt": 0
+      "encadre": true
      },
      "a": {
       "type": "",
@@ -1811,7 +1810,7 @@ window.CONTENU = {
    "menu": false,
    "navigation": true,
    "carte": {
-    "vignette": "",
+    "vignette": "images/films/resonances/whatsapp-image-2026-11-09-at-18-54-01-1-slio9.webp",
     "genre": "Court-métrage",
     "genres": [
      "Court-métrage"
@@ -1829,21 +1828,6 @@ window.CONTENU = {
      "c": {},
      "blocs": [
       {
-       "id": "bu0iunqls",
-       "k": "pastille",
-       "c": {
-        "texte": "Court-métrage",
-        "textes": [
-         "Court-métrage"
-        ]
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
        "id": "bvwmnnqls",
        "k": "titre",
        "c": {
@@ -1859,10 +1843,13 @@ window.CONTENU = {
        }
       },
       {
-       "id": "bylf83qls",
-       "k": "soustitre",
+       "id": "bu0iunqls",
+       "k": "pastille",
        "c": {
-        "texte": "Sous-titre"
+        "texte": "Court-métrage",
+        "textes": [
+         "Court-métrage"
+        ]
        },
        "s": {},
        "t": {},
@@ -1884,29 +1871,49 @@ window.CONTENU = {
      }
     },
     {
-     "id": "swce0oqls",
-     "type": "video",
+     "id": "s8dtx957l",
+     "type": "galerie",
      "layout": "pile",
      "c": {},
      "blocs": [
       {
-       "id": "b1olvmqls",
-       "k": "video",
+       "id": "b3rp1r57l",
+       "k": "galerie",
        "c": {
-        "url": "",
-        "poster": "",
-        "ratio": "16/9",
-        "legende": "",
-        "legendeOn": false
+        "disposition": "puzzle",
+        "colonnes": 3,
+        "colonnesM": 2,
+        "espacement": 29,
+        "ratio": "4/3",
+        "hauteurRang": 220,
+        "hauteurBande": 440,
+        "defilementAuto": false,
+        "survol": "",
+        "images": [
+         {
+          "src": "images/bibliotheque/whatsapp-image-2026-11-09-at-18-54-0-rognee-pbzne.webp"
+         },
+         {
+          "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-45-slnls.webp"
+         },
+         {
+          "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-48-slrab.webp"
+         }
+        ]
        },
-       "s": {},
+       "s": {
+        "largeur": ""
+       },
        "t": {},
        "a": {
         "type": ""
        }
       }
      ],
-     "s": {},
+     "s": {
+      "pb": 0,
+      "pt": 0
+     },
      "a": {
       "type": "",
       "duree": 0.9,
@@ -1926,9 +1933,11 @@ window.CONTENU = {
        "id": "boczhaqls",
        "k": "texte",
        "c": {
-        "html": "<h2>Titre</h2><p>Raconte le projet.</p>"
+        "html": "<h2>Pourquoi ne pas vivre l’éternité auprès des vôtres ?</h2><p>Vous pourriez garder vos proches près de vous, sans vous soucier de leur santé, de leur souffrance ou du jour où vous devrez les laisser partir. Même si l’idée peut paraître attrayante au premier abord, au fond, vous savez pertinemment que quelque chose ne tournerait pas rond.</p><p>Nous sommes à l’aube de révolutions technologiques dans le domaine de la santé, de la transgénèse ou encore de l’IA, qui soulèvent de nombreuses questions éthiques, et pourtant personne n’approfondit réellement les conséquences que pourraient avoir ces avancées. Certaines personnes refusent de se poser ces questions car elles sacrifieraient tout pour atteindre leurs ambitions, mais jusqu’où irons-nous pour conserver ceux que l’on aime ? Et à partir de quel moment vouloir préserver la vie revient-il à la dénaturer ? C’est précisément dans ce contexte que s’inscrit Résonances.</p><p>Arthur Geoffroy réussit à aborder ces enjeux par l'intime. Plutôt que de construire un récit uniquement centré sur l’expérience scientifique, il nous fait vivre ses conséquences à travers le regard d’un personnage qui ne comprend pas le monde qui l’entoure. Le spectateur découvre cette réalité en même temps que lui, avec la même incompréhension et le même malaise. En reprenant les codes d’aujourd’hui, Arthur parvient à faire écho à nos angoisses actuelles, car nous sommes de plus en plus connectés mais nous n’avons jamais été aussi seuls, de plus en plus protégés mais nous n’avons jamais eu aussi peur.</p><p>La force de ce film réside pour moi dans cette ambiance liminaire qui serait dépeinte, entre le réel et l’irréel, un monde où tout paraît familier mais qui garde constamment quelque chose d’étrange. C’est sur cette nuance qu’Arthur joue, en plus d’y ajouter son vécu mêlé aux histoires familiales comme il sait si bien le faire, et c’est pourquoi je lui fais entièrement confiance sur ce projet. Il reste désormais à lui trouver les moyens de ses ambitions ainsi qu’un public qui se prêtera, sans aucun doute, aux questions existentielles qu’il soulève dans ce film.</p>"
        },
-       "s": {},
+       "s": {
+        "largeur": ""
+       },
        "t": {},
        "a": {
         "type": ""
@@ -2098,12 +2107,14 @@ window.CONTENU = {
    "menu": false,
    "navigation": true,
    "carte": {
-    "vignette": "",
+    "vignette": "images/bibliotheque/1-1-dsc04166-pgegd.webp",
     "genre": "Publicité",
     "genres": [
      "Publicité"
     ],
-    "roles": [],
+    "roles": [
+     "Assistant de production"
+    ],
     "animation": "",
     "animSurvol": "",
     "sousTitre": ""
@@ -2115,21 +2126,6 @@ window.CONTENU = {
      "layout": "pile",
      "c": {},
      "blocs": [
-      {
-       "id": "bb3nif9hw",
-       "k": "pastille",
-       "c": {
-        "texte": "Court-métrage",
-        "textes": [
-         "Court-métrage"
-        ]
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
       {
        "id": "bsto549hw",
        "k": "titre",
@@ -2146,10 +2142,13 @@ window.CONTENU = {
        }
       },
       {
-       "id": "bf6k3h9hw",
-       "k": "soustitre",
+       "id": "bb3nif9hw",
+       "k": "pastille",
        "c": {
-        "texte": "Sous-titre"
+        "texte": "Publicité",
+        "textes": [
+         "Publicité"
+        ]
        },
        "s": {},
        "t": {},
@@ -2380,6 +2379,98 @@ window.CONTENU = {
   }
  ],
  "bibliotheque": [
+  {
+   "src": "images/bibliotheque/87-dsc04110-ph7ig.webp",
+   "nom": "87-DSC04110"
+  },
+  {
+   "src": "images/bibliotheque/86-dsc04113-ph6ba.webp",
+   "nom": "86-DSC04113"
+  },
+  {
+   "src": "images/bibliotheque/85-dsc04124-ph4zh.webp",
+   "nom": "85-DSC04124"
+  },
+  {
+   "src": "images/bibliotheque/83-dsc04128-ph3m6.webp",
+   "nom": "83-DSC04128"
+  },
+  {
+   "src": "images/bibliotheque/64-dsc04169-ph275.webp",
+   "nom": "64-DSC04169"
+  },
+  {
+   "src": "images/bibliotheque/63-dsc04191-ph0tx.webp",
+   "nom": "63-DSC04191"
+  },
+  {
+   "src": "images/bibliotheque/54-dsc04259-pgznv.webp",
+   "nom": "54-DSC04259"
+  },
+  {
+   "src": "images/bibliotheque/31-dsc04493-pgy7t.webp",
+   "nom": "31-DSC04493"
+  },
+  {
+   "src": "images/bibliotheque/29-dsc04499-pgwru.webp",
+   "nom": "29-DSC04499"
+  },
+  {
+   "src": "images/bibliotheque/25-dsc04509-pgvd8.webp",
+   "nom": "25-DSC04509"
+  },
+  {
+   "src": "images/bibliotheque/22-dsc04516-pgu2y.webp",
+   "nom": "22-DSC04516"
+  },
+  {
+   "src": "images/bibliotheque/20-dsc04520-pgsr7.webp",
+   "nom": "20-DSC04520"
+  },
+  {
+   "src": "images/bibliotheque/13-dsc04591-pgr7e.webp",
+   "nom": "13-DSC04591"
+  },
+  {
+   "src": "images/bibliotheque/12-dsc04593-pgpys.webp",
+   "nom": "12-DSC04593"
+  },
+  {
+   "src": "images/bibliotheque/9-dsc04639-pgon5.webp",
+   "nom": "9-DSC04639"
+  },
+  {
+   "src": "images/bibliotheque/6-dsc04663-pgn8v.webp",
+   "nom": "6-DSC04663"
+  },
+  {
+   "src": "images/bibliotheque/5-dsc04668-pglu8.webp",
+   "nom": "5-DSC04668"
+  },
+  {
+   "src": "images/bibliotheque/3-dsc04684-pgklz.webp",
+   "nom": "3-DSC04684"
+  },
+  {
+   "src": "images/bibliotheque/1-dsc04706-pgj7v.webp",
+   "nom": "1-DSC04706"
+  },
+  {
+   "src": "images/bibliotheque/1-3-dsc04164-pghr1.webp",
+   "nom": "1-3-DSC04164"
+  },
+  {
+   "src": "images/bibliotheque/1-2-dsc04590-pgg9g.webp",
+   "nom": "1-2-DSC04590"
+  },
+  {
+   "src": "images/bibliotheque/1-1-dsc04166-pgegd.webp",
+   "nom": "1-1-DSC04166"
+  },
+  {
+   "src": "images/bibliotheque/whatsapp-image-2026-11-09-at-18-54-0-rognee-pbzne.webp",
+   "nom": "resonances · whatsapp-image-2026-11-09-at-18-54-01-1-slio9 (rognée)"
+  },
   {
    "src": "images/pages/a-propos/dsc-0506-enhanced-nr-sfodg.webp",
    "nom": "a-propos · dsc-0506-enhanced-nr-sfodg"
