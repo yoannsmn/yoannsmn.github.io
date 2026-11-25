@@ -767,29 +767,6 @@ window.CONTENU = {
        "col": "g"
       },
       {
-       "id": "bbgdy2h65",
-       "k": "infos",
-       "c": {
-        "lignes": [
-         {
-          "label": "Durée",
-          "valeur": "18 min"
-         },
-         {
-          "label": "Format",
-          "valeur": "2.35:1"
-         }
-        ],
-        "colonnes": 1
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       },
-       "col": "d"
-      },
-      {
        "id": "b9zq54h65",
        "k": "credits",
        "c": {
@@ -807,7 +784,7 @@ window.CONTENU = {
           "noms": "Rachel LÉGER"
          },
          {
-          "fonction": "Comédiens",
+          "fonction": "Comédien-nes",
           "noms": "Enzo PELLEVILLAIN - Clément FLEURY - Olivia FARCET - Vincent CHOLLET - Irène CAZANAVE - Steven BESNIER"
          },
          {
@@ -816,7 +793,7 @@ window.CONTENU = {
          },
          {
           "fonction": "Post-production",
-          "noms": "Théo CAUCHY - Flavien STIRNEMANN - Éric FLEURY"
+          "noms": "Théo CAUCHY - Nicolas GOU - Éric FLEURY"
          }
         ]
        },
@@ -825,6 +802,29 @@ window.CONTENU = {
         "mt": 0,
         "mb": 0
        },
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      },
+      {
+       "id": "bbgdy2h65",
+       "k": "infos",
+       "c": {
+        "lignes": [
+         {
+          "label": "Durée",
+          "valeur": "18 min"
+         },
+         {
+          "label": "Format",
+          "valeur": "2.35:1"
+         }
+        ],
+        "colonnes": 1
+       },
+       "s": {},
        "t": {},
        "a": {
         "type": ""
@@ -1945,22 +1945,43 @@ window.CONTENU = {
        "col": "g"
       },
       {
-       "id": "bnizauqls",
-       "k": "infos",
+       "id": "btetdmqls",
+       "k": "credits",
        "c": {
         "lignes": [
          {
-          "label": "Durée",
-          "valeur": ""
+          "fonction": "Production",
+          "noms": "OMIRA Films"
          },
          {
-          "label": "Format",
-          "valeur": ""
+          "fonction": "Réalisateur",
+          "noms": "Arthur GEOFFROY"
+         },
+         {
+          "fonction": "Producteur",
+          "noms": "Yoann SIMONNEAU"
+         },
+         {
+          "fonction": "Directrice de la photographie",
+          "noms": "Rachel LEGER"
+         },
+         {
+          "fonction": "Comédien-nes",
+          "noms": "Clément FLEURY - Olivia FARCET - Irène CAZANAVE - Vincent CHOLLET  - Gilbert COUDURIER - Ludovic NANKO"
+         },
+         {
+          "fonction": "Equipe technique",
+          "noms": "Léa ARDITTI - Alix SITOLEUX - Laurine JOLY - Néhémie DUFOUR - Julien GUESDON - Sara VUOLLE - Alice XXX - Ulysse GASTELAIS - Nicolas GAILHOUSTE - Lory DANYALIAN - Elona BOUVY - Loïc DAYANT - Ambre le COMPAGNON - Backary XXX - Tom XXXX - Tanais XXXX - Morgane XXXX"
+         },
+         {
+          "fonction": "Post-Production",
+          "noms": "Théo CAUCHY - Nicolas GAILHOUSTE - Johan JOALLAND"
          }
-        ],
-        "colonnes": 1
+        ]
        },
-       "s": {},
+       "s": {
+        "largeur": ""
+       },
        "t": {},
        "a": {
         "type": ""
@@ -1968,15 +1989,20 @@ window.CONTENU = {
        "col": "d"
       },
       {
-       "id": "btetdmqls",
-       "k": "credits",
+       "id": "bnizauqls",
+       "k": "infos",
        "c": {
         "lignes": [
          {
-          "fonction": "Réalisation",
-          "noms": "Prénom NOM"
+          "label": "Durée",
+          "valeur": "40 min"
+         },
+         {
+          "label": "Format",
+          "valeur": "2.35:1"
          }
-        ]
+        ],
+        "colonnes": 1
        },
        "s": {},
        "t": {},
