@@ -31,9 +31,21 @@ window.CONTENU = {
   "reseaux": [
    {
     "nom": "Instagram",
-    "url": "https://instagram.com/y"
+    "url": "https://instagram.com/20"
    }
-  ]
+  ],
+  "genres": [
+   "Court-métrage",
+   "Mini-série",
+   "Clip",
+   "Publicité"
+  ],
+  "mobile": {
+   "colonnes": "cote",
+   "echelle": 90
+  },
+  "genresInit": true,
+  "mobileV": 4
  },
  "pages": [
   {
@@ -145,7 +157,11 @@ window.CONTENU = {
         "afficherRoles": true,
         "animEntree": "fade-up",
         "animDuree": 0.9,
-        "animEcart": 0.12
+        "animEcart": 0.12,
+        "animSurvol": "",
+        "survolTexte": "titre-cta",
+        "survolVoile": 45,
+        "survolDuree": 0.6
        },
        "s": {},
        "t": {},
@@ -391,7 +407,7 @@ window.CONTENU = {
        "id": "bf0gr2h65",
        "k": "soustitre",
        "c": {
-        "texte": "Producteur · Réalisateur"
+        "texte": "Producteur · Directeur de Production"
        },
        "s": {},
        "t": {},
@@ -403,7 +419,7 @@ window.CONTENU = {
        "id": "bff364h65",
        "k": "texte",
        "c": {
-        "html": "<p>À compléter : présente-toi en quelques paragraphes (ton parcours, ce qui t&#39;anime, le type de projets que tu aimes accompagner).</p><p>Tu peux mettre des mots en <strong>gras</strong>, en <em>italique</em>, ou ajouter un <a href=\"https://exemple.com\">lien</a>.</p>"
+        "html": "<p>À compléter : présente-toi en quelques paragraphes (ton parcours, ce qui t'anime, le type de projets que tu aimes accompagner).</p><p>Tu peux mettre des mots en <strong>gras</strong>, en <em>italique</em>, ou ajouter un <a href=\"https://exemple.com\">lien</a>.</p>"
        },
        "s": {},
        "t": {},
@@ -516,7 +532,8 @@ window.CONTENU = {
      "type": "contact",
      "layout": "deux",
      "c": {
-      "proportion": 50
+      "proportion": 50,
+      "empileM": "oui"
      },
      "blocs": [
       {
@@ -614,10 +631,14 @@ window.CONTENU = {
    "carte": {
     "vignette": "images/bibliotheque/1-30t1i.webp",
     "genre": "Court-métrage",
+    "genres": [
+     "Court-métrage"
+    ],
     "roles": [
      "Producteur"
     ],
     "animation": "",
+    "animSurvol": "zoom-in",
     "sousTitre": "Premier court métrage d'Arthur GEOFFROY"
    },
    "sections": [
@@ -646,7 +667,10 @@ window.CONTENU = {
        "id": "blv3j8h65",
        "k": "pastille",
        "c": {
-        "texte": "Court-métrage"
+        "texte": "Court-métrage",
+        "textes": [
+         "Court-métrage"
+        ]
        },
        "s": {},
        "t": {},
@@ -722,7 +746,8 @@ window.CONTENU = {
      "type": "fiche",
      "layout": "deux",
      "c": {
-      "proportion": 57
+      "proportion": 57,
+      "empileM": ""
      },
      "blocs": [
       {
@@ -732,7 +757,8 @@ window.CONTENU = {
         "html": "<h2>Une nuit où le deuil fait tomber les derniers silences</h2><p>J'ai eu la chance de produire le premier court métrage d'Arthur GEOFFROY, un drame familial mêlant les rancœurs de deux frères séparés depuis des années.</p><p>L'atmosphère est pesante et on ressent un malaise tout le long du film, non seulement à travers les dialogues crus de nos deux personnages principaux, mais aussi grâce à un véritable travail de lumière.</p><p><strong>FRÈRES</strong> vous plongera dans de nombreux décors où les rancœurs, les non-dits et les blessures du passé refont surface.</p>"
        },
        "s": {
-        "mt": 5
+        "mt": 5,
+        "mb": 40
        },
        "t": {},
        "a": {
@@ -804,71 +830,70 @@ window.CONTENU = {
         "type": ""
        },
        "col": "d"
-      }
-     ],
-     "s": {
-      "pb": 0
-     },
-     "a": {
-      "type": "",
-      "duree": 0.9,
-      "delai": 0,
-      "cible": "section"
-     }
-    },
-    {
-     "id": "s0q65mh64",
-     "type": "encadre",
-     "layout": "pile",
-     "c": {},
-     "blocs": [
+      },
       {
-       "id": "beq2ywh65",
+       "id": "bdsh0k93z",
        "k": "titre",
        "c": {
-        "texte": "Mon travail sur le projet",
+        "texte": "Mon travail",
         "niveau": "h2",
-        "taille": "texte",
+        "taille": "bloc",
         "lettres": false
        },
-       "s": {},
+       "s": {
+        "encadre": false
+       },
        "t": {},
        "a": {
         "type": ""
-       }
+       },
+       "col": "g"
       },
       {
-       "id": "bxogo7h65",
-       "k": "tags",
+       "id": "bnm9kepa3",
+       "k": "pastille",
        "c": {
-        "tags": [
+        "texte": "Producteur",
+        "textes": [
          "Producteur",
          "Directeur de production",
          "Distribution"
         ]
        },
-       "s": {},
+       "s": {
+        "fond": "",
+        "degrade": {
+         "actif": false
+        },
+        "encadre": false,
+        "bordure": {
+         "couleur": ""
+        },
+        "largeur": 80
+       },
        "t": {},
        "a": {
         "type": ""
-       }
+       },
+       "col": "g"
       },
       {
-       "id": "b7sz83h65",
+       "id": "biy8unn6u",
        "k": "texte",
        "c": {
         "html": "<p></p><ul><li>Coordination des équipes et différents départements</li><li>Elaboration du budget global et détaillé</li><li>Planning général et détaillé</li><li>Recherche de lieux et négociation des prix</li><li>Recrutements</li><li>Supervision production</li><li>Gestion des autorisations de tournage, locations matériel, transports, chartes VHSS</li><li>Recherche de festivals et diffuseurs</li></ul><p></p>"
        },
-       "s": {},
+       "s": {
+        "largeur": 63
+       },
        "t": {},
        "a": {
         "type": ""
-       }
+       },
+       "col": "g"
       }
      ],
      "s": {
-      "encadre": true,
-      "pt": 0,
       "pb": 0
      },
      "a": {
@@ -945,6 +970,9 @@ window.CONTENU = {
    "carte": {
     "vignette": "images/films/2072/vignette.jpg",
     "genre": "Mini-série",
+    "genres": [
+     "Mini-série"
+    ],
     "roles": [
      "Réalisation",
      "Production",
@@ -952,6 +980,7 @@ window.CONTENU = {
      "Post-production"
     ],
     "animation": "",
+    "animSurvol": "",
     "sousTitre": "Mini-série en 8 épisodes"
    },
    "sections": [
@@ -980,7 +1009,10 @@ window.CONTENU = {
        "id": "bq8lio56g",
        "k": "pastille",
        "c": {
-        "texte": "Mini-série"
+        "texte": "Mini-série",
+        "textes": [
+         "Mini-série"
+        ]
        },
        "s": {},
        "t": {},
@@ -1276,10 +1308,14 @@ window.CONTENU = {
    "carte": {
     "vignette": "images/films/projet-3/vignette.jpg",
     "genre": "Court-métrage",
+    "genres": [
+     "Court-métrage"
+    ],
     "roles": [
      "Rôle à compléter"
     ],
     "animation": "",
+    "animSurvol": "",
     "sousTitre": "Sous-titre à compléter"
    },
    "sections": [
@@ -1308,7 +1344,10 @@ window.CONTENU = {
        "id": "by2738h65",
        "k": "pastille",
        "c": {
-        "texte": "Album"
+        "texte": "Album",
+        "textes": [
+         "Album"
+        ]
        },
        "s": {},
        "t": {},
@@ -1383,7 +1422,8 @@ window.CONTENU = {
      "type": "fiche",
      "layout": "deux",
      "c": {
-      "proportion": 57
+      "proportion": 57,
+      "empileM": ""
      },
      "blocs": [
       {
@@ -1416,6 +1456,58 @@ window.CONTENU = {
         "colonnes": 1
        },
        "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      },
+      {
+       "id": "buh9gtikt",
+       "k": "spotify",
+       "c": {
+        "liens": [
+         "https://open.spotify.com/embed/track/1He15cQklcMYSLABD7yAYV?utm_source=generator&si=eb26f284b9344101"
+        ],
+        "taille": "compact",
+        "colonnes": 1
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      },
+      {
+       "id": "bf4w60g44",
+       "k": "reseaux",
+       "c": {
+        "style": "icones",
+        "taille": 40
+       },
+       "s": {
+        "largeur": 19,
+        "align": "center"
+       },
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      },
+      {
+       "id": "bcla8n6me",
+       "k": "pastille",
+       "c": {
+        "texte": "Studio 205",
+        "textes": [
+         "Studio 205"
+        ]
+       },
+       "s": {
+        "align": "center"
+       },
        "t": {},
        "a": {
         "type": ""
@@ -1458,7 +1550,10 @@ window.CONTENU = {
        "id": "b4zia6hp2",
        "k": "pastille",
        "c": {
-        "texte": "Studio 205"
+        "texte": "Studio 205",
+        "textes": [
+         "Studio 205"
+        ]
        },
        "s": {
         "mt": 0
@@ -1604,10 +1699,14 @@ window.CONTENU = {
    "carte": {
     "vignette": "images/films/projet-4/vignette.jpg",
     "genre": "Clip",
+    "genres": [
+     "Clip"
+    ],
     "roles": [
      "Rôle à compléter"
     ],
     "animation": "",
+    "animSurvol": "",
     "sousTitre": "Sous-titre à compléter"
    },
    "sections": [
@@ -1621,7 +1720,10 @@ window.CONTENU = {
        "id": "bnp14rh65",
        "k": "pastille",
        "c": {
-        "texte": "Clip"
+        "texte": "Clip",
+        "textes": [
+         "Clip"
+        ]
        },
        "s": {},
        "t": {},
@@ -1732,9 +1834,13 @@ window.CONTENU = {
    "navigation": true,
    "carte": {
     "vignette": "",
-    "genre": "",
+    "genre": "Court-métrage",
+    "genres": [
+     "Court-métrage"
+    ],
     "roles": [],
     "animation": "",
+    "animSurvol": "",
     "sousTitre": ""
    },
    "sections": [
@@ -1748,7 +1854,10 @@ window.CONTENU = {
        "id": "bu0iunqls",
        "k": "pastille",
        "c": {
-        "texte": "Court-métrage"
+        "texte": "Court-métrage",
+        "textes": [
+         "Court-métrage"
+        ]
        },
        "s": {},
        "t": {},
@@ -1809,7 +1918,8 @@ window.CONTENU = {
         "url": "",
         "poster": "",
         "ratio": "16/9",
-        "legende": ""
+        "legende": "",
+        "legendeOn": false
        },
        "s": {},
        "t": {},
@@ -2011,9 +2121,13 @@ window.CONTENU = {
    "navigation": true,
    "carte": {
     "vignette": "",
-    "genre": "",
+    "genre": "Publicité",
+    "genres": [
+     "Publicité"
+    ],
     "roles": [],
     "animation": "",
+    "animSurvol": "",
     "sousTitre": ""
    },
    "sections": [
@@ -2027,7 +2141,10 @@ window.CONTENU = {
        "id": "bb3nif9hw",
        "k": "pastille",
        "c": {
-        "texte": "Court-métrage"
+        "texte": "Court-métrage",
+        "textes": [
+         "Court-métrage"
+        ]
        },
        "s": {},
        "t": {},
@@ -2088,7 +2205,8 @@ window.CONTENU = {
         "url": "",
         "poster": "",
         "ratio": "16/9",
-        "legende": ""
+        "legende": "",
+        "legendeOn": false
        },
        "s": {},
        "t": {},
