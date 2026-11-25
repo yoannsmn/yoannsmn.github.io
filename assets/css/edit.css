@@ -76,3 +76,30 @@ html.ed-dragging, html.ed-dragging * { cursor: grabbing !important; user-select:
 .edo-bar.compact .edo-name, .edo-bar.compact .lbl { display: none; }
 .edo-bar.compact [data-a="s-style"] { display: none !important; }
 #edo .edo-bar.compact button { padding: 6px 7px; }
+
+/* ---------- v4 : poignées de taille, poignée de déplacement, lignes ---------- */
+.edo-h, .edo-grip { pointer-events: auto; width: 22px; height: 22px; border-radius: 6px; background: rgba(255, 255, 255, .92); color: #15151a; align-items: center; justify-content: center; font: 700 13px/1 system-ui, sans-serif; box-shadow: 0 3px 10px rgba(0, 0, 0, .5); user-select: none; touch-action: none; opacity: .8; transition: opacity .15s, transform .15s; }
+.edo-h:hover, .edo-grip:hover { opacity: 1; transform: scale(1.15); background: #fff; }
+.edo-h-bw, .edo-h-sw { cursor: ew-resize; }
+.edo-h-col { cursor: col-resize; background: #8a9bff; color: #fff; }
+.edo-h-iw { cursor: nwse-resize; width: 26px; height: 26px; font-size: 15px; }
+.edo-h-ih, .edo-h-gh, .edo-h-ch, .edo-h-pt, .edo-h-pb { cursor: ns-resize; }
+.edo-h-pt, .edo-h-pb { background: rgba(138, 155, 255, .9); color: #fff; }
+.edo-grip { cursor: grab; width: 22px; height: 26px; background: #ffc45c; color: #1b1400; font-size: 15px; opacity: .95; }
+.edo-bname.edo-grab { cursor: grab; }
+.edo-itbox { pointer-events: none; border: 1px dashed rgba(95, 211, 154, .95); border-radius: 4px; }
+.edo-itbar { pointer-events: auto; align-items: center; background: #5fd39a; border-radius: 7px; padding: 2px; box-shadow: 0 6px 18px rgba(0, 0, 0, .45); }
+#edo .edo-itbar button { padding: 4px 6px; font-size: 11.5px; color: #062616; }
+#edo .edo-itbar button:hover { background: rgba(255, 255, 255, .5); }
+#edo .edo-itbar .danger { color: #8a0000; }
+.ed-additem { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; margin-top: 10px; padding: 7px 14px; border: 1px dashed rgba(95, 211, 154, .7); border-radius: 999px; color: #5fd39a; font: 600 12.5px/1 system-ui, sans-serif; cursor: pointer; }
+.ed-additem:hover { background: rgba(95, 211, 154, .12); color: #fff; }
+.ed-additem.add-pill { margin-top: 0; padding: 5px 10px; min-width: 26px; }
+.chips .ed-li { border: 0; padding: 0; }
+.btns .ed-additem { margin-top: 0; }
+html.is-edit .pill:empty { display: inline-block; min-width: 40px; min-height: 12px; }
+.filtres .ed-addg { border-style: dashed !important; border-color: #5fd39a !important; color: #5fd39a !important; background: transparent !important; }
+.filtres .ed-addg:hover { color: #fff !important; }
+html.is-edit .gal-rangees .gi, html.is-edit .gal-mosaique .gi { min-height: 30px; }
+.edo-bar, .edo-bbar, .edo-itbar, .edo-img, .edo-rt, .edo-badd, .edo-add { z-index: 5; }
+.edo-h, .edo-grip, .edo-rs, .edo-rsw, .edo-move { z-index: 3; }

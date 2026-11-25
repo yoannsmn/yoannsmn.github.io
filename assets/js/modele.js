@@ -144,15 +144,15 @@
      Éléments (blocs) : ce qu'on met DANS une section
      ========================================================================== */
   M.BLOCS = {
-    pastille: { nom: 'Pastille', g: 'Texte', c: () => ({ texte: 'Court-métrage' }) },
+    pastille: { nom: 'Pastilles', g: 'Texte', c: () => ({ texte: 'Court-métrage' }) },
     surtitre: { nom: 'Surtitre', g: 'Texte', c: () => ({ texte: 'Surtitre' }) },
     titre: { nom: 'Titre', g: 'Texte', c: () => ({ texte: 'Titre', niveau: 'h2', taille: 'bloc', lettres: false }) },
     soustitre: { nom: 'Sous-titre', g: 'Texte', c: () => ({ texte: 'Sous-titre' }) },
     texte: { nom: 'Paragraphe', g: 'Texte', c: () => ({ html: '<p>Écris ton texte ici.</p>' }) },
     tags: { nom: 'Mots-clés', g: 'Texte', c: () => ({ tags: ['Production', 'Réalisation'] }) },
-    image: { nom: 'Image', g: 'Médias', c: () => ({ img: { src: '' }, legende: '' }) },
+    image: { nom: 'Image', g: 'Médias', c: () => ({ img: { src: '' }, legende: '', legendeOn: false, largeur: 100, hauteur: 0 }) },
     galerie: { nom: 'Galerie', g: 'Médias', c: () => ({ disposition: 'puzzle', colonnes: 3, colonnesM: 2, espacement: 12, ratio: '4/3', hauteurRang: 220, hauteurBande: 440, defilementAuto: false, survol: '', images: [] }) },
-    video: { nom: 'Vidéo', g: 'Médias', c: () => ({ url: '', poster: '', ratio: '16/9', legende: '' }) },
+    video: { nom: 'Vidéo', g: 'Médias', c: () => ({ url: '', poster: '', ratio: '16/9', legende: '', legendeOn: false }) },
     spotify: { nom: 'Spotify', g: 'Médias', c: () => ({ liens: [], taille: 'compact', colonnes: 1 }) },
     infos: { nom: 'Infos en lignes', g: 'Listes', c: () => ({ lignes: [{ label: 'Durée', valeur: '18 min' }, { label: 'Format', valeur: '2.35:1' }], colonnes: 1 }) },
     credits: { nom: 'Crédits', g: 'Listes', c: () => ({ lignes: [{ fonction: 'Réalisation', noms: 'Prénom NOM' }] }) },
@@ -163,7 +163,7 @@
     reseaux: { nom: 'Réseaux sociaux', g: 'Actions', c: () => ({ style: 'icones', taille: 22 }) },
     coordonnees: { nom: 'Coordonnées', g: 'Actions', c: () => ({ email: '', telephone: '', lieu: '' }) },
     formulaire: { nom: 'Formulaire de contact', g: 'Actions', c: () => ({ formspree: '', email: '' }) },
-    projets: { nom: 'Grille de projets', g: 'Projets', c: () => ({ filtres: true, tousLabel: 'Tous', ordreGenres: [], genre: '', colonnes: 2, colonnesM: 1, ratio: '16/9', animation: 'cinema', afficherGenre: true, afficherRoles: true, animEntree: 'fade-up', animDuree: 0.9, animEcart: 0.12 }) },
+    projets: { nom: 'Grille de projets', g: 'Projets', c: () => ({ filtres: true, tousLabel: 'Tous', ordreGenres: [], genre: '', colonnes: 2, colonnesM: 2, ratio: '16/9', animation: 'cinema', afficherGenre: true, afficherRoles: true, animEntree: 'fade-up', animDuree: 0.9, animEcart: 0.12, animSurvol: '', survolTexte: 'titre-cta', survolVoile: 45, survolDuree: 0.6 }) },
     espace: { nom: 'Espace / ligne', g: 'Structure', c: () => ({ hauteur: 40, ligne: false, couleurLigne: '', epaisseur: 1, largeurLigne: 100 }) }
   };
   M.BLOC_GROUPES = ['Texte', 'Médias', 'Listes', 'Actions', 'Projets', 'Structure'];
@@ -201,7 +201,11 @@
       () => ({ proportion: 57 })),
     infos: S('Infos en lignes', 'Listes', 'Intitulé et valeur, séparés par des lignes', 'pile', () => [B('infos')]),
     credits: S('Générique / crédits', 'Listes', 'Fonctions et noms des personnes', 'pile', () => [B('titre', { texte: 'Crédits', taille: 'bloc' }), B('credits')]),
-    liste: S('Parcours / formations', 'Listes', 'Dates, intitulés, logos (écoles, structures)', 'pile', () => [B('titre', { texte: 'Formations', taille: 'bloc' }), B('liste')]),
+    liste: S('Parcours (une liste)', 'Listes', 'Dates, intitulés, logos (écoles, structures)', 'pile', () => [B('titre', { texte: 'Formations', taille: 'bloc' }), B('liste')]),
+    parcours2: S('Parcours : projets | formations', 'Listes', 'Deux colonnes : tes projets à gauche, tes formations (avec logos) à droite', 'deux',
+      () => [B('titre', { texte: 'Projets', taille: 'bloc' }, { col: 'g' }), B('liste', { items: [{ date: '2025', titre: 'Nom du projet', sousTitre: 'Rôle, structure', html: '', logo: { src: '' }, lien: '' }] }, { col: 'g' }),
+        B('titre', { texte: 'Formations', taille: 'bloc' }, { col: 'd' }), B('liste', { items: [{ date: '2024', titre: 'Diplôme ou formation', sousTitre: 'École', html: '', logo: { src: '' }, lien: '' }] }, { col: 'd' })],
+      () => ({ proportion: 50 })),
     tags: S('Mots-clés', 'Listes', 'Compétences en pastilles', 'pile', () => [B('tags')]),
     contact: S('Contact', 'Contact & actions', 'Coordonnées, réseaux, formulaire', 'deux',
       () => [B('titre', { texte: 'Contact', niveau: 'h1', taille: 'section' }, { col: 'plein', s: { align: 'center' } }), B('texte', { html: '<p>Un projet, une collaboration ? Écris-moi.</p>' }, { col: 'g' }),
@@ -217,7 +221,7 @@
       () => ({ hauteur: 560 }))
   };
   M.GROUPES = ['Titres & couvertures', 'Texte', 'Images & vidéos', 'Projets', 'Listes', 'Contact & actions', 'Son & intégration', 'Structure'];
-  M.DISPOSITIONS = [['puzzle', 'Puzzle (tailles libres)'], ['grille', 'Grille régulière'], ['mosaique', 'Mosaïque (formats d’origine)'], ['bande', 'Bande horizontale'], ['diaporama', 'Diaporama'], ['pile', 'Pleine largeur, empilées'], ['duo', 'Duo côte à côte']];
+  M.DISPOSITIONS = [['rangees', 'Rangées ajustées (remplissent la largeur)'], ['puzzle', 'Puzzle (tailles libres)'], ['grille', 'Grille régulière'], ['mosaique', 'Mosaïque (formats d’origine)'], ['bande', 'Bande horizontale'], ['diaporama', 'Diaporama'], ['pile', 'Pleine largeur, empilées'], ['duo', 'Duo côte à côte']];
 
   M.section = (type, extra) => {
     const T = M.TYPES[type] || M.TYPES.texte;
@@ -264,7 +268,8 @@
     theme: { fond: '#000000', texte: '#f3f3f3', texteDoux: '#9a9a9a', accent: '#8a9bff', police: 'Figtree', policeTitres: 'Figtree', grain: true },
     entete: { disposition: 'centre', masquerAuDefilement: true, majuscules: true },
     pied: { afficher: true, texte: 'Tous droits réservés', reseaux: true, reseauxStyle: 'icones' },
-    reseaux: []
+    reseaux: [], genres: [],
+    mobile: { colonnes: 'cote', echelle: 90 }
   });
 
   /* ---------- Modèles de pages ---------- */
@@ -272,7 +277,7 @@
     vide: { nom: 'Page vide', sections: () => [M.section('entete')] },
     texte: { nom: 'Page texte', sections: () => [M.section('entete'), M.section('texte'), M.section('boutons')] },
     galerie: { nom: 'Galerie photos', sections: () => [M.section('entete'), M.section('galerie')] },
-    parcours: { nom: 'Parcours / CV', sections: () => [M.section('entete'), M.section('liste'), M.section('document')] },
+    parcours: { nom: 'Parcours / CV', sections: () => [M.section('entete'), M.section('parcours2'), M.section('document')] },
     contact: { nom: 'Contact', sections: () => [M.section('contact')] },
     projet: { nom: 'Projet (film)', sections: () => [M.section('entete'), M.section('video'), M.section('fiche'), M.section('encadre'), M.section('galerie')] }
   };
@@ -436,15 +441,44 @@
           b.id = b.id || M.uid('b');
           b.c = Object.assign(M.BLOCS[b.k].c(), b.c || {});
           b.s = b.s || {}; b.t = b.t || {}; b.a = Object.assign({ type: '' }, b.a || {});
+          if (b.k === 'pastille') {
+            if (Array.isArray(b.c.textes)) b.c.textes = b.c.textes.map(t => String(t ?? '')); else b.c.textes = [String(b.c.texte || '')];
+            b.c.texte = b.c.textes[0] || '';
+          }
           if (x.layout === 'deux' && !b.col) b.col = 'g';
           if (x.layout === 'libre') b.pos = Object.assign({ x: 10, y: 10, w: 40, z: 1 }, b.pos || {});
           return b;
         });
       });
-      if (p.type === 'projet') p.carte = Object.assign({ vignette: '', genre: '', roles: [], animation: '', sousTitre: '' }, p.carte || {});
+      if (p.type === 'projet') {
+        p.carte = Object.assign({ vignette: '', genre: '', genres: null, roles: [], animation: '', animSurvol: '', sousTitre: '' }, p.carte || {});
+        if (!Array.isArray(p.carte.genres)) p.carte.genres = p.carte.genre ? [p.carte.genre] : [];
+        p.carte.genres = [...new Set(p.carte.genres.map(g => String(g || '').trim()).filter(Boolean))];
+        p.carte.genre = p.carte.genres[0] || '';
+      }
     });
+    d.site.mobile = Object.assign({}, def.mobile, d.site.mobile || {});
+    // Typologies de projets : une liste gérée par toi, dans l'ordre des filtres
+    if (!Array.isArray(d.site.genres)) d.site.genres = [];
+    if (!d.site.genresInit) {
+      const order = [];
+      d.pages.forEach(p => M.arr(p.sections).forEach(x => x.blocs.forEach(b => { if (b.k === 'projets') M.arr(b.c.ordreGenres).forEach(g => { if (!order.includes(g)) order.push(g); }); })));
+      d.pages.forEach(p => { if (p.type === 'projet') p.carte.genres.forEach(g => { if (!order.includes(g)) order.push(g); }); });
+      d.site.genres = [...d.site.genres, ...order.filter(g => !d.site.genres.includes(g))];
+      d.site.genresInit = true;
+    }
+    d.pages.forEach(p => { if (p.type === 'projet') p.carte.genres.forEach(g => { if (!d.site.genres.includes(g)) d.site.genres.push(g); }); });
+    // Une seule fois : version téléphone plus proche de l'ordinateur
+    if (!d.site.mobileV) {
+      d.pages.forEach(p => M.arr(p.sections).forEach(x => {
+        if (x.type === 'contact') x.c.empileM = x.c.empileM || 'oui';
+        x.blocs.forEach(b => { if (b.k === 'projets' && +b.c.colonnesM === 1 && +b.c.colonnes >= 2) b.c.colonnesM = 2; });
+      }));
+      d.site.mobileV = 4;
+    }
     return d;
   };
+  M.projGenres = p => M.arr(p && p.carte && p.carte.genres).filter(Boolean);
 
   /* ---------- Adresses des pages ---------- */
   const FICHIERS = { photos: 'photos.html', 'a-propos': 'a-propos.html', contact: 'contact.html' };
@@ -454,10 +488,12 @@
     if (p.type === 'projet') return 'projet.html?id=' + encodeURIComponent(p.id);
     return FICHIERS[p.id] || 'index.html?p=' + encodeURIComponent(p.id);
   };
-  M.genres = d => {
-    const g = [];
-    M.arr(d.pages).forEach(p => { if (p.type === 'projet' && !p.masquer && p.carte && p.carte.genre && !g.includes(p.carte.genre)) g.push(p.carte.genre); });
-    return g;
+  // Toutes les typologies (dans ton ordre). avecProjets : seulement celles qui ont au moins un projet publié
+  M.genres = (d, avecProjets) => {
+    const used = new Set();
+    M.arr(d.pages).forEach(p => { if (p.type === 'projet' && !p.masquer) M.projGenres(p).forEach(g => used.add(g)); });
+    const list = M.arr(d.site && d.site.genres).length ? M.arr(d.site.genres) : [...used];
+    return avecProjets ? list.filter(g => used.has(g)) : list.slice();
   };
 
   root.Modele = M;

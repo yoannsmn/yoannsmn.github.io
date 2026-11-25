@@ -11,6 +11,39 @@
   try { if (params.has('edit') && window.parent !== window && window.parent.Editeur) ED_PARENT = window.parent.Editeur; } catch (e) { /* autre origine */ }
   const EDIT = !!ED_PARENT;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Ordinateur ou téléphone : choisi selon l'appareil, pas la largeur de la fenêtre ----------
+     Quand la fenêtre rétrécit, la mise en page ne se réorganise pas : elle se réduit proportionnellement. */
+  const PHONE_W = 390, DESK_W = 1200;
+  let MODE = null, lastW = 0;
+  function viewMode() {
+    const v = params.get('vue');
+    if (v === 'mobile' || v === 'ordi') return v === 'mobile' ? 'm' : 'd';
+    if (EDIT) return ED_PARENT.device ? (ED_PARENT.device === 'mobile' ? 'm' : 'd') : (innerWidth <= 600 ? 'm' : 'd');
+    if (MODE) return MODE; // l'appareil ne change pas : on décide une fois pour toutes
+    const coarse = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0, small = Math.min(screen.width || innerWidth, screen.height || innerHeight) <= 600;
+    return (MODE = coarse && small ? 'm' : 'd');
+  }
+  function fit() {
+    const root = document.documentElement, mode = viewMode();
+    root.classList.toggle('vm', mode === 'm');
+    root.classList.toggle('vd', mode !== 'm');
+    let z = 1;
+    if (!EDIT && 'zoom' in root.style) {
+      if (mode === 'm') z = Math.min(1.3, innerWidth / PHONE_W);
+      else if (innerWidth < DESK_W) z = innerWidth / DESK_W;
+    }
+    if (Math.abs(z - 1) < 0.01) z = 1;
+    root.style.zoom = z === 1 ? '' : z.toFixed(4);
+    root.style.setProperty('--vw1', (innerWidth / z / 100).toFixed(3) + 'px');
+    // Sur téléphone, le clavier ou la barre d'adresse changent la hauteur : on ne recalcule que si la largeur change (rotation)
+    if (mode !== 'm' || innerWidth !== lastW || !root.style.getPropertyValue('--vh1')) root.style.setProperty('--vh1', (innerHeight / z / 100).toFixed(3) + 'px');
+    lastW = innerWidth;
+  }
+  fit();
+  let fitTimer;
+  addEventListener('resize', () => { clearTimeout(fitTimer); fitTimer = setTimeout(fit, 60); });
+  addEventListener('load', () => { fit(); if (typeof galleries === 'function') galleries(); });
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const esc = M.esc, arr = M.arr;
@@ -31,6 +64,9 @@
     return ` data-anim="${esc(a.type)}" style="--ad:${+a.duree || 0.9}s;--adl:${(+a.delai || 0) + extraDelay}s"`;
   };
   const animCls = a => (a && a.type ? ' anim' : '');
+  const IT = path => EDIT ? ` data-it="${path}"` : '';
+  const addItem = (path, label, cls = '') => EDIT ? `<button type="button" class="ed-additem${cls ? ' ' + cls : ''}" data-act="add-item" data-list="${path}" title="Ajouter">${label}</button>` : '';
+  const isNum = v => v !== undefined && v !== null && v !== '' && !isNaN(+v);
 
   /* ---------- Styles de texte (variables CSS) ---------- */
   function typo(t, p) {
@@ -46,6 +82,8 @@
     if (t.majuscules === 'non') v.push(`--${p}-tr:none`);
     if (+t.interligne) v.push(`--${p}-lh:${+t.interligne}`);
     if (t.interlettrage !== undefined && t.interlettrage !== '' && t.interlettrage !== null) v.push(`--${p}-ls:${+t.interlettrage}em`);
+    if (+t.interligneM) v.push(`--${p}-lhm:${+t.interligneM}`);
+    if (isNum(t.interlettrageM)) v.push(`--${p}-lsm:${+t.interlettrageM}em`);
     if (t.couleur) v.push(`--${p}-c:${t.couleur}`);
     if (t.degrade && t.degrade.actif) v.push(`--${p}-g:linear-gradient(${+t.degrade.angle || 90}deg,${t.degrade.c1 || '#ffffff'},${t.degrade.c2 || '#8a9bff'})`);
     if (t.fond) v.push(`--${p}-bg:${t.fond}`);
@@ -62,7 +100,12 @@
     if (num(s.pb)) st.push(`--pb:${+s.pb}px`);
     if (num(s.ptM)) st.push(`--ptm:${+s.ptM}px`);
     if (num(s.pbM)) st.push(`--pbm:${+s.pbM}px`);
-    if (+s.hauteurMin) { st.push(`min-height:${+s.hauteurMin}vh`); cls.push('v-' + (s.alignV || 'centre')); }
+    if (+s.hauteurMin) { st.push(`--hmin:calc(${+s.hauteurMin} * var(--vh1, 1vh))`); cls.push('has-hmin'); }
+    if (+s.hauteurMinM) { st.push(`--hminm:calc(${+s.hauteurMinM} * var(--vh1, 1vh))`); cls.push('has-hminm'); }
+    if (+s.hauteurMin || +s.hauteurMinM) cls.push('v-' + (s.alignV || 'centre'));
+    if (+s.largeurPx) st.push(`--maxw:${+s.largeurPx}px`);
+    if (num(s.paddingBox)) st.push(`--boxp:${+s.paddingBox}px`);
+    if (num(s.paddingBoxM)) st.push(`--boxpm:${+s.paddingBoxM}px`);
     if (s.fond) st.push(`background-color:${s.fond}`);
     const layers = [];
     const ov = s.superposition || {};
@@ -91,8 +134,10 @@
     if (s.tt && s.tt.fond) cls.push('has-tt-bg');
     if (s.lien && s.lien.survol) cls.push('lk-' + s.lien.survol);
     if (s.align) inner.push(`text-align:${s.align}`), cls.push('al-' + s.align);
+    if (s.alignM) cls.push('alm-' + s.alignM);
     if (s.couleur) inner.push(`--s-c:${s.couleur};color:${s.couleur}`);
-    if (+s.decalX || +s.decalY) inner.push(`translate:${+s.decalX || 0}px ${+s.decalY || 0}px`);
+    if (+s.decalX || +s.decalY) { inner.push(`--dx:${+s.decalX || 0}px;--dy:${+s.decalY || 0}px`); cls.push('has-dec'); }
+    if (num(s.decalXM) || num(s.decalYM)) { inner.push(`--dxm:${+s.decalXM || 0}px;--dym:${+s.decalYM || 0}px`); cls.push('has-decm'); }
     if (s.lien && s.lien.couleur) inner.push(`--lk-c:${s.lien.couleur}`);
     inner.push(...typo(s.t, 't'), ...typo(s.tt, 'tt'));
     return { cls: cls.join(' '), style: st.join(';'), inner: inner.join(';') };
@@ -110,7 +155,9 @@
     const b = it.bordure || {};
     if (+b.largeur) mst.push(`border:${+b.largeur}px solid ${b.couleur || '#ffffff'}`);
     if (+b.rayon) mst.push(`border-radius:${+b.rayon}px`);
-    if (o.ratio && o.ratio !== 'auto') mst.push(`aspect-ratio:${o.ratio}`);
+    const rat = it.ratio && it.ratio !== 'auto' ? it.ratio : o.ratio;
+    if (rat && rat !== 'auto' && !o.noRatio) mst.push(`aspect-ratio:${rat}`);
+    if (o.rangees && rat && rat !== 'auto') { const n = String(rat).split('/').reduce((a, b) => +a / +b); if (n > 0) fst.push(`--r:${n.toFixed(4)}`); }
     if (it.fond) mst.push(`background:${it.fond}`);
     ist.push(`object-fit:${it.fit || 'cover'}`, `object-position:${it.posX ?? 50}% ${it.posY ?? 50}%`);
     if (+it.zoom && +it.zoom !== 100) ist.push(`--z:${+it.zoom / 100}`);
@@ -126,12 +173,12 @@
     let inner = `<div class="gi-media" style="${mst.join(';')}">${media}${ovHtml}${textOver}</div>`;
     if (it.lien && !EDIT) inner = `<a href="${esc(it.lien)}"${/^https?:/.test(it.lien) ? ' target="_blank" rel="noopener"' : ''}>${inner}</a>`;
     const cap = o.caption !== false ? txt('figcaption', 'gi-cap', it.legende, path + '.legende', 'Légende') : '';
-    const showCap = (EDIT && o.captionEdit) || it.legende ? cap : '';
+    const showCap = it.legende || (EDIT && it.legendeOn) ? cap : '';
     const sty = [...fst];
     let dataAnim = '';
     if (it.anim && it.anim.type) { dataAnim = ` data-anim="${esc(it.anim.type)}"`; sty.push(`--ad:${+it.anim.duree || 0.9}s`, `--adl:${+it.anim.delai || 0}s`); }
     const hov = it.survol || o.hover;
-    return `<figure class="gi${hov ? ' hov-' + esc(hov) : ''}${it.filtre ? ' flt-' + esc(it.filtre) : ''}${dataAnim ? ' anim' : ''}${o.cls ? ' ' + o.cls : ''}"${EDIT ? ` data-img="${path}"` : ''}${dataAnim}${sty.length ? ` style="${sty.join(';')}"` : ''}>${inner}${showCap}</figure>`;
+    return `<figure class="gi${o.rangees && !(rat && rat !== 'auto') ? ' r-auto' : ''}${hov ? ' hov-' + esc(hov) : ''}${it.filtre ? ' flt-' + esc(it.filtre) : ''}${dataAnim ? ' anim' : ''}${o.cls ? ' ' + o.cls : ''}"${EDIT ? ` data-img="${path}"` : ''}${dataAnim}${sty.length ? ` style="${sty.join(';')}"` : ''}>${inner}${showCap}</figure>`;
   }
 
   /* ---------- Liens et boutons ---------- */
@@ -149,8 +196,8 @@
     if (!list.length) return '';
     return `<div class="btns">${list.map((b, i) => {
       const l = linkOf(b, d);
-      return `<a class="btn btn-${esc(b.style || 'plein')}${b.taille ? ' btn-' + esc(b.taille) : ''}" href="${esc(l.href)}"${l.attrs}${ED(path + '.' + i + '.texte', 'text', 'Bouton')}>${esc(b.texte || '')}</a>`;
-    }).join('')}</div>`;
+      return `<a class="btn btn-${esc(b.style || 'plein')}${b.taille ? ' btn-' + esc(b.taille) : ''}" href="${esc(l.href)}"${l.attrs}${ED(path + '.' + i + '.texte', 'text', 'Bouton')}${IT(path + '.' + i)}>${esc(b.texte || '')}</a>`;
+    }).join('')}${addItem(path, '+ Bouton', 'add-pill')}</div>`;
   }
   const chips = (list, cls = 'chips') => arr(list).filter(Boolean).length ? `<ul class="${cls}">${arr(list).filter(Boolean).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
   const socials = d => arr(d.site.reseaux).filter(r => r && r.url && r.nom);
@@ -170,7 +217,11 @@
     }).join('')}</ul>`;
   };
 
-  BR.pastille = (b, p) => (!EDIT && !b.c.texte) ? '' : `<span class="pill"${ED(p + '.c.texte', 'text', 'Pastille')}>${esc(b.c.texte)}</span>`;
+  BR.pastille = (b, p) => {
+    const list = arr(b.c.textes).map(t => String(t ?? ''));
+    if (!EDIT && !list.some(t => t.trim())) return '';
+    return `<div class="pills">${list.map((t, i) => (!EDIT && !t.trim()) ? '' : `<span class="pill"${ED(`${p}.c.textes.${i}`, 'text', 'Pastille')}${IT(`${p}.c.textes.${i}`)}>${esc(t)}</span>`).join('')}${addItem(p + '.c.textes', '+', 'add-pill')}</div>`;
+  };
   BR.surtitre = (b, p) => txt('span', 'eyebrow', b.c.texte, p + '.c.texte', 'Surtitre');
   BR.soustitre = (b, p) => txt('p', 'p-sub', b.c.texte, p + '.c.texte', 'Sous-titre');
   BR.titre = (b, p) => {
@@ -179,14 +230,23 @@
     return txt(tag, cls, c.texte, p + '.c.texte', 'Titre');
   };
   BR.texte = (b, p) => rich('t-body', b.c.html, p + '.c.html', 'Écris ton texte ici');
-  BR.tags = b => chips(b.c.tags) || empty('+ Ajoute des mots-clés (réglages de l’élément)');
+  BR.tags = (b, p) => {
+    if (!EDIT) return chips(b.c.tags);
+    return `<ul class="chips">${arr(b.c.tags).map((x, i) => `<li${ED(`${p}.c.tags.${i}`, 'text', 'Mot-clé')}${IT(`${p}.c.tags.${i}`)}>${esc(x)}</li>`).join('')}${`<li class="ed-li">${addItem(p + '.c.tags', '+ Mot-clé', 'add-pill')}</li>`}</ul>`;
+  };
   BR.boutons = (b, p, sec, d) => buttons(b.c.boutons, p + '.c.boutons', d) || empty('+ Ajoute un bouton (réglages de l’élément)');
   BR.document = (b, p) => {
     const c = b.c;
     if (!c.src && !EDIT) return '';
     return `<div class="btns"><a class="btn btn-${esc(c.style || 'contour')} btn-doc" href="${esc(c.src || '#')}" download target="_blank" rel="noopener">${M.icon('document', 17)}<span${ED(p + '.c.texte', 'text', 'Texte du bouton')}>${esc(c.texte)}</span></a></div>${EDIT && !c.src ? '<p class="ed-hint">Choisis le document dans les réglages de l’élément</p>' : ''}`;
   };
-  BR.image = (b, p) => figure(M.img(b.c.img), p + '.c.img', { cls: 'one', ratio: b.c.img && b.c.img.ratio, caption: false }) + txt('p', 'one-cap', b.c.legende, p + '.c.legende', 'Légende');
+  BR.image = (b, p) => {
+    const c = b.c, img = M.img(c.img);
+    const w = +c.largeur > 0 && +c.largeur < 100 ? +c.largeur : 0, hh = +c.hauteur || 0, wm = +c.largeurM || 0, hm = +c.hauteurM || 0;
+    const vars = [w ? `--iw:${w}%` : '', hh ? `--ih:${hh}px` : '', wm ? `--iwm:${wm}%` : '', hm ? `--ihm:${hm}px` : ''].filter(Boolean).join(';');
+    const cap = c.legende || (EDIT && c.legendeOn) ? txt('p', 'one-cap', c.legende, p + '.c.legende', 'Légende') : '';
+    return `<div class="img-box${hh ? ' has-h' : ''}${hm ? ' has-hm' : ''}"${vars ? ` style="${vars}"` : ''}>${figure(img, p + '.c.img', { cls: 'one', ratio: hh ? null : img.ratio, caption: false })}${cap}</div>`;
+  };
   BR.galerie = (b, p) => {
     const c = b.c, imgs = arr(c.images), disp = c.disposition || 'puzzle';
     const cols = Math.max(1, Math.min(6, +c.colonnes || 3)), colsM = Math.max(1, Math.min(3, +c.colonnesM || 2));
@@ -200,7 +260,12 @@
         <div class="sl-dots">${imgs.map((_, i) => `<button type="button" aria-label="Image ${i + 1}"${i ? '' : ' class="on"'}></button>`).join('')}</div>` : ''}
       </div>`;
     }
-    return `<div class="gal gal-${esc(disp)}" style="${vars}">${imgs.map((it, i) => figure(it, P(i), { cols, colsM, ratio: disp === 'grille' ? (c.ratio || '4/3') : null, hover: c.survol, eager: i < 2, captionEdit: disp !== 'puzzle' })).join('')}</div>`;
+    const ordre = disp === 'mosaique' && c.ordre === 'colonnes' ? ' ordre-col' : '';
+    const vm = [isNum(c.espacementM) ? `--gap-m:${+c.espacementM}px` : '', +c.hauteurRangM ? `--row-m:${+c.hauteurRangM}px` : '', +c.hauteurBandeM ? `--band-m:${+c.hauteurBandeM}px` : ''].filter(Boolean).join(';');
+    const gr = c.format && c.format !== 'auto' ? c.format : null;
+    const ratioOf = disp === 'grille' ? (c.ratio || '4/3') : ['rangees', 'pile', 'duo', 'bande', 'mosaique'].includes(disp) ? gr : null;
+    const full = disp === 'rangees' && c.remplirDerniere ? ' r-full' : '';
+    return `<div class="gal gal-${esc(disp)}${ordre}${full}" style="${vars}${vm ? ';' + vm : ''}">${imgs.map((it, i) => figure(it, P(i), { cols, colsM, ratio: ratioOf, rangees: disp === 'rangees', noRatio: disp === 'puzzle', hover: c.survol, eager: i < 2 })).join('')}</div>`;
   };
   BR.video = (b, p) => {
     const c = b.c, v = M.video(c.url);
@@ -212,7 +277,7 @@
       const img = c.poster || (v.type === 'youtube' ? `https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg` : '');
       player = `<button class="vfacade" type="button" data-embed="${esc(src)}" aria-label="Lire la vidéo">${img ? `<img src="${esc(img)}" alt="" loading="lazy" decoding="async"${v.type === 'youtube' && !c.poster ? ` data-yt="${v.id}"` : ''}>` : ''}<span class="vplay" aria-hidden="true"></span></button>`;
     }
-    return `<div class="p-video" style="aspect-ratio:${esc(c.ratio || '16/9')}">${player}</div>${txt('p', 'one-cap', c.legende, p + '.c.legende', 'Légende')}`;
+    return `<div class="p-video" style="aspect-ratio:${esc(c.ratio || '16/9')}">${player}</div>${c.legende || (EDIT && c.legendeOn) ? txt('p', 'one-cap', c.legende, p + '.c.legende', 'Légende') : ''}`;
   };
   BR.spotify = b => {
     const c = b.c, list = arr(c.liens).map(M.spotify).filter(Boolean), hgt = c.taille === 'grand' ? 352 : 152;
@@ -244,8 +309,8 @@
       <p class="form-msg" role="status"></p>
     </form>`;
   };
-  BR.infos = (b, p) => `<dl class="p-details infos cols-${+b.c.colonnes === 2 ? 2 : 1}">${dlInfos(b.c.lignes, p + '.c.lignes')}</dl>`;
-  BR.credits = (b, p) => `<dl class="p-credits">${dlCredits(b.c.lignes, p + '.c.lignes')}</dl>`;
+  BR.infos = (b, p) => `<dl class="p-details infos cols-${+b.c.colonnes === 2 ? 2 : 1}">${dlInfos(b.c.lignes, p + '.c.lignes')}</dl>${addItem(p + '.c.lignes', '+ Ajouter une ligne')}`;
+  BR.credits = (b, p) => `<dl class="p-credits">${dlCredits(b.c.lignes, p + '.c.lignes')}</dl>${addItem(p + '.c.lignes', '+ Ajouter une personne')}`;
   BR.liste = (b, p) => {
     const c = b.c, items = arr(c.items);
     const anyLogo = EDIT || items.some(it => it.logo && it.logo.src);
@@ -254,8 +319,8 @@
       const logo = !anyLogo ? '' : lg ? `<figure class="tl-logo"${EDIT ? ` data-img="${q}.logo"` : ''}><img src="${esc(lg)}" alt="${esc(it.sousTitre || it.titre || '')}" loading="lazy" decoding="async"></figure>`
         : EDIT ? `<figure class="tl-logo tl-logo-vide" data-img="${q}.logo"><span>+ Logo</span></figure>` : '<span class="tl-logo"></span>';
       const t = txt('h3', 'tl-ttl', it.titre, q + '.titre', 'Intitulé');
-      return `<div class="tl"><div class="tl-when"${ED(q + '.date', 'text', 'Date')}>${esc(it.date)}</div>${logo}<div class="tl-body">${it.lien && !EDIT ? `<a class="tl-link" href="${esc(it.lien)}" target="_blank" rel="noopener">${t}</a>` : t}${txt('p', 'tl-sub', it.sousTitre, q + '.sousTitre', 'École, structure, lieu…')}${rich('t-body', it.html, q + '.html', 'Description (optionnel)')}</div></div>`;
-    }).join('')}</div>${EDIT && !items.length ? empty('+ Ajoute une ligne (réglages de l’élément)') : ''}`;
+      return `<div class="tl"${IT(q)}><div class="tl-when"${ED(q + '.date', 'text', 'Date')}>${esc(it.date)}</div>${logo}<div class="tl-body">${it.lien && !EDIT ? `<a class="tl-link" href="${esc(it.lien)}" target="_blank" rel="noopener">${t}</a>` : t}${txt('p', 'tl-sub', it.sousTitre, q + '.sousTitre', 'École, structure, lieu…')}${rich('t-body', it.html, q + '.html', 'Description (optionnel)')}</div></div>`;
+    }).join('')}</div>${addItem(p + '.c.items', '+ Ajouter une ligne')}`;
   };
   BR.espace = b => {
     const c = b.c;
@@ -269,16 +334,19 @@
     const bg = img ? ` style="background-image:url('${esc(img)}')"` : '';
     const roles = arr(k.roles).filter(Boolean);
     const meta = [];
-    if (c.afficherGenre !== false && k.genre) meta.push(`<span class="card-genre">${esc(k.genre)}</span>`);
+    const gs = M.projGenres(p);
+    if (c.afficherGenre !== false && gs.length) meta.push(`<span class="card-genre">${gs.map(esc).join(' · ')}</span>`);
     if (c.afficherRoles !== false && roles.length) meta.push(`<span class="card-roles">${roles.map(esc).join(' - ')}</span>`);
     const entree = c.animEntree === undefined ? 'fade-up' : c.animEntree;
+    const hv = k.animSurvol || c.animSurvol || '', ht = c.survolTexte || 'titre-cta';
+    const hovHtml = !hv ? '' : `<span class="thumb-hov" style="--hv:${M.rgba('#000000', isNum(c.survolVoile) ? +c.survolVoile : 45)}"><span class="th-in" data-anim="${esc(hv)}" style="--ad:${+c.survolDuree || 0.6}s">${ht !== 'cta' ? `<span class="th-t">${esc(p.titre)}</span>` : ''}${ht === 'titre-roles' && roles.length ? `<span class="th-r">${roles.map(esc).join(' - ')}</span>` : ''}${ht === 'titre-genre' && gs.length ? `<span class="th-r">${gs.map(esc).join(' · ')}</span>` : ''}${ht === 'titre-cta' || ht === 'cta' ? '<span class="th-c">Voir le projet</span>' : ''}</span></span>`;
     const ent = entree ? ` anim" data-anim="${esc(entree)}" style="--ad:${+c.animDuree || 0.9}s;--adl:${((i % 6) * (+c.animEcart >= 0 ? +c.animEcart : 0.12)).toFixed(2)}s` : ` reveal" style="--d:${(i % 3) * 90}ms`;
-    return `<a class="card anim-${esc(anim)}${ent}" data-genre="${esc(k.genre || '')}" data-pid="${esc(p.id)}" href="${M.pageUrl(p)}">
+    return `<a class="card anim-${esc(anim)}${hv ? ' has-hov' : ''}${ent}" data-genres="${esc(gs.join('|'))}" data-pid="${esc(p.id)}" href="${M.pageUrl(p)}">
       <div class="thumb">
         ${img ? `<img src="${esc(img)}" alt="${esc(p.titre)}" loading="${i < 2 ? 'eager' : 'lazy'}" decoding="async">` : '<div class="thumb-empty">Vignette à ajouter</div>'}
         ${anim === 'glitch' ? `<span class="fx fx-g fx-g1"${bg}></span><span class="fx fx-g fx-g2"${bg}></span>` : ''}
         <span class="fx fx-sweep"></span>
-        <span class="thumb-cta">Voir le projet</span>
+        <span class="thumb-cta">Voir le projet</span>${hovHtml}
       </div>
       <h3 class="card-title"><span>${esc(p.titre)}</span></h3>
       ${meta.length ? `<p class="card-meta">${meta.join('<span class="card-sep" aria-hidden="true">·</span>')}</p>` : ''}
@@ -287,11 +355,10 @@
   BR.projets = (b, p, sec, d) => {
     const c = b.c;
     const all = d.pages.filter(x => x.type === 'projet' && !x.masquer);
-    const list = c.genre ? all.filter(x => (x.carte || {}).genre === c.genre) : all;
-    const found = M.genres(d), order = arr(c.ordreGenres).filter(g => found.includes(g));
-    const genres = [...order, ...found.filter(g => !order.includes(g))];
-    const filters = c.filtres !== false && !c.genre && genres.length > 1
-      ? `<div class="filtres" role="tablist" aria-label="Filtrer par genre"><button type="button" role="tab" class="on" aria-selected="true" data-g="">${esc(c.tousLabel || 'Tous')}</button>${genres.map(g => `<button type="button" role="tab" aria-selected="false" data-g="${esc(g)}">${esc(g)}</button>`).join('')}</div>` : '';
+    const list = c.genre ? all.filter(x => M.projGenres(x).includes(c.genre)) : all;
+    const used = M.genres(d, true), genres = M.genres(d, !EDIT);
+    const filters = c.filtres !== false && !c.genre && (genres.length > 1 || EDIT)
+      ? `<div class="filtres" role="tablist" aria-label="Filtrer par typologie"><button type="button" role="tab" class="on" aria-selected="true" data-g="">${esc(c.tousLabel || 'Tous')}</button>${genres.map(g => `<button type="button" role="tab" aria-selected="false" data-g="${esc(g)}"${EDIT && !used.includes(g) ? ' class="g-vide" title="Aucun projet publié dans cette typologie"' : ''}>${esc(g)}</button>`).join('')}${EDIT ? '<button type="button" class="ed-addg" data-act="genres" title="Ajouter, renommer, supprimer des typologies">+ Typologie</button>' : ''}</div>` : '';
     return `<div class="pj" data-projets data-ecart="${+c.animEcart >= 0 ? +c.animEcart : 0.12}">${filters}
       <div class="grid pgrid" style="--cols:${Math.max(1, Math.min(4, +c.colonnes || 2))};--cols-m:${Math.max(1, Math.min(2, +c.colonnesM || 1))};--ratio:${esc(c.ratio || '16/9')}">
         ${list.map((x, i) => card(x, i, c)).join('') || '<p class="empty">Aucun projet pour le moment.</p>'}
@@ -300,7 +367,7 @@
 
   function dlInfos(list, path) {
     return arr(list).map((x, i) => (!EDIT && !x.valeur) ? '' :
-      `<div><dt${ED(`${path}.${i}.label`, 'text', 'Intitulé')}>${esc(x.label)}</dt><dd${ED(`${path}.${i}.valeur`, 'text', 'Valeur')}>${esc(x.valeur)}</dd></div>`).join('');
+      `<div${IT(`${path}.${i}`)}><dt${ED(`${path}.${i}.label`, 'text', 'Intitulé')}>${esc(x.label)}</dt><dd${ED(`${path}.${i}.valeur`, 'text', 'Valeur')}>${esc(x.valeur)}</dd></div>`).join('');
   }
   function dlCredits(list, path) {
     return arr(list).map((x, i) => {
@@ -308,28 +375,36 @@
       const names = String(x.noms || '').split(/\s+-\s+|\n/).map(n => n.trim()).filter(Boolean);
       const long = String(x.noms || '').length > 38 || names.length > 2;
       const dd = EDIT ? esc(x.noms || '') : names.map(n => `<span>${esc(n)}</span>`).join('<i> - </i>');
-      return `<div class="cr${long ? ' cr-long' : ''}"><dt${ED(`${path}.${i}.fonction`, 'text', 'Fonction')}>${esc(x.fonction)}</dt><dd${ED(`${path}.${i}.noms`, 'text', 'Noms (séparés par « - »)')}>${dd}</dd></div>`;
+      return `<div class="cr${long ? ' cr-long' : ''}"${IT(`${path}.${i}`)}><dt${ED(`${path}.${i}.fonction`, 'text', 'Fonction')}>${esc(x.fonction)}</dt><dd${ED(`${path}.${i}.noms`, 'text', 'Noms (séparés par « - »)')}>${dd}</dd></div>`;
     }).join('');
   }
 
   /* ---------- Style d'un élément ---------- */
   function blocParts(b, layout) {
     const s = b.s || {}, cls = ['bl', 'bl-' + b.k], st = [];
-    const num = v => v !== undefined && v !== null && v !== '' && !isNaN(+v);
+    const num = isNum;
     if (num(s.mt)) st.push(`--mt:${+s.mt}px`);
     if (num(s.mb)) st.push(`--mb:${+s.mb}px`);
     if (num(s.mtM)) st.push(`--mtm:${+s.mtM}px`);
+    if (num(s.mbM)) st.push(`--mbm:${+s.mbM}px`);
     if (s.align) { st.push(`text-align:${s.align}`); cls.push('al-' + s.align); }
-    if (+s.largeurMax) { st.push(`max-width:${+s.largeurMax}px`); cls.push('bl-mw'); }
+    if (s.alignM) cls.push('alm-' + s.alignM);
+    if (+s.largeur > 0 && +s.largeur < 100) { st.push(`--bw:${+s.largeur}%`); cls.push('bl-w'); }
+    if (+s.largeurM > 0) { st.push(`--bwm:${+s.largeurM}%`); cls.push('bl-wm'); }
+    if (+s.largeurMax) { st.push(`--bmw:${+s.largeurMax}px`); cls.push('bl-mw'); }
+    if (+s.largeurMaxM) { st.push(`--bmwm:${+s.largeurMaxM}px`); cls.push('bl-mwm'); }
+    if (s.pleine) cls.push('bl-full');
     if (s.fond) st.push(`background-color:${s.fond}`);
     if (s.degrade && s.degrade.actif) st.push(`background-image:linear-gradient(${+s.degrade.angle || 180}deg,${s.degrade.c1 || '#000'},${s.degrade.c2 || '#222'})`);
-    if (+s.padding) st.push(`padding:${+s.padding}px`);
+    if (num(s.padding)) { st.push(`--bp:${+s.padding}px`); cls.push('bl-p'); }
+    if (num(s.paddingM)) { st.push(`--bpm:${+s.paddingM}px`); cls.push('bl-pm'); }
     const bo = s.bordure || {};
     if (+bo.largeur) st.push(`border:${+bo.largeur}px ${bo.style || 'solid'} ${bo.couleur || 'rgba(255,255,255,.2)'}`);
     if (+bo.rayon) st.push(`border-radius:${+bo.rayon}px`);
     if (s.ombre && M.BOX_SHADOWS[s.ombre]) st.push(`box-shadow:${M.BOX_SHADOWS[s.ombre]}`);
     if (s.couleur) st.push(`--s-c:${s.couleur};color:${s.couleur}`);
-    if (+s.decalX || +s.decalY) st.push(`translate:${+s.decalX || 0}px ${+s.decalY || 0}px`);
+    if (+s.decalX || +s.decalY) { st.push(`--dx:${+s.decalX || 0}px;--dy:${+s.decalY || 0}px`); cls.push('has-dec'); }
+    if (num(s.decalXM) || num(s.decalYM)) { st.push(`--dxm:${+s.decalXM || 0}px;--dym:${+s.decalYM || 0}px`); cls.push('has-decm'); }
     if (num(s.calque) && +s.calque) st.push(`position:relative;z-index:${+s.calque}`);
     if (s.masquerMobile) cls.push('hide-m');
     if (s.masquerOrdi) cls.push('hide-d');
@@ -343,9 +418,12 @@
     let anim = '';
     if (b.a && b.a.type) { cls.push('anim'); anim = ` data-anim="${esc(b.a.type)}"`; st.push(`--ad:${+b.a.duree || 0.9}s`, `--adl:${+b.a.delai || 0}s`); }
     if (layout === 'libre') {
-      const ps = b.pos || {};
+      const ps = b.pos || {}, pm = b.posM || {};
       cls.push('fr-it');
-      st.push(`left:${+ps.x || 0}%`, `top:${+ps.y || 0}%`, `width:${+ps.w || 30}%`, `z-index:${+ps.z || 1}`);
+      st.push(`--fx:${+ps.x || 0}%`, `--fy:${+ps.y || 0}%`, `--fw:${+ps.w || 30}%`, `--fz:${+ps.z || 1}`);
+      if (num(pm.x)) st.push(`--fxm:${+pm.x}%`);
+      if (num(pm.y)) st.push(`--fym:${+pm.y}%`);
+      if (num(pm.w)) st.push(`--fwm:${+pm.w}%`);
     }
     return { cls: cls.join(' '), style: st.join(';'), anim };
   }
@@ -364,9 +442,11 @@
   /* ---------- Mises en page des sections ---------- */
   const L = {};
   L.pile = (sec, d, page) => `<div class="stack${sec.s.encadre ? ' box-accent' : ''}">${stackOf(sec, d, page, allIdx(sec))}${emptyHint(sec)}</div>`;
+  const mobCols = (sec, d) => sec.c.empileM === 'oui' ? 'm-empile' : sec.c.empileM === 'non' ? 'm-cote' : ((d.site.mobile || {}).colonnes === 'empile' ? 'm-empile' : 'm-cote');
+  const propM = c => +c.proportionM ? `;--propm:${Math.min(80, Math.max(20, +c.proportionM))}%` : '';
   L.colonnes = (sec, d, page) => {
     const c = sec.c;
-    return `<div class="cols${c.imageCote === 'droite' ? ' img-droite' : ''}" style="--prop:${Math.min(75, Math.max(25, +c.proportion || 45))}%">
+    return `<div class="cols ${mobCols(sec, d)}${c.imageCote === 'droite' ? ' img-droite' : ''}" style="--prop:${Math.min(75, Math.max(25, +c.proportion || 45))}%${propM(c)}">
       ${figure(M.img(c.img), 'c.img', { cls: 'cols-img', ratio: c.img && c.img.ratio, caption: false })}
       <div class="stack${sec.s.encadre ? ' box-accent' : ''}">${stackOf(sec, d, page, allIdx(sec))}${emptyHint(sec)}</div>
     </div>`;
@@ -381,7 +461,7 @@
     });
     if (EDIT && !segs.some(s => !s.full)) segs.push({ full: false, g: [], d: [] });
     const col = (idx, side) => `<div class="stack deux-${side}"${EDIT ? ` data-dropcol="${side}"` : ''}>${stackOf(sec, d, page, idx)}${EDIT && !idx.length ? `<div class="ed-empty small" data-act="add-bloc" data-col="${side}">+ Ajouter un élément dans cette colonne</div>` : ''}</div>`;
-    return `<div class="deux" style="--prop:${Math.min(75, Math.max(25, +sec.c.proportion || 57))}%">${segs.map(s => s.full
+    return `<div class="deux ${mobCols(sec, d)}" style="--prop:${Math.min(75, Math.max(25, +sec.c.proportion || 57))}%${propM(sec.c)}">${segs.map(s => s.full
       ? `<div class="stack deux-full">${stackOf(sec, d, page, s.items)}</div>`
       : `<div class="deux-row">${col(s.g, 'g')}${col(s.d, 'd')}</div>`).join('')}</div>`;
   };
@@ -391,11 +471,17 @@
     const ovCss = ov.degrade ? `linear-gradient(180deg,${M.rgba(ov.couleur, op * 0.7)},${M.rgba(ov.couleur, op)} 55%,${M.rgba(ov.couleur, Math.min(100, op * 2.4))})` : M.rgba(ov.couleur, op);
     const vid = m.type === 'video' && m.video ? ` data-bgvideo="${esc(m.video)}"` : '';
     const intro = !EDIT && sec.blocs.some(b => b.k === 'titre' && b.c.lettres);
-    return `<div class="cov" style="--cov-h:${Math.min(100, Math.max(25, +c.hauteur || 70))}">
+    const pm = c.posM || {}, cm = [];
+    if (+c.hauteurM) cm.push(`--cov-hm:${Math.min(100, Math.max(20, +c.hauteurM))}`);
+    if (isNum(pm.x)) cm.push(`--cxm:${+pm.x}%`);
+    if (isNum(pm.y)) cm.push(`--cym:${+pm.y}%`);
+    if (c.alignTexteM) cm.push(`--ctam:${c.alignTexteM}`);
+    if (+c.largeurTexteM) cm.push(`--cwm:${+c.largeurTexteM}px`);
+    return `<div class="cov" style="--cov-h:${Math.min(100, Math.max(25, +c.hauteur || 70))}${cm.length ? ';' + cm.join(';') : ''}">
       <div class="cov-media"${vid}${EDIT ? ' data-img="c.media"' : ''}>${m.src ? `<img src="${esc(m.src)}" alt="" fetchpriority="high" decoding="async" style="object-position:${m.posX ?? 50}% ${m.posY ?? 50}%">` : (EDIT ? '<div class="gi-empty">Clique pour choisir l’image de couverture</div>' : '')}
         ${EDIT && vid ? '<span class="ed-badge">Vidéo d’arrière-plan : visible sur le site</span>' : ''}</div>
       <div class="cov-ov" style="background:${ovCss}"></div>
-      <div class="cov-box${intro ? ' cov-intro' : ''}" style="left:${+pos.x}%;top:${+pos.y}%;text-align:${esc(c.alignTexte || 'center')};max-width:min(${+c.largeurTexte || 680}px,92%)"${EDIT ? ' data-drag="cov"' : ''}>
+      <div class="cov-box${intro ? ' cov-intro' : ''} cta-${esc(c.alignTexte || 'center')}${c.alignTexteM ? ' ctam-' + esc(c.alignTexteM) : ''}" style="--cx:${+pos.x}%;--cy:${+pos.y}%;--cw:${+c.largeurTexte || 680}px"${EDIT ? ' data-drag="cov"' : ''}>
         <div class="stack">${stackOf(sec, d, page, allIdx(sec))}${emptyHint(sec)}</div>
       </div>
       ${!EDIT ? '<a href="#main-2" class="cov-scroll" aria-label="Descendre"><span></span></a>' : ''}
@@ -403,7 +489,7 @@
   };
   L.libre = (sec, d, page) => {
     const order = allIdx(sec).sort((a, b) => (+(sec.blocs[a].pos || {}).y || 0) - (+(sec.blocs[b].pos || {}).y || 0));
-    return `<div class="libre" style="--lh:${Math.max(200, +sec.c.hauteur || 560)}px">${stackOf(sec, d, page, order)}${emptyHint(sec)}</div>`;
+    return `<div class="libre ${sec.c.mobile === 'compo' ? 'm-compo' : 'm-empile'}" style="--lh:${Math.max(200, +sec.c.hauteur || 560)}px${+sec.c.hauteurM ? `;--lhm:${Math.max(150, +sec.c.hauteurM)}px` : ''}">${stackOf(sec, d, page, order)}${emptyHint(sec)}</div>`;
   };
 
   /* ---------- Page entière ---------- */
@@ -467,6 +553,8 @@
     r.setProperty('--fg', t.texte || '#f3f3f3');
     r.setProperty('--muted', t.texteDoux || '#9a9a9a');
     r.setProperty('--accent', t.accent || '#8a9bff');
+    const mob = d.site.mobile || {};
+    r.setProperty('--ms', Math.max(0.6, Math.min(1.2, (+mob.echelle || 90) / 100)));
     r.setProperty('--font', `'${t.police || 'Figtree'}', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif`);
     r.setProperty('--font-titres', `'${t.policeTitres || t.police || 'Figtree'}', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif`);
     document.body.classList.toggle('grain-on', t.grain !== false);
@@ -541,7 +629,7 @@
     // Vidéo d'arrière-plan de couverture : chargée après la page, jamais sur téléphone
     $$('[data-bgvideo]').forEach(box => {
       const v = M.video(box.dataset.bgvideo);
-      const small = window.matchMedia('(max-width: 760px)').matches;
+      const small = document.documentElement.classList.contains('vm');
       const saveData = navigator.connection && navigator.connection.saveData;
       if (!v || ((small || saveData || reduceMotion) && box.querySelector('img'))) return;
       const start = () => {
@@ -565,14 +653,14 @@
   }
   function filters() {
     $$('[data-projets]').forEach(sec => {
-      const btns = $$('.filtres button', sec);
+      const btns = $$('.filtres button[data-g]', sec);
       if (!btns.length) return;
       const apply = (g, animate) => {
         btns.forEach(b => { const on = b.dataset.g === g; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
         let vis = 0;
         const ecart = +sec.dataset.ecart || 0;
         $$('.card', sec).forEach(c => {
-          const show = !g || c.dataset.genre === g;
+          const show = !g || (c.dataset.genres || '').split('|').includes(g);
           c.hidden = !show;
           if (show && animate && !reduceMotion) {
             c.classList.remove('in');
@@ -589,6 +677,26 @@
       if (h.startsWith('#genre-')) { const b = btns.find(x => M.slugify(x.dataset.g) === h.slice(7)); if (b) apply(b.dataset.g, false); }
     });
   }
+  // Mosaïque dans l'ordre des lignes (gauche → droite) et rangées qui remplissent toute la largeur
+  function galleries() {
+    $$('.gal-mosaique:not(.ordre-col)').forEach(g => {
+      const gap = parseFloat(getComputedStyle(g).columnGap) || 0;
+      const fit = f => { f.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil((f.getBoundingClientRect().height + gap) / 2)); };
+      $$(':scope > .gi', g).forEach(f => {
+        fit(f);
+        const img = f.querySelector('img');
+        if (img && !img.complete) img.addEventListener('load', () => fit(f), { once: true });
+      });
+    });
+    $$('.gal-rangees .gi.r-auto').forEach(f => {
+      const img = f.querySelector('img');
+      if (!img) return;
+      const set = () => { if (img.naturalWidth && img.naturalHeight) f.style.setProperty('--r', (img.naturalWidth / img.naturalHeight).toFixed(4)); };
+      img.complete ? set() : img.addEventListener('load', set, { once: true });
+    });
+  }
+  let galTimer;
+  addEventListener('resize', () => { clearTimeout(galTimer); galTimer = setTimeout(galleries, 150); });
   function forms() {
     if (EDIT) return;
     $$('form.form').forEach(form => form.addEventListener('submit', async e => {
@@ -700,7 +808,8 @@
       if (meta && (page.seoDescription || d.site.descriptionGoogle)) meta.setAttribute('content', page.seoDescription || d.site.descriptionGoogle);
     }
     document.documentElement.classList.toggle('is-edit', EDIT);
-    animations(); touchHover(); sliders(); videos(); filters(); forms(); globalBehaviours();
+    animations(); touchHover(); sliders(); videos(); filters(); forms(); galleries(); globalBehaviours();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(galleries);
     return page;
   }
 
@@ -732,7 +841,7 @@
   }
 
   const pageId = params.get('p') || params.get('id') || (document.body.dataset.page !== 'films' ? document.body.dataset.page : '') || '';
-  window.SITE = { render, isEdit: EDIT };
+  window.SITE = { render, isEdit: EDIT, fit: () => { fit(); galleries(); } };
 
   if (EDIT) {
     render(ED_PARENT.data, pageId);

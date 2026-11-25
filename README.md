@@ -1,4 +1,4 @@
-# Portfolio de Yoann SIMONNEAU (version 3 : éditeur visuel, éléments, bibliothèque)
+# Portfolio de Yoann SIMONNEAU (version 4 : glisser-déposer, tailles à la souris, version téléphone)
 
 Ton site se modifie **directement sur la page**, depuis `https://tonpseudo.github.io/admin.html`, sur ordinateur comme sur téléphone.
 
@@ -14,8 +14,18 @@ Chaque élément a sa propre barre jaune et ses propres réglages : **Contenu, S
 | Changer un texte | Clique dedans et écris. Sélectionne des mots : gras, italique, lien, couleur, liste, **📎 Document** (lien vers ton CV). |
 | Régler un seul élément | Survole-le → barre jaune → **✎**. Onglets Contenu, Style, Texte, Animation. |
 | Supprimer un élément (ex. la pastille) | Barre jaune → **🗑**. |
-| Déplacer un élément | Barre jaune → **↑ ↓**, ou attrape **⠿** et glisse (même dans une autre section ou une autre colonne). |
-| Ajouter un élément | Rond jaune **+** sous un élément, ou panneau de la section → **+ Ajouter un élément**. |
+| Déplacer un élément | Attrape la poignée jaune **⠿** à sa gauche (ou son nom dans la barre jaune) et glisse-le, même dans une autre section ou colonne. |
+| Ajouter un élément ou une section | Bouton **＋ Ajouter** en haut à gauche, puis glisse-le dans la page (ou clique dessus). Ou rond jaune **+** sous un élément. |
+| Changer une taille à la souris | **↔** à droite d’un élément, **⇲** / **↕** sur une image, **⇕** en haut/bas d’une section, **⇔** entre deux colonnes, **↔** à droite du contenu d’une section, **↕** sous une galerie ou une couverture. |
+| Plusieurs pastilles sur une ligne | Petit **+** à droite des pastilles. Survole une pastille : ⠿ ↑ ↓ ⧉ 🗑. |
+| Lignes de parcours, infos, crédits | **+ Ajouter une ligne** sous la liste, sur la page. Survole une ligne pour la déplacer ou la supprimer. |
+| Parcours projets / formations | **+ Section → Parcours : projets \| formations** (deux colonnes). |
+| Typologies de projets (filtres) | Accueil → **+ Typologie** au bout des filtres, ou ☰ Pages → Projets. Autant que tu veux, plusieurs par projet. |
+| Survol des vignettes | Accueil → Grille de projets → ✎ → « Animation du texte au survol » (mêmes choix que l’apparition). |
+| Légende d’une photo | Facultative : bouton **Légende** sur l’image pour l’ajouter ou la retirer. |
+| Galerie qui remplit la largeur | Disposition **Rangées ajustées**, format au choix (16:9, 9:16, 4:3, 1:1…). Option « Prendre toute la largeur de l’écran ». |
+| Version téléphone différente | Bouton **📱 Mobile** : les tailles, espacements, positions et colonnes réglés à ce moment ne changent que sur téléphone. |
+| Retrouver une ancienne version | Menu **⋯ → 🕘 Historique des publications**. Modifications mises de côté : **⋯ → 🛟**. |
 | Régler toute une section | Barre blanche → **✎ Section** (mise en page + liste des éléments) ou **Style**. |
 | Ajouter une section | **+ Section** en haut ou en bas d’une section. |
 | Changer une image | Clique dessus : panneau « Image ». Double-clic ou **Remplacer** : choisir dans la bibliothèque. |
@@ -32,7 +42,11 @@ Chaque élément a sa propre barre jaune et ses propres réglages : **Contenu, S
 | Mettre en ligne | **Publier** (visible en 1 à 2 minutes). |
 | Annuler | **↶** ou Ctrl/Cmd + Z. |
 
-Tout est sauvegardé automatiquement sur ton appareil tant que tu n’as pas publié.
+Tout est sauvegardé automatiquement sur ton appareil tant que tu n’as pas publié, et repris automatiquement à la prochaine ouverture (même après une mise à jour du code).
+
+## Affichage
+
+La disposition ne change pas quand la fenêtre rétrécit : sur ordinateur, la page se réduit proportionnellement en dessous de 1200 px de large. Sur téléphone, la version téléphone garde la même disposition quel que soit le modèle de téléphone.
 
 ## Organisation des fichiers
 
@@ -46,4 +60,4 @@ assets/js/          modele.js, site.js (affichage), admin-base.js + admin.js (é
 assets/css/         style.css (site), admin.css (éditeur), edit.css (couche d’édition)
 ```
 
-Ne supprime jamais `data/contenu.js` : c’est ton contenu. Les anciennes versions du contenu sont converties automatiquement à l’ouverture de l’éditeur.
+Ne supprime jamais `data/contenu.js` : c’est ton contenu. Les mises à jour du code ne contiennent jamais `data/`, `images/` ni `documents/`. Les anciennes versions du contenu sont converties automatiquement à l’ouverture de l’éditeur.
