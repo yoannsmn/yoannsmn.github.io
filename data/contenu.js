@@ -1547,7 +1547,76 @@ window.CONTENU = {
       }
      ],
      "s": {
-      "pb": 14,
+      "pb": 0,
+      "pt": 0
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "sdnjtkp2i",
+     "type": "encadre",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "byxdeap2i",
+       "k": "surtitre",
+       "c": {
+        "texte": "MON RÔLE"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "bdfx01p2i",
+       "k": "titre",
+       "c": {
+        "texte": "Mon travail sur le projet",
+        "niveau": "h2",
+        "taille": "texte",
+        "lettres": false
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "b24i6up2i",
+       "k": "texte",
+       "c": {
+        "html": "<p>En tant que co-fondateur et co-président de l'association Studio 205, j'ai pris en charge la production musicale de ce projet (Ecriture, mix de voix, chant) avec le logiciel FL Studio, en collaboration avec plusieurs ingénieurs du son comme Nathan Chevallier ou encore SODASOUND. Au sein de l'association nous avons construit toute la direction artistique du projet ainsi que sa diffusion sur les plateformes numériques (Réseaux sociaux via MetaAds et TikTok Studio, distribution sur Distrokid, ...).</p><p>Enfin, j'ai pu réaliser l'ensemble des vizualizers disponible sur l'instagram de Studio 205, de l'idée / captation jusqu'au rendu final, en utilisant le logiciel Davinci Resolve Studio.</p>"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "bk3jkrp2i",
+       "k": "tags",
+       "c": {
+        "tags": []
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {
+      "encadre": true,
       "pt": 0
      },
      "a": {
