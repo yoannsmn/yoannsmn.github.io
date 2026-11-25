@@ -2285,6 +2285,14 @@ window.CONTENU = {
  ],
  "bibliotheque": [
   {
+   "src": "images/pages/a-propos/dsc-0506-enhanced-nr-sfodg.webp",
+   "nom": "a-propos · dsc-0506-enhanced-nr-sfodg"
+  },
+  {
+   "src": "images/films/freres/img-20260804-wa0011-pnr6q.webp",
+   "nom": "freres · img-20260804-wa0011-pnr6q"
+  },
+  {
    "src": "images/bibliotheque/still-2026-09-04-235236-2-1-1-gi430.webp",
    "nom": "Still 2026-09-04 235236_2.1.1"
   },
