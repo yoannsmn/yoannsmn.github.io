@@ -1118,7 +1118,9 @@ window.CONTENU = {
         ],
         "colonnes": 1
        },
-       "s": {},
+       "s": {
+        "mt": 0
+       },
        "t": {},
        "a": {
         "type": ""
@@ -1140,11 +1142,15 @@ window.CONTENU = {
          },
          {
           "fonction": "Voix-off",
-          "noms": "NANANA"
+          "noms": "Stéphane COLIN"
          },
          {
           "fonction": "Captation",
-          "noms": "Yoann SIMONNEAU - Nora DAHOU - Marine DAVID"
+          "noms": "Yoann SIMONNEAU - Nora DAHOU"
+         },
+         {
+          "fonction": "3D",
+          "noms": "Nicolas PANCHOUT"
          },
          {
           "fonction": "Post-production",
@@ -1152,7 +1158,9 @@ window.CONTENU = {
          }
         ]
        },
-       "s": {},
+       "s": {
+        "mt": 0
+       },
        "t": {},
        "a": {
         "type": ""
@@ -1232,7 +1240,8 @@ window.CONTENU = {
       }
      ],
      "s": {
-      "encadre": true
+      "encadre": true,
+      "largeurPx": 463
      },
      "a": {
       "type": "",
@@ -1422,7 +1431,7 @@ window.CONTENU = {
      "type": "fiche",
      "layout": "deux",
      "c": {
-      "proportion": 57,
+      "proportion": 56,
       "empileM": ""
      },
      "blocs": [
@@ -1477,6 +1486,23 @@ window.CONTENU = {
        "s": {
         "mt": 0
        },
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      },
+      {
+       "id": "bbes2ib2k",
+       "k": "spotify",
+       "c": {
+        "liens": [
+         "https://open.spotify.com/intl-fr/album/5nFoEORfqsvuw3nUdCyGiU?go=1&sp_cid=6b5d5bfd-e1e4-491b-9e57-84d391b516c7&utm_source=embed_player_p&utm_medium=desktop&si=4c37c911ff9a42af&nd=1&dlsi=45be4f41528b4dd0"
+        ],
+        "taille": "compact",
+        "colonnes": 1
+       },
+       "s": {},
        "t": {},
        "a": {
         "type": ""
@@ -1560,7 +1586,7 @@ window.CONTENU = {
      "s": {
       "pb": 0,
       "pt": 37,
-      "largeurPx": 432,
+      "largeurPx": 436,
       "align": "left"
      },
      "a": {
