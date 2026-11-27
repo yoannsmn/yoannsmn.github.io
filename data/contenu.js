@@ -199,7 +199,7 @@ window.CONTENU = {
   {
    "id": "photos",
    "titre": "PHOTOS",
-   "menu": true,
+   "menu": false,
    "sections": [
     {
      "id": "s5oolqh64",
@@ -284,19 +284,27 @@ window.CONTENU = {
         "images": [
          {
           "src": "images/films/freres/still-2.jpg",
-          "legende": "FRÈRES"
+          "legende": "FRÈRES",
+          "nr": 2.3071,
+          "nrs": "images/films/freres/still-2.jpg"
          },
          {
           "src": "images/films/2072/still-2.jpg",
-          "legende": "2072"
+          "legende": "2072",
+          "nr": 1.7892,
+          "nrs": "images/films/2072/still-2.jpg"
          },
          {
           "src": "images/films/freres/still-3.jpg",
-          "legende": ""
+          "legende": "",
+          "nr": 2.3143,
+          "nrs": "images/films/freres/still-3.jpg"
          },
          {
           "src": "images/films/2072/still-3.jpg",
-          "legende": ""
+          "legende": "",
+          "nr": 1.7892,
+          "nrs": "images/films/2072/still-3.jpg"
          }
         ],
         "rangees": "auto"
@@ -353,19 +361,27 @@ window.CONTENU = {
         "images": [
          {
           "src": "images/films/projet-3/vignette.jpg",
-          "legende": ""
+          "legende": "",
+          "nr": 1.689,
+          "nrs": "images/films/projet-3/vignette.jpg"
          },
          {
           "src": "images/films/projet-4/vignette.jpg",
-          "legende": ""
+          "legende": "",
+          "nr": 1.3401,
+          "nrs": "images/films/projet-4/vignette.jpg"
          },
          {
           "src": "images/films/2072/still-1.jpg",
-          "legende": ""
+          "legende": "",
+          "nr": 1.7892,
+          "nrs": "images/films/2072/still-1.jpg"
          },
          {
           "src": "images/films/freres/still-1.jpg",
-          "legende": ""
+          "legende": "",
+          "nr": 2.3143,
+          "nrs": "images/films/freres/still-1.jpg"
          }
         ],
         "rangees": "auto"
@@ -385,7 +401,8 @@ window.CONTENU = {
       "cible": "section"
      }
     }
-   ]
+   ],
+   "masquer": true
   },
   {
    "id": "a-propos",
@@ -405,7 +422,7 @@ window.CONTENU = {
        "fit": "cover"
       },
       "imageCote": "gauche",
-      "proportion": 27
+      "proportion": 31
      },
      "blocs": [
       {
@@ -495,7 +512,7 @@ window.CONTENU = {
        "k": "document",
        "c": {
         "texte": "TÉLÉCHARGER MON CV",
-        "src": "documents/simonneau-yoann-c4m9r.pdf",
+        "src": "",
         "style": "contour"
        },
        "s": {
@@ -728,7 +745,7 @@ window.CONTENU = {
      "Court-métrage"
     ],
     "roles": [
-     "Producteur"
+     "Producteur - Directeur de Production"
     ],
     "animation": "",
     "animSurvol": "zoom-in",
@@ -1738,6 +1755,26 @@ window.CONTENU = {
         ],
         "rangees": "auto"
        },
+       "s": {
+        "largeur": 73,
+        "decalX": 180,
+        "decalY": ""
+       },
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "b3gnmyn4l",
+       "k": "video",
+       "c": {
+        "url": "",
+        "poster": "",
+        "ratio": "16/9",
+        "legende": "",
+        "legendeOn": false
+       },
        "s": {},
        "t": {},
        "a": {
@@ -2072,22 +2109,12 @@ window.CONTENU = {
        "a": {
         "type": ""
        }
-      },
-      {
-       "id": "bk3jkrp2i",
-       "k": "tags",
-       "c": {
-        "tags": []
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
       }
      ],
      "s": {
-      "encadre": true
+      "encadre": true,
+      "pb": 0,
+      "pt": 20
      },
      "a": {
       "type": "",
@@ -2103,15 +2130,16 @@ window.CONTENU = {
      "c": {},
      "blocs": [
       {
-       "id": "b2769lqiv",
+       "id": "bu5ic97bl",
        "k": "galerie",
        "c": {
         "disposition": "mosaique",
+        "rangees": "3-1",
         "colonnes": 3,
         "colonnesM": 2,
-        "espacement": 12,
-        "ratio": "4/3",
-        "hauteurRang": 590,
+        "espacement": 60,
+        "ratio": "1.618/1",
+        "hauteurRang": 300,
         "hauteurBande": 440,
         "defilementAuto": false,
         "survol": "",
@@ -2131,8 +2159,7 @@ window.CONTENU = {
           "nr": 1.7778,
           "nrs": "images/bibliotheque/still-2026-09-04-235236-2-1-1-gi430.webp"
          }
-        ],
-        "rangees": "auto"
+        ]
        },
        "s": {},
        "t": {},
@@ -2144,7 +2171,7 @@ window.CONTENU = {
      "s": {
       "pb": 0,
       "pt": 37,
-      "largeurPx": 1220,
+      "largeurPx": 1676,
       "align": "left"
      },
      "a": {
@@ -2305,7 +2332,9 @@ window.CONTENU = {
     "genres": [
      "Court-métrage"
     ],
-    "roles": [],
+    "roles": [
+     "Producteur - Directeur de Production"
+    ],
     "animation": "",
     "animSurvol": "",
     "sousTitre": ""
@@ -2944,5 +2973,10 @@ window.CONTENU = {
    "nom": "SIMONNEAU Yoann"
   }
  ],
- "videos": []
+ "videos": [
+  {
+   "src": "videos/whatsapp-video-2026-10-22-at-10-26-04-cf2kx.mp4",
+   "nom": "WhatsApp Video 2026-10-22 at 10.26.04"
+  }
+ ]
 };
