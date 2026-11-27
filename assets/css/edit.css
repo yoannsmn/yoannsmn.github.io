@@ -103,3 +103,10 @@ html.is-edit .pill:empty { display: inline-block; min-width: 40px; min-height: 1
 html.is-edit .gal-rangees .gi, html.is-edit .gal-mosaique .gi { min-height: 30px; }
 .edo-bar, .edo-bbar, .edo-itbar, .edo-img, .edo-rt, .edo-badd, .edo-add { z-index: 5; }
 .edo-h, .edo-grip, .edo-rs, .edo-rsw, .edo-move { z-index: 3; }
+
+/* ---------- v5 : groupes, dépôt côte à côte ---------- */
+.edo-drop.vert { box-shadow: 0 0 0 4px rgba(255, 196, 92, .35); background: #ffc45c; }
+html.is-edit .bl-groupe { outline: 1px dashed rgba(255, 196, 92, .28); outline-offset: 2px; }
+html.is-edit .bl-groupe.grp-st-aucun { outline-color: rgba(255, 196, 92, .18); }
+html.is-edit .grp-in:empty, html.is-edit .grp-in > .ed-empty { min-height: 60px; }
+html.is-edit .grp-ligne > .ed-empty { flex: 1; }

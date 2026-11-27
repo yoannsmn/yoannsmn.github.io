@@ -157,7 +157,8 @@
     if (+b.rayon) mst.push(`border-radius:${+b.rayon}px`);
     const rat = it.ratio && it.ratio !== 'auto' ? it.ratio : o.ratio;
     if (rat && rat !== 'auto' && !o.noRatio) mst.push(`aspect-ratio:${rat}`);
-    if (o.rangees && rat && rat !== 'auto') { const n = String(rat).split('/').reduce((a, b) => +a / +b); if (n > 0) fst.push(`--r:${n.toFixed(4)}`); }
+    let rn = 0;
+    if (o.rangees && rat && rat !== 'auto') { rn = String(rat).split('/').reduce((a, b) => +a / +b); if (rn > 0) fst.push(`--r:${rn.toFixed(4)}`); }
     if (it.fond) mst.push(`background:${it.fond}`);
     ist.push(`object-fit:${it.fit || 'cover'}`, `object-position:${it.posX ?? 50}% ${it.posY ?? 50}%`);
     if (+it.zoom && +it.zoom !== 100) ist.push(`--z:${+it.zoom / 100}`);
@@ -178,7 +179,7 @@
     let dataAnim = '';
     if (it.anim && it.anim.type) { dataAnim = ` data-anim="${esc(it.anim.type)}"`; sty.push(`--ad:${+it.anim.duree || 0.9}s`, `--adl:${+it.anim.delai || 0}s`); }
     const hov = it.survol || o.hover;
-    return `<figure class="gi${o.rangees && !(rat && rat !== 'auto') ? ' r-auto' : ''}${hov ? ' hov-' + esc(hov) : ''}${it.filtre ? ' flt-' + esc(it.filtre) : ''}${dataAnim ? ' anim' : ''}${o.cls ? ' ' + o.cls : ''}"${EDIT ? ` data-img="${path}"` : ''}${dataAnim}${sty.length ? ` style="${sty.join(';')}"` : ''}>${inner}${showCap}</figure>`;
+    return `<figure class="gi${o.rangees && !(rat && rat !== 'auto') ? ' r-auto' : ''}${hov ? ' hov-' + esc(hov) : ''}${it.filtre ? ' flt-' + esc(it.filtre) : ''}${dataAnim ? ' anim' : ''}${o.cls ? ' ' + o.cls : ''}"${rn > 0 ? ` data-r="${rn.toFixed(4)}"` : ''}${+it.nr && it.nrs === it.src ? ` data-nr="${+it.nr}"` : ''}${EDIT ? ` data-img="${path}"` : ''}${dataAnim}${sty.length ? ` style="${sty.join(';')}"` : ''}>${inner}${showCap}</figure>`;
   }
 
   /* ---------- Liens et boutons ---------- */
@@ -260,12 +261,14 @@
         <div class="sl-dots">${imgs.map((_, i) => `<button type="button" aria-label="Image ${i + 1}"${i ? '' : ' class="on"'}></button>`).join('')}</div>` : ''}
       </div>`;
     }
-    const ordre = disp === 'mosaique' && c.ordre === 'colonnes' ? ' ordre-col' : '';
+    const ordre = '';
     const vm = [isNum(c.espacementM) ? `--gap-m:${+c.espacementM}px` : '', +c.hauteurRangM ? `--row-m:${+c.hauteurRangM}px` : '', +c.hauteurBandeM ? `--band-m:${+c.hauteurBandeM}px` : ''].filter(Boolean).join(';');
     const gr = c.format && c.format !== 'auto' ? c.format : null;
-    const ratioOf = disp === 'grille' ? (c.ratio || '4/3') : ['rangees', 'pile', 'duo', 'bande', 'mosaique'].includes(disp) ? gr : null;
-    const full = disp === 'rangees' && c.remplirDerniere ? ' r-full' : '';
-    return `<div class="gal gal-${esc(disp)}${ordre}${full}" style="${vars}${vm ? ';' + vm : ''}">${imgs.map((it, i) => figure(it, P(i), { cols, colsM, ratio: ratioOf, rangees: disp === 'rangees', noRatio: disp === 'puzzle', hover: c.survol, eager: i < 2 })).join('')}</div>`;
+    const auto = disp === 'mosaique' || disp === 'rangees';
+    const cls = auto ? 'gal-auto' : disp === 'colonnes' ? 'gal-mosaique' : 'gal-' + esc(disp);
+    const ratioOf = disp === 'grille' ? (c.ratio || '4/3') : ['pile', 'duo', 'bande', 'colonnes'].includes(disp) || auto ? gr : null;
+    const full = auto && c.remplirDerniere ? ' r-full' : '';
+    return `<div class="gal ${cls}${ordre}${full}" style="${vars}${vm ? ';' + vm : ''}">${imgs.map((it, i) => figure(it, P(i), { cols, colsM, ratio: disp === 'grille' ? ratioOf : (it.ratio && it.ratio !== 'auto' ? null : ratioOf), rangees: auto || disp === 'puzzle', noRatio: disp === 'puzzle', hover: c.survol, eager: i < 2 })).join('')}</div>`;
   };
   BR.video = (b, p) => {
     const c = b.c, v = M.video(c.url);
@@ -409,6 +412,7 @@
     if (s.masquerMobile) cls.push('hide-m');
     if (s.masquerOrdi) cls.push('hide-d');
     if (s.encadre) cls.push('box-accent');
+    if (b.k === 'groupe') cls.push('grp-st-' + (b.c.style || 'encadre'));
     const t = b.t || {};
     st.push(...typo(t, 't'), ...typo(t, 'tt'));
     if (t.degrade && t.degrade.actif) cls.push('has-t-g', 'has-tt-g');
@@ -427,14 +431,23 @@
     }
     return { cls: cls.join(' '), style: st.join(';'), anim };
   }
-  function renderBloc(b, i, sec, d, page) {
+  function renderBlocAt(b, path, sec, d, page, layout) {
     const fn = BR[b.k];
     if (!fn) return '';
-    const inner = fn(b, 'blocs.' + i, sec, d, page);
+    const inner = fn(b, path, sec, d, page);
     if (!inner && !EDIT) return '';
-    const bp = blocParts(b, sec.layout);
+    const bp = blocParts(b, layout);
     return `<div class="${bp.cls}"${EDIT ? ` data-bid="${esc(b.id)}"` : ''}${bp.anim} style="${bp.style}">${inner}</div>`;
   }
+  const renderBloc = (b, i, sec, d, page) => renderBlocAt(b, 'blocs.' + i, sec, d, page, sec.layout);
+  // Groupe : plusieurs éléments rassemblés dans un cadre, empilés ou côte à côte
+  BR.groupe = (b, p, sec, d, page) => {
+    const c = b.c, kids = arr(c.blocs), row = c.disposition === 'ligne';
+    const mob = c.empileM === 'oui' ? 'm-empile' : c.empileM === 'non' ? 'm-cote' : ((d.site.mobile || {}).colonnes === 'empile' ? 'm-empile' : 'm-cote');
+    const inner = kids.map((k, j) => renderBlocAt(k, `${p}.c.blocs.${j}`, sec, d, page, row ? 'ligne' : 'pile')).join('');
+    const hint = EDIT && !kids.length ? `<div class="ed-empty small" data-act="add-bloc" data-list="${p}.c.blocs">Glisse des éléments ici (poignée ⠿), ou clique pour en ajouter</div>` : '';
+    return `<div class="grp-in ${row ? `grp-ligne ${mob} al-${esc(c.aligner || 'haut')}` : 'stack grp-pile'}" style="--gg:${isNum(c.espace) ? +c.espace : 16}px"${EDIT ? ` data-droplist="${p}.c.blocs"` : ''}>${inner}${hint}</div>`;
+  };
   const stackOf = (sec, d, page, idx) => idx.map(i => renderBloc(sec.blocs[i], i, sec, d, page)).join('');
   const allIdx = sec => sec.blocs.map((_, i) => i);
   const emptyHint = sec => EDIT && !sec.blocs.length ? '<div class="ed-empty" data-act="add-bloc">+ Ajouter un élément dans cette section</div>' : '';
@@ -688,11 +701,56 @@
         if (img && !img.complete) img.addEventListener('load', () => fit(f), { once: true });
       });
     });
-    $$('.gal-rangees .gi.r-auto').forEach(f => {
-      const img = f.querySelector('img');
-      if (!img) return;
-      const set = () => { if (img.naturalWidth && img.naturalHeight) f.style.setProperty('--r', (img.naturalWidth / img.naturalHeight).toFixed(4)); };
-      img.complete ? set() : img.addEventListener('load', set, { once: true });
+    $$('.gal-auto').forEach(g => {
+      justify(g);
+      $$('img', g).forEach(img => { if (!img.complete) img.addEventListener('load', () => justify(g), { once: true }); });
+    });
+    $$('.gal-puzzle').forEach(g => {
+      puzzleSpans(g);
+      $$('img', g).forEach(img => { if (!img.complete) img.addEventListener('load', () => puzzleSpans(g), { once: true }); });
+    });
+  }
+  // Format d'une photo : format choisi, sinon format réel de l'image
+  const figRatio = f => {
+    if (+f.dataset.r) return +f.dataset.r;
+    const img = f.querySelector('img');
+    if (img && img.naturalWidth && img.naturalHeight) return img.naturalWidth / img.naturalHeight;
+    return +f.dataset.nr || 1.5;
+  };
+  // Mosaïque automatique : chaque rangée remplit toute la largeur et chaque photo garde son format
+  function justify(g) {
+    const items = $$(':scope > .gi', g), W = g.clientWidth;
+    if (!items.length || !W) return;
+    const cs = getComputedStyle(g), gap = parseFloat(cs.columnGap) || 0, vm = document.documentElement.classList.contains('vm');
+    const base = parseFloat(cs.getPropertyValue('--row')) || 220;
+    const target = (vm && parseFloat(cs.getPropertyValue('--row-m'))) || base * (vm ? 0.55 : 1);
+    const place = (row, sum, full) => {
+      const n = row.length, avail = W - gap * (n - 1);
+      const h = full ? avail / sum : Math.min(target, avail / sum);
+      let used = 0;
+      row.forEach(([f, r], k) => {
+        const w = full && k === n - 1 ? Math.max(10, Math.floor((avail - used - 0.6) * 100) / 100) : Math.floor(r * h * 100) / 100;
+        used += w;
+        f.style.width = w + 'px';
+        f.style.setProperty('--r', r.toFixed(4));
+      });
+    };
+    let row = [], sum = 0;
+    items.forEach(f => {
+      const r = figRatio(f);
+      row.push([f, r]); sum += r;
+      if (sum * target + gap * (row.length - 1) >= W) { place(row, sum, true); row = []; sum = 0; }
+    });
+    // Dernière rangée : pleine largeur si c'est la seule, si elle est presque pleine, ou si tu l'as demandé
+    const only = row.length === items.length;
+    if (row.length) place(row, sum, only || g.classList.contains('r-full') || sum * target + gap * (row.length - 1) >= W * 0.62);
+  }
+  // Puzzle : une photo avec un format choisi prend la hauteur qui correspond à ce format
+  function puzzleSpans(g) {
+    const cs = getComputedStyle(g), gap = parseFloat(cs.rowGap) || 0, rowH = parseFloat(cs.gridAutoRows) || 220;
+    $$(':scope > .gi[data-r]', g).forEach(f => {
+      const w = f.getBoundingClientRect().width;
+      if (w) f.style.gridRow = 'span ' + Math.max(1, Math.min(8, Math.round((w / +f.dataset.r + gap) / (rowH + gap))));
     });
   }
   let galTimer;

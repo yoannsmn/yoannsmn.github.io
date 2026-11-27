@@ -600,3 +600,38 @@ html.vd .hide-d { display: none !important; }
 /* Parcours dans une colonne : date plus étroite */
 html.vd .deux-row .timeline .tl { grid-template-columns: 92px 1fr; }
 html.vd .deux-row .timeline.has-logos .tl { grid-template-columns: 92px var(--logo, 56px) 1fr; }
+
+/* ==========================================================================
+   Version 5 : mosaïque automatique, groupes d'éléments
+   ========================================================================== */
+.gal-auto { display: flex; flex-wrap: wrap; gap: var(--gap, 12px); align-items: flex-start; }
+.gal-auto .gi { flex: none; width: calc(var(--r, 1.5) * var(--row, 220px)); max-width: 100%; min-width: 0; margin: 0; }
+.gal-auto .gi-media { aspect-ratio: var(--r, 1.5); }
+.gal-auto .gi img { width: 100%; height: 100%; object-fit: cover; }
+html.vm .gal-auto { gap: var(--gap-m, var(--gap, 12px)); }
+.gal-puzzle .gi[data-r] .gi-media { aspect-ratio: auto !important; }
+
+/* Groupes : un cadre qui rassemble plusieurs éléments */
+.bl-groupe > .grp-in { min-width: 0; }
+.grp-pile { display: block; }
+.grp-pile > .bl + .bl { margin-top: var(--mt, var(--gg, 16px)); }
+.grp-pile > .bl:first-child { margin-top: 0; }
+.grp-ligne { display: flex; gap: var(--gg, 16px); align-items: flex-start; }
+.grp-ligne.al-centre { align-items: center; } .grp-ligne.al-bas { align-items: flex-end; } .grp-ligne.al-etirer { align-items: stretch; }
+.grp-ligne > .bl { flex: 1 1 0; min-width: 0; margin: 0 !important; }
+.grp-ligne > .bl-w { flex: 0 0 var(--bw); width: auto; }
+.bl.grp-st-encadre { padding: clamp(20px, 3vw, 36px); border-left: 3px solid var(--accent); background: linear-gradient(135deg, rgba(138, 155, 255, .08), rgba(255, 255, 255, .015)); border-radius: 2px; }
+.bl.grp-st-carte { padding: clamp(18px, 2.6vw, 30px); background: rgba(255, 255, 255, .04); border: 1px solid rgba(255, 255, 255, .1); border-radius: 14px; }
+.bl.grp-st-trait { padding: clamp(16px, 2.4vw, 28px); border: 1px solid rgba(255, 255, 255, .22); }
+.bl.grp-st-fond { padding: clamp(18px, 2.6vw, 30px); background: #101014; }
+.bl.grp-st-aucun { padding: 0; }
+.bl.bl-groupe.bl-p { padding: var(--bp); }
+html.vm .grp-ligne.m-empile { flex-direction: column; align-items: stretch; }
+html.vm .grp-ligne.m-empile > .bl { flex: none; width: 100% !important; }
+html.vm .grp-ligne.m-cote { gap: min(var(--gg, 16px), 12px); }
+html.vm .grp-ligne.m-cote .t-body, html.vm .grp-ligne.m-cote .rich { font-size: var(--t-sm, 12.5px); }
+html.vm .bl.grp-st-encadre, html.vm .bl.grp-st-carte, html.vm .bl.grp-st-trait, html.vm .bl.grp-st-fond { padding: 18px; }
+html.vm .bl.bl-groupe.bl-pm { padding: var(--bpm) !important; }
+/* Rien ne doit élargir la page sur le côté (un élément décalé, une image…) */
+html, body { overflow-x: hidden; }
+@supports (overflow: clip) { html, body { overflow-x: clip; } }

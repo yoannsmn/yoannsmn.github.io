@@ -1,4 +1,4 @@
-# Portfolio de Yoann SIMONNEAU (version 4 : glisser-déposer, tailles à la souris, version téléphone)
+# Portfolio de Yoann SIMONNEAU (version 5 : groupes, mosaïque automatique, déplacement libre)
 
 Ton site se modifie **directement sur la page**, depuis `https://tonpseudo.github.io/admin.html`, sur ordinateur comme sur téléphone.
 
@@ -15,6 +15,9 @@ Chaque élément a sa propre barre jaune et ses propres réglages : **Contenu, S
 | Régler un seul élément | Survole-le → barre jaune → **✎**. Onglets Contenu, Style, Texte, Animation. |
 | Supprimer un élément (ex. la pastille) | Barre jaune → **🗑**. |
 | Déplacer un élément | Attrape la poignée jaune **⠿** à sa gauche (ou son nom dans la barre jaune) et glisse-le, même dans une autre section ou colonne. |
+| Mettre deux éléments côte à côte | Glisse un élément (⠿) sur le **bord gauche ou droit** d’un autre. |
+| Décaler librement un élément | Barre jaune → maintiens **✥** et glisse. Double-clic sur ✥ : retour à sa place. |
+| Grouper (titre + texte dans un cadre) | Barre jaune → **⊞ Grouper**, ou élément tout prêt **« Mon travail (encadré) »** dans ＋ Ajouter. Cadre au choix : encadré joli, carte, trait, fond sombre, sans cadre. **⊟** pour dégrouper. |
 | Ajouter un élément ou une section | Bouton **＋ Ajouter** en haut à gauche, puis glisse-le dans la page (ou clique dessus). Ou rond jaune **+** sous un élément. |
 | Changer une taille à la souris | **↔** à droite d’un élément, **⇲** / **↕** sur une image, **⇕** en haut/bas d’une section, **⇔** entre deux colonnes, **↔** à droite du contenu d’une section, **↕** sous une galerie ou une couverture. |
 | Plusieurs pastilles sur une ligne | Petit **+** à droite des pastilles. Survole une pastille : ⠿ ↑ ↓ ⧉ 🗑. |
@@ -23,7 +26,8 @@ Chaque élément a sa propre barre jaune et ses propres réglages : **Contenu, S
 | Typologies de projets (filtres) | Accueil → **+ Typologie** au bout des filtres, ou ☰ Pages → Projets. Autant que tu veux, plusieurs par projet. |
 | Survol des vignettes | Accueil → Grille de projets → ✎ → « Animation du texte au survol » (mêmes choix que l’apparition). |
 | Légende d’une photo | Facultative : bouton **Légende** sur l’image pour l’ajouter ou la retirer. |
-| Galerie qui remplit la largeur | Disposition **Rangées ajustées**, format au choix (16:9, 9:16, 4:3, 1:1…). Option « Prendre toute la largeur de l’écran ». |
+| Photos de formats différents | Disposition **Mosaïque automatique** : chaque photo garde son format (horizontale, verticale, carrée), chaque rangée remplit la largeur. Taille : poignée ↕ sous la galerie. |
+| Imposer un format à une photo | Clique sur la photo → **Format de cette photo** (16:9, 9:16, 4:3, 1:1…), puis **✋ Cadrer** pour choisir la partie visible. |
 | Version téléphone différente | Bouton **📱 Mobile** : les tailles, espacements, positions et colonnes réglés à ce moment ne changent que sur téléphone. |
 | Retrouver une ancienne version | Menu **⋯ → 🕘 Historique des publications**. Modifications mises de côté : **⋯ → 🛟**. |
 | Régler toute une section | Barre blanche → **✎ Section** (mise en page + liste des éléments) ou **Style**. |

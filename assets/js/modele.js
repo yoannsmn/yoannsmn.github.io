@@ -164,9 +164,20 @@
     coordonnees: { nom: 'Coordonnées', g: 'Actions', c: () => ({ email: '', telephone: '', lieu: '' }) },
     formulaire: { nom: 'Formulaire de contact', g: 'Actions', c: () => ({ formspree: '', email: '' }) },
     projets: { nom: 'Grille de projets', g: 'Projets', c: () => ({ filtres: true, tousLabel: 'Tous', ordreGenres: [], genre: '', colonnes: 2, colonnesM: 2, ratio: '16/9', animation: 'cinema', afficherGenre: true, afficherRoles: true, animEntree: 'fade-up', animDuree: 0.9, animEcart: 0.12, animSurvol: '', survolTexte: 'titre-cta', survolVoile: 45, survolDuree: 0.6 }) },
-    espace: { nom: 'Espace / ligne', g: 'Structure', c: () => ({ hauteur: 40, ligne: false, couleurLigne: '', epaisseur: 1, largeurLigne: 100 }) }
+    espace: { nom: 'Espace / ligne', g: 'Structure', c: () => ({ hauteur: 40, ligne: false, couleurLigne: '', epaisseur: 1, largeurLigne: 100 }) },
+    // Un groupe rassemble plusieurs éléments (titre + texte…) dans un cadre, empilés ou côte à côte
+    groupe: { nom: 'Groupe / encadré', g: 'Structure', c: () => ({ blocs: [M.bloc('titre', { texte: 'Titre', taille: 'bloc' }), M.bloc('texte', { html: '<p>Ton texte ici.</p>' })], disposition: 'pile', style: 'encadre', espace: 16, aligner: 'haut', empileM: '', auto: false }) }
   };
   M.BLOC_GROUPES = ['Texte', 'Médias', 'Listes', 'Actions', 'Projets', 'Structure'];
+  // Éléments tout prêts (des groupes déjà remplis), à glisser où tu veux
+  M.PRESETS = {
+    travail: { nom: 'Mon travail (encadré)', g: 'Texte', ico: '▣', make: () => M.bloc('groupe', { style: 'encadre', blocs: [
+      M.bloc('surtitre', { texte: 'Mon rôle' }), M.bloc('titre', { texte: 'Mon travail sur le projet', taille: 'bloc' }),
+      M.bloc('texte', { html: '<p>Raconte ici ce que tu as fait sur ce projet : recherche de financement, constitution de l’équipe, repérages, planning, post-production, diffusion…</p>' }),
+      M.bloc('tags', { tags: ['Producteur'] })] }) },
+    carte: { nom: 'Carte (titre + texte)', g: 'Texte', ico: '▢', make: () => M.bloc('groupe', { style: 'carte' }) },
+    duo: { nom: 'Deux éléments côte à côte', g: 'Structure', ico: '◫', make: () => M.bloc('groupe', { style: 'aucun', disposition: 'ligne', blocs: [M.bloc('texte', { html: '<p>Texte à gauche.</p>' }), M.bloc('image')] }) }
+  };
   M.TAILLES_TITRE = [['cov', 'Très grand (couverture)'], ['page', 'Grand titre de page'], ['section', 'Titre de section'], ['bloc', 'Titre moyen'], ['texte', 'Petit titre'], ['petit', 'Très petit']];
   M.bloc = (k, c, extra) => {
     const def = M.BLOCS[k];
@@ -221,7 +232,7 @@
       () => ({ hauteur: 560 }))
   };
   M.GROUPES = ['Titres & couvertures', 'Texte', 'Images & vidéos', 'Projets', 'Listes', 'Contact & actions', 'Son & intégration', 'Structure'];
-  M.DISPOSITIONS = [['rangees', 'Rangées ajustées (remplissent la largeur)'], ['puzzle', 'Puzzle (tailles libres)'], ['grille', 'Grille régulière'], ['mosaique', 'Mosaïque (formats d’origine)'], ['bande', 'Bande horizontale'], ['diaporama', 'Diaporama'], ['pile', 'Pleine largeur, empilées'], ['duo', 'Duo côte à côte']];
+  M.DISPOSITIONS = [['mosaique', 'Mosaïque automatique (garde le format de chaque photo)'], ['colonnes', 'Colonnes (photos empilées en colonnes)'], ['puzzle', 'Puzzle (tu choisis la taille de chaque photo)'], ['grille', 'Grille régulière (toutes au même format)'], ['bande', 'Bande horizontale'], ['diaporama', 'Diaporama'], ['pile', 'Pleine largeur, empilées'], ['duo', 'Duo côte à côte']];
 
   M.section = (type, extra) => {
     const T = M.TYPES[type] || M.TYPES.texte;
@@ -437,7 +448,7 @@
       p.sections.forEach(x => {
         x.id = x.id || M.uid('s'); x.c = x.c || {}; x.s = x.s || {};
         x.a = Object.assign({ type: '', duree: 0.9, delai: 0, cible: 'section' }, x.a || {});
-        x.blocs = M.arr(x.blocs).filter(b => b && M.BLOCS[b.k]).map(b => {
+        const normBloc = (b, depth) => {
           b.id = b.id || M.uid('b');
           b.c = Object.assign(M.BLOCS[b.k].c(), b.c || {});
           b.s = b.s || {}; b.t = b.t || {}; b.a = Object.assign({ type: '' }, b.a || {});
@@ -445,6 +456,15 @@
             if (Array.isArray(b.c.textes)) b.c.textes = b.c.textes.map(t => String(t ?? '')); else b.c.textes = [String(b.c.texte || '')];
             b.c.texte = b.c.textes[0] || '';
           }
+          if (b.k === 'galerie') {
+            if (b.c.disposition === 'rangees') b.c.disposition = 'mosaique';
+            if (b.c.disposition === 'mosaique' && b.c.ordre === 'colonnes') { b.c.disposition = 'colonnes'; b.c.ordre = 'lignes'; }
+          }
+          if (b.k === 'groupe') b.c.blocs = M.arr(b.c.blocs).filter(k => k && M.BLOCS[k.k] && (depth < 3 || k.k !== 'groupe')).map(k => normBloc(k, depth + 1));
+          return b;
+        };
+        x.blocs = M.arr(x.blocs).filter(b => b && M.BLOCS[b.k]).map(b => {
+          normBloc(b, 0);
           if (x.layout === 'deux' && !b.col) b.col = 'g';
           if (x.layout === 'libre') b.pos = Object.assign({ x: 10, y: 10, w: 40, z: 1 }, b.pos || {});
           return b;

@@ -17,18 +17,42 @@
     for (const p of ED.data.pages) { const i = M.arr(p.sections).findIndex(x => x.id === id); if (i > -1) return { page: p, sec: p.sections[i], list: p.sections, index: i }; }
     return null;
   };
-  const blocById = id => {
-    for (const p of ED.data.pages) for (const s of M.arr(p.sections)) {
-      const i = M.arr(s.blocs).findIndex(b => b.id === id);
-      if (i > -1) return { page: p, sec: s, bloc: s.blocs[i], index: i, path: 'blocs.' + i };
+  // Cherche un élément partout, y compris dans les groupes : renvoie sa liste, sa position et son chemin
+  const findIn = (list, id, path, parent) => {
+    for (let i = 0; i < list.length; i++) {
+      const b = list[i];
+      if (b.id === id) return { bloc: b, list, index: i, path: `${path}.${i}`, parent };
+      if (b.k === 'groupe') { const r = findIn(M.arr(b.c.blocs), id, `${path}.${i}.c.blocs`, b); if (r) return r; }
     }
     return null;
   };
-  const blocName = b => (M.BLOCS[b.k] || {}).nom || 'Élément';
+  const blocById = id => {
+    for (const p of ED.data.pages) for (const s of M.arr(p.sections)) {
+      const r = findIn(M.arr(s.blocs), id, 'blocs', null);
+      if (r) return Object.assign({ page: p, sec: s }, r);
+    }
+    return null;
+  };
+  const blocName = b => b.k === 'groupe' ? (b.c.disposition === 'ligne' ? 'Groupe côte à côte' : 'Groupe') : (M.BLOCS[b.k] || {}).nom || 'Élément';
+  const reIdBloc = b => { b.id = M.uid('b'); if (b.k === 'groupe') M.arr(b.c.blocs).forEach(reIdBloc); return b; };
+  const newBloc = k => M.PRESETS[k] ? M.PRESETS[k].make() : M.bloc(k);
+  // Un groupe créé automatiquement (en posant un élément à côté d'un autre) disparaît quand il ne contient plus qu'un élément
+  function cleanupGroups(list) {
+    for (let i = list.length - 1; i >= 0; i--) {
+      const b = list[i];
+      if (b.k !== 'groupe') continue;
+      cleanupGroups(b.c.blocs);
+      if (b.c.auto && b.c.blocs.length <= 1) {
+        const kid = b.c.blocs[0];
+        if (kid) { if (b.col) kid.col = b.col; if (b.pos) kid.pos = b.pos; list.splice(i, 1, kid); } else list.splice(i, 1);
+      }
+    }
+  }
   function setData(d) { ED.data = M.normalize(d); window.Editeur.data = ED.data; }
   function changed(o = {}) {
     ED.dirty = true;
     if (o.render !== false) scheduleRender();
+    histDirty = true;
     clearTimeout(histTimer); histTimer = setTimeout(pushHistory, 350);
     clearTimeout(draftTimer); draftTimer = setTimeout(saveDraft, 500);
     updateState();
@@ -53,6 +77,16 @@
   // Les photos qui viennent d'être envoyées ne sont pas encore en ligne : on les affiche depuis la mémoire
   function fixImages() {
     if (!fdoc) return;
+    // Retient le format réel de chaque photo : la mosaïque se place correctement avant même le chargement des images
+    $$('[data-img]', fdoc).forEach(el => {
+      const img = el.querySelector('img'); if (!img) return;
+      const save = () => {
+        if (!img.naturalWidth) return;
+        const secEl = el.closest('[data-sid]'), r = secEl && secById(secEl.dataset.sid), o = r && M.get(r.sec, el.dataset.img);
+        if (o && typeof o === 'object' && o.src && o.nrs !== o.src) { o.nr = +(img.naturalWidth / img.naturalHeight).toFixed(4); o.nrs = o.src; quietSync(); }
+      };
+      img.complete ? save() : img.addEventListener('load', save, { once: true });
+    });
     $$('img', fdoc).forEach(img => {
       const p = img.getAttribute('src');
       if (!p || /^(https?:|blob:|data:)/.test(p)) return;
@@ -67,7 +101,14 @@
       if (out !== css) el.setAttribute('style', out);
     });
   }
+  // Changement silencieux (format réel d'une photo) : on l'intègre à l'historique sans créer d'étape « annuler »
+  let quietTimer, histDirty = false;
+  function quietSync() {
+    clearTimeout(quietTimer);
+    quietTimer = setTimeout(() => { if (!histDirty && hpos >= 0) hist[hpos] = JSON.stringify(ED.data); }, 250);
+  }
   function pushHistory() {
+    histDirty = false;
     const j = JSON.stringify(ED.data);
     if (hist[hpos] === j) return;
     hist = hist.slice(0, hpos + 1); hist.push(j);
@@ -147,7 +188,7 @@
   function frameReady(w) {
     win = w; fdoc = w.document;
     const l = fdoc.createElement('link');
-    l.rel = 'stylesheet'; l.href = 'assets/css/edit.css?v=4';
+    l.rel = 'stylesheet'; l.href = 'assets/css/edit.css?v=5';
     fdoc.head.appendChild(l);
     fixImages();
     ov.install();
@@ -180,7 +221,10 @@
           <button data-a="s-dup" title="Dupliquer la section">⧉</button><button data-a="s-del" class="danger" title="Supprimer la section">🗑</button></div>
         <div class="edo-bbar"><span class="edo-bname" title="Attrape ici pour déplacer l’élément"></span>
           <button data-a="b-edit" title="Réglages de cet élément">✎</button>
+          <button data-a="b-nudge" class="edo-grab not-free" title="Glisse pour décaler librement l’élément dans l’espace (double-clic : le remettre à sa place)">✥</button>
           <button data-a="b-up" title="Monter">↑</button><button data-a="b-down" title="Descendre">↓</button>
+          <button data-a="b-group" class="not-free" title="Grouper : mettre cet élément dans un cadre (tu pourras y glisser d’autres éléments)">⊞</button>
+          <button data-a="b-ungroup" class="only-grp" title="Dégrouper : sortir les éléments du cadre">⊟</button>
           <button data-a="b-front" class="only-free" title="Premier plan">⬆</button><button data-a="b-back" class="only-free" title="Arrière-plan">⬇</button>
           <button data-a="b-dup" title="Dupliquer">⧉</button><button data-a="b-del" class="danger" title="Supprimer l’élément">🗑</button></div>
         <div class="edo-grip" title="Attrape et glisse pour déplacer l’élément (même vers une autre section ou colonne)">⠿</div>
@@ -189,7 +233,7 @@
         <button class="edo-add edo-add-top" data-a="s-add-before">+ Section</button>
         <button class="edo-add edo-add-bot" data-a="s-add-after">+ Section</button>
         <button class="edo-pen" title="Écrire">✎</button>
-        <div class="edo-img"><button data-a="img-replace">Remplacer</button><button data-a="img-crop">Rogner</button><button data-a="img-cap" title="Ajouter ou retirer la légende">Légende</button><button data-a="img-settings">✎</button><button data-a="img-drag" class="edo-grab" title="Glisser pour réorganiser">⠿</button><button data-a="img-del" class="danger" title="Retirer l’image">✕</button></div>
+        <div class="edo-img"><button data-a="img-replace">Remplacer</button><button data-a="img-frame" class="edo-grab" title="Maintiens et glisse pour choisir la partie visible de la photo (quand elle est recadrée)">✋ Cadrer</button><button data-a="img-crop">Rogner</button><button data-a="img-cap" title="Ajouter ou retirer la légende">Légende</button><button data-a="img-settings">✎</button><button data-a="img-drag" class="edo-grab" title="Glisser pour réorganiser">⠿</button><button data-a="img-del" class="danger" title="Retirer l’image">✕</button></div>
         <div class="edo-rs" title="Tirer pour agrandir ou réduire">⇲</div>
         <div class="edo-move" title="Glisser pour déplacer">✥</div>
         <div class="edo-rsw" title="Tirer pour changer la largeur">⇲</div>
@@ -206,9 +250,15 @@
         const b = e.target.closest('[data-a]');
         if (b) { e.preventDefault(); e.stopPropagation(); barAction(b.dataset.a); }
       });
+      root.addEventListener('dblclick', e => {
+        if (!e.target.closest('[data-a="b-nudge"]')) return;
+        const bi = ov.hBloc && blocById(ov.hBloc.dataset.bid); if (!bi) return;
+        const s = bi.bloc.s; if (MOB()) { s.decalXM = 0; s.decalYM = 0; } else { s.decalX = ''; s.decalY = ''; }
+        changed(); refreshPanelSoon(); ED.toast('Élément remis à sa place.');
+      });
       root.addEventListener('pointerdown', e => {
-        const b = e.target.closest('[data-a="s-drag"],[data-a="img-drag"],[data-a="it-drag"]');
-        if (b) { e.preventDefault(); ({ 's-drag': dragSection, 'img-drag': dragImage, 'it-drag': dragItem })[b.dataset.a](e); return; }
+        const b = e.target.closest('[data-a="s-drag"],[data-a="img-drag"],[data-a="it-drag"],[data-a="b-nudge"],[data-a="img-frame"]');
+        if (b) { e.preventDefault(); ({ 's-drag': dragSection, 'img-drag': dragImage, 'it-drag': dragItem, 'b-nudge': nudgeBloc, 'img-frame': reframeImage })[b.dataset.a](e); return; }
         if (e.target.closest('.edo-grip, .edo-bname')) { e.preventDefault(); dragBloc(e); return; }
         const hd = e.target.closest('.edo-h');
         if (hd) { e.preventDefault(); resizeHandle(hd.dataset.h, e); return; }
@@ -284,7 +334,7 @@
       // Élément (bloc) survolé
       const bl = drag ? null : (this.hBloc && this.hBloc.isConnected ? this.hBloc : selBloc);
       const info = bl && blocById(bl.dataset.bid);
-      const free = info && isFree(info.sec);
+      const free = info && isFree(info.sec) && !info.parent;
       this.show(this.bbox, bl && bl !== selBloc); if (bl && bl !== selBloc) this.box(this.bbox, bl.getBoundingClientRect(), 4);
       this.show(this.bbar, bl); this.show(this.badd, bl && !free);
       this.bname.classList.toggle('edo-grab', !free);
@@ -292,6 +342,8 @@
         const r = bl.getBoundingClientRect();
         this.bname.textContent = (free ? '' : '⠿ ') + blocName(info.bloc);
         $$('.only-free', this.bbar).forEach(b => { b.style.display = free ? '' : 'none'; });
+        $$('.not-free', this.bbar).forEach(b => { b.style.display = free ? 'none' : ''; });
+        $$('.only-grp', this.bbar).forEach(b => { b.style.display = info.bloc.k === 'groupe' ? '' : 'none'; });
         let bx = Math.max(4, Math.min(r.left - 4, vw - (this.bbar.offsetWidth || 260) - 4)), by = Math.max(r.top - 34, 4);
         if (sec) { // évite de recouvrir la barre de la section
           const sb = this.bar.getBoundingClientRect(), bw2 = this.bbar.offsetWidth || 260;
@@ -323,8 +375,10 @@
       if (isI && !free) {
         const r = el.getBoundingClientRect(), path = el.dataset.img, inArr = /images\.\d+$/.test(path);
         this.img.querySelector('[data-a="img-drag"]').style.display = inArr ? '' : 'none';
-        this.img.querySelector('[data-a="img-cap"]').style.display = /^blocs\.\d+\.c\.(img|images\.\d+)$/.test(path) ? '' : 'none';
-        this.at(this.img, Math.max(8, r.right - 8), Math.max(r.top + 8, 40));
+        this.img.querySelector('[data-a="img-frame"]').style.display = cropInfo(el) ? '' : 'none';
+        this.img.querySelector('[data-a="img-cap"]').style.display = /(^|\.)blocs\.\d+\.c\.(img|images\.\d+)$/.test(path) ? '' : 'none';
+        const iw = this.img.offsetWidth || 300;
+        this.at(this.img, clamp(r.right - 8, iw + 6, vw - 6), Math.max(r.top + 8, 40));
         if (inArr && el.closest('.gal-puzzle, .gal-grille')) { rsOn = true; this.at(this.rs, r.right - 34, r.bottom - 34); }
       }
       this.show(this.rs, rsOn);
@@ -480,7 +534,7 @@
   /* ==========================================================================
      Actions sur les sections et les éléments
      ========================================================================== */
-  const reId = s => { const c = M.clone(s); c.id = M.uid('s'); c.blocs = M.arr(c.blocs).map(b => Object.assign(b, { id: M.uid('b') })); return c; };
+  const reId = s => { const c = M.clone(s); c.id = M.uid('s'); c.blocs = M.arr(c.blocs).map(reIdBloc); return c; };
   function barAction(a) {
     const secEl = ov.hSec || (st.sel && fdoc.querySelector(`[data-sid="${st.sel.sid}"]`));
     const info = secEl && secById(secEl.dataset.sid);
@@ -500,13 +554,15 @@
       const blEl = ov.hBloc || (st.sel && st.sel.bid && fdoc.querySelector(`[data-bid="${st.sel.bid}"]`));
       const bi = blEl && blocById(blEl.dataset.bid);
       if (!bi) return;
-      const list = bi.sec.blocs, i = bi.index;
+      const list = bi.list, i = bi.index;
       if (a === 'b-edit') selectBloc(bi.bloc.id, 'contenu');
       if (a === 'b-up' && i > 0) { [list[i - 1], list[i]] = [list[i], list[i - 1]]; changed(); }
       if (a === 'b-down' && i < list.length - 1) { [list[i + 1], list[i]] = [list[i], list[i + 1]]; changed(); }
-      if (a === 'b-dup') { const c = M.clone(bi.bloc); c.id = M.uid('b'); if (c.pos) { c.pos.x = Math.min(90, c.pos.x + 3); c.pos.y = Math.min(90, c.pos.y + 3); } list.splice(i + 1, 0, c); changed(); selectBloc(c.id); }
-      if (a === 'b-del' && confirm(`Supprimer l’élément « ${blocName(bi.bloc)} » ?\n(Tu pourras annuler avec ↶)`)) { list.splice(i, 1); if (st.sel && st.sel.bid === bi.bloc.id) select(bi.sec.id); ov.hBloc = null; changed(); }
-      if (a === 'b-add') openAddBloc(bi.sec.id, i + 1, bi.bloc.col);
+      if (a === 'b-dup') { const c = reIdBloc(M.clone(bi.bloc)); if (c.pos) { c.pos.x = Math.min(90, c.pos.x + 3); c.pos.y = Math.min(90, c.pos.y + 3); } list.splice(i + 1, 0, c); changed(); selectBloc(c.id); }
+      if (a === 'b-del' && confirm(`Supprimer l’élément « ${blocName(bi.bloc)} »${bi.bloc.k === 'groupe' ? ' et tout ce qu’il contient' : ''} ?\n(Tu pourras annuler avec ↶)`)) { list.splice(i, 1); cleanupGroups(bi.sec.blocs); if (st.sel && st.sel.bid === bi.bloc.id) select(bi.sec.id); ov.hBloc = null; changed(); }
+      if (a === 'b-add') openAddBloc(bi.sec.id, i + 1, bi.bloc.col, list);
+      if (a === 'b-group') groupBloc(bi);
+      if (a === 'b-ungroup') ungroupBloc(bi);
       if (a === 'b-front') { bi.bloc.pos.z = Math.max(...list.map(x => +(x.pos || {}).z || 1)) + 1; changed(); }
       if (a === 'b-back') { list.forEach(x => { if (x.pos) x.pos.z = (+x.pos.z || 1) + 1; }); bi.bloc.pos.z = 1; changed(); }
       return;
@@ -530,7 +586,7 @@
     const sid = secEl ? secEl.dataset.sid : (st.sel && st.sel.sid);
     if (act === 'add-images' && blEl) addImages(blEl.dataset.bid);
     else if (act === 'edit-bloc' && blEl) selectBloc(blEl.dataset.bid, 'contenu');
-    else if (act === 'add-bloc' && sid) openAddBloc(sid, null, el.dataset ? el.dataset.col : null);
+    else if (act === 'add-bloc' && sid) { const r = secById(sid); openAddBloc(sid, null, el.dataset ? el.dataset.col : null, el.dataset && el.dataset.list && r ? M.get(r.sec, el.dataset.list) : null); }
     else if (act === 'add-first') openAdd(0);
     else if (act === 'site-reseaux') openSite('reseaux');
     else if (act === 'pages-projets') openPages('projets');
@@ -538,6 +594,7 @@
     else if (act === 'library') openLibrary({});
     else if (act === 'add-item' && el) addListItem(el);
     else if (act === 'genres') openGenres();
+    else if (act === 'ungroup' && st.sel && st.sel.bid) { const bi = blocById(st.sel.bid); if (bi) ungroupBloc(bi); }
   }
 
   /* ---------- Lignes, pastilles, mots-clés, boutons : ajouter, déplacer, supprimer ---------- */
@@ -560,7 +617,7 @@
   function addListItem(el) {
     const secEl = el.closest('[data-sid]'), r = secEl && secById(secEl.dataset.sid);
     if (!r) return;
-    const lp = el.dataset.list, b = r.sec.blocs[+lp.split('.')[1]];
+    const lp = el.dataset.list, b = M.get(r.sec, lp.replace(/\.c\.[^.]+$/, ''));
     let list = M.get(r.sec, lp);
     if (!Array.isArray(list)) { list = []; M.set(r.sec, lp, list); }
     list.push(newItem(b.k, list));
@@ -600,7 +657,7 @@
   }
   function toggleCaption(sid, path) {
     const r = secById(sid); if (!r) return;
-    const m = path.match(/^(blocs\.\d+)\.c\.img$/);
+    const m = path.match(/^(.*blocs\.\d+)\.c\.img$/);
     const o = m ? M.get(r.sec, m[1]).c : imgObj(r.sec, path);
     const on = !!(o.legende || o.legendeOn);
     if (on) { o.legende = ''; o.legendeOn = false; changed(); ED.toast('Légende retirée.'); return; }
@@ -623,15 +680,25 @@
     ov.draw();
   }
   function dragLoop(move, up) {
-    let last = null;
+    let last = null, done = false;
+    // La souris peut sortir de la page (au-dessus du panneau…) : on garde une position dans la zone visible
+    const inView = ev => ({ clientX: clamp(ev.clientX, 2, win.innerWidth - 3), clientY: clamp(ev.clientY, 2, win.innerHeight - 3), shiftKey: ev.shiftKey });
     const tick = setInterval(() => {
       if (!last) return;
-      if (last.clientY < 70) { win.scrollBy(0, -18); move(last); } else if (last.clientY > win.innerHeight - 70) { win.scrollBy(0, 18); move(last); }
+      if (last.clientY < 70) { win.scrollBy(0, -18); move(inView(last)); } else if (last.clientY > win.innerHeight - 70) { win.scrollBy(0, 18); move(inView(last)); }
     }, 40);
-    const mv = ev => { last = ev; move(ev); };
+    const mv = ev => { last = ev; move(inView(ev)); };
+    const finish = () => {
+      if (done) return; done = true;
+      clearInterval(tick); fdoc.removeEventListener('pointermove', mv); fdoc.removeEventListener('pointerup', finish); document.removeEventListener('pointerup', finish);
+      endDrag(); up();
+    };
     fdoc.addEventListener('pointermove', mv);
-    fdoc.addEventListener('pointerup', () => { clearInterval(tick); fdoc.removeEventListener('pointermove', mv); endDrag(); up(); }, { once: true });
+    fdoc.addEventListener('pointerup', finish);
+    document.addEventListener('pointerup', finish); // souris relâchée en dehors de la page
   }
+  const vline = (x, y, hgt) => { ov.show(ov.drop, true); ov.drop.classList.add('vert'); Object.assign(ov.drop.style, { left: x + win.scrollX - 2 + 'px', top: y + win.scrollY + 'px', width: '4px', height: hgt + 'px' }); };
+  const hline = (x, y, w) => { ov.drop.classList.remove('vert'); ov.drop.style.height = ''; line(x, y, w); };
   const line = (x, y, w) => { ov.show(ov.drop, true); Object.assign(ov.drop.style, { left: x + win.scrollX + 'px', top: y + win.scrollY - 2 + 'px', width: w + 'px' }); };
   function dragSection() {
     const sec = ov.hSec; if (!sec) return;
@@ -643,59 +710,99 @@
       to = secs.length;
       for (let i = 0; i < secs.length; i++) { const r = secs[i].getBoundingClientRect(); if (ev.clientY < r.top + r.height / 2) { to = i; break; } }
       const y = to < secs.length ? secs[to].getBoundingClientRect().top : secs[secs.length - 1].getBoundingClientRect().bottom;
-      line(12, y, win.innerWidth - 24);
+      hline(12, y, win.innerWidth - 24);
       ov.at(ov.ghost, ev.clientX, ev.clientY);
     }, () => {
       const target = to > from ? to - 1 : to;
       if (target !== from) { const [s] = pg.sections.splice(from, 1); pg.sections.splice(target, 0, s); changed(); select(s.id); }
     });
   }
-  // Où déposer un élément : avant/après un autre, dans une colonne vide, au bout d'une section, ou à un endroit précis (composition libre)
+  // Où déposer un élément : avant/après un autre, à sa gauche/droite (côte à côte), dans un groupe,
+  // dans une colonne vide, au bout d'une section, ou à un endroit précis (composition libre)
   function findDrop(x, y, exEl, exBloc) {
     const el = fdoc.elementFromPoint(x, y);
-    if (!el || el.closest('#edo')) return null;
-    const tb = el.closest('[data-bid]');
-    const ti = tb && tb !== exEl && !(exEl && exEl.contains(tb)) && blocById(tb.dataset.bid);
-    if (ti && !isFree(ti.sec)) {
-      const r = tb.getBoundingClientRect(), after = y > r.top + r.height / 2;
-      line(r.left, after ? r.bottom + 2 : r.top - 2, r.width);
-      return { sec: ti.sec, index: ti.index + (after ? 1 : 0), col: ti.bloc.col };
-    }
-    const colEl = el.closest('[data-dropcol]'), secEl = el.closest('[data-sid]');
-    const ts = secEl && secById(secEl.dataset.sid);
+    if (!el || el.closest('#edo') || (exEl && exEl.contains(el))) { ov.show(ov.drop, false); return null; }
+    const secEl = el.closest('[data-sid]'), ts = secEl && secById(secEl.dataset.sid);
     if (!ts) { ov.show(ov.drop, false); return null; }
+    const tb = el.closest('[data-bid]');
+    const ti = tb && tb !== exEl && blocById(tb.dataset.bid);
+    const topFree = ti && isFree(ti.sec) && !ti.parent;
+    // Dans la zone intérieure d'un groupe (hors de ses éléments) : on range dans le groupe
+    const zone = el.closest('[data-droplist]');
+    if (ti && ti.bloc.k === 'groupe' && zone && tb.contains(zone) && zone.closest('[data-bid]') === tb) {
+      const list = ti.bloc.c.blocs, row = ti.bloc.c.disposition === 'ligne';
+      const kids = [...zone.children].filter(k => k.matches('[data-bid]') && k !== exEl);
+      let idx = kids.length;
+      for (let k = 0; k < kids.length; k++) { const r = kids[k].getBoundingClientRect(); if (row ? x < r.left + r.width / 2 : y < r.top + r.height / 2) { idx = k; break; } }
+      const zr = zone.getBoundingClientRect();
+      if (row) { const ref = kids[idx] ? kids[idx].getBoundingClientRect().left - 6 : (kids.length ? kids[kids.length - 1].getBoundingClientRect().right + 6 : zr.left + 6); vline(ref, zr.top, zr.height); }
+      else { const ref = kids[idx] ? kids[idx].getBoundingClientRect().top - 4 : (kids.length ? kids[kids.length - 1].getBoundingClientRect().bottom + 4 : zr.top + zr.height / 2); hline(zr.left, ref, zr.width); }
+      const realIdx = idx < kids.length ? list.findIndex(b => b.id === kids[idx].dataset.bid) : list.length;
+      return { sec: ts.sec, list, index: realIdx < 0 ? list.length : realIdx, parent: ti.bloc };
+    }
+    if (ti && !topFree) {
+      const r = tb.getBoundingClientRect(), edge = Math.min(90, r.width * 0.2);
+      const inRow = ti.parent && ti.parent.c.disposition === 'ligne';
+      // Bord gauche ou droit : l'élément se place à côté (côte à côte)
+      if (r.width > 140 && (x < r.left + edge || x > r.right - edge)) {
+        const right = x > r.right - edge;
+        vline(right ? r.right + 4 : r.left - 4, r.top, r.height);
+        if (inRow) return { sec: ts.sec, list: ti.list, index: ti.index + (right ? 1 : 0), parent: ti.parent };
+        return { sec: ts.sec, list: ti.list, index: ti.index, parent: ti.parent, side: right ? 'right' : 'left', wrap: ti.bloc };
+      }
+      const after = inRow ? x > r.left + r.width / 2 : y > r.top + r.height / 2;
+      if (inRow) vline(after ? r.right + 4 : r.left - 4, r.top, r.height); else hline(r.left, after ? r.bottom + 2 : r.top - 2, r.width);
+      return { sec: ti.sec, list: ti.list, index: ti.index + (after ? 1 : 0), col: ti.parent ? undefined : ti.bloc.col, parent: ti.parent };
+    }
     if (isFree(ts.sec)) {
       const lib = secEl.querySelector('.libre'); if (!lib) return null;
       const lr = lib.getBoundingClientRect();
-      line(x - 50, y, 100);
-      return { sec: ts.sec, index: ts.sec.blocs.length, libre: { x: clamp(Math.round((x - lr.left) / lr.width * 100), 0, 90), y: clamp(Math.round((y - lr.top) / lr.height * 100), 0, 95) } };
+      hline(x - 50, y, 100);
+      return { sec: ts.sec, list: ts.sec.blocs, index: ts.sec.blocs.length, libre: { x: clamp(Math.round((x - lr.left) / lr.width * 100), 0, 90), y: clamp(Math.round((y - lr.top) / lr.height * 100), 0, 95) } };
     }
+    const colEl = el.closest('[data-dropcol]');
     const col = colEl ? colEl.dataset.dropcol : undefined;
-    const sameCol = ts.sec.blocs.filter(b => col === undefined || ts.sec.layout !== 'deux' || (b.col || 'g') === col);
+    const list = ts.sec.blocs;
+    const sameCol = list.filter(b => col === undefined || ts.sec.layout !== 'deux' || (b.col || 'g') === col);
     const lastB = sameCol.filter(b => b !== exBloc).pop();
     const r = (colEl || secEl).getBoundingClientRect();
-    line(r.left + 8, Math.min(r.bottom - 6, win.innerHeight - 4), r.width - 16);
-    return { sec: ts.sec, index: lastB ? ts.sec.blocs.indexOf(lastB) + 1 : ts.sec.blocs.length, col };
+    hline(r.left + 8, Math.min(r.bottom - 6, win.innerHeight - 4), r.width - 16);
+    return { sec: ts.sec, list, index: lastB ? list.indexOf(lastB) + 1 : list.length, col };
   }
   function findSecDrop(y) {
     const secs = $$('[data-sid]', fdoc), pg = page();
     let to = secs.length;
     for (let i = 0; i < secs.length; i++) { const r = secs[i].getBoundingClientRect(); if (y < r.top + r.height / 2) { to = i; break; } }
     const ly = secs.length ? (to < secs.length ? secs[to].getBoundingClientRect().top : secs[secs.length - 1].getBoundingClientRect().bottom) : 80;
-    line(12, ly, win.innerWidth - 24);
+    hline(12, ly, win.innerWidth - 24);
     return { index: Math.min(to, pg.sections.length) };
   }
   const topZ = sec => Math.max(1, ...sec.blocs.map(x => +(x.pos || {}).z || 1)) + 1;
-  function placeBloc(b, target) {
+  // Pose un élément à l'endroit visé (la liste peut être celle d'une section ou d'un groupe)
+  function dropBloc(b, target) {
+    const list = target.list || target.sec.blocs;
+    const top = list === target.sec.blocs;
+    if (target.wrap) {
+      // À côté d'un élément : on crée un groupe « côte à côte » invisible qui les rassemble
+      const w = target.wrap, at = list.indexOf(w);
+      const g = M.bloc('groupe', { blocs: target.side === 'left' ? [b, w] : [w, b], disposition: 'ligne', style: 'aucun', auto: true });
+      if (top && w.col) g.col = w.col;
+      if (top && w.pos) g.pos = w.pos;
+      delete w.col; delete b.col; delete w.pos; delete b.pos;
+      list.splice(at < 0 ? list.length : at, 1, g);
+      return;
+    }
     if (target.libre) { b.pos = Object.assign({ w: 40 }, b.pos || {}, { x: target.libre.x, y: target.libre.y, z: topZ(target.sec) }); delete b.col; }
-    else if (target.sec.layout === 'deux') b.col = target.col || b.col || 'g';
+    else if (top && target.sec.layout === 'deux') b.col = target.col || b.col || 'g';
     else delete b.col;
+    if (!top || !isFree(target.sec)) { if (!target.libre) delete b.pos; }
+    list.splice(clamp(target.index, 0, list.length), 0, b);
   }
-  // Déplace un élément : dans sa section, vers une autre section ou une autre colonne
+  // Déplace un élément : dans sa section, vers une autre section, une autre colonne, un groupe ou à côté d'un autre élément
   function dragBloc() {
     const blEl = ov.hBloc; if (!blEl) return;
     const src = blocById(blEl.dataset.bid);
-    if (!src || isFree(src.sec)) return;
+    if (!src || (isFree(src.sec) && !src.parent)) return;
     let target = null;
     startDrag('⠿ ' + blocName(src.bloc));
     blEl.style.opacity = '.35';
@@ -704,25 +811,89 @@
       target = findDrop(ev.clientX, ev.clientY, blEl, src.bloc);
     }, () => {
       blEl.style.opacity = '';
+      ov.drop.classList.remove('vert'); ov.drop.style.height = '';
       if (!target) return;
       const b = src.bloc;
-      let idx = target.index;
-      if (target.sec === src.sec && src.index < idx) idx--;
-      src.sec.blocs.splice(src.index, 1);
-      placeBloc(b, target);
-      target.sec.blocs.splice(clamp(idx, 0, target.sec.blocs.length), 0, b);
+      if (target.wrap === b) return;
+      const tl = target.list || target.sec.blocs;
+      if (tl === src.list && src.index < target.index) target.index--;
+      src.list.splice(src.index, 1);
+      dropBloc(b, target);
+      cleanupGroups(src.sec.blocs); if (target.sec !== src.sec) cleanupGroups(target.sec.blocs);
       changed(); selectBloc(b.id);
     });
   }
   function insertBloc(k, target) {
-    const nb = M.bloc(k);
-    if (target.sec.layout === 'libre' && !target.libre) target.libre = { x: 30, y: 30 };
-    placeBloc(nb, target);
+    const nb = newBloc(k);
+    if (target.sec.layout === 'libre' && !target.libre && (target.list || target.sec.blocs) === target.sec.blocs && !target.wrap) target.libre = { x: 30, y: 30 };
+    dropBloc(nb, target);
     if (target.libre && k === 'boutons') nb.pos.w = 24;
-    target.sec.blocs.splice(clamp(target.index, 0, target.sec.blocs.length), 0, nb);
     changed(); renderFrame(); selectBloc(nb.id, 'contenu');
     if (k === 'galerie') addImages(nb.id);
     return nb;
+  }
+  // Grouper : met l'élément dans un cadre ; on peut ensuite y glisser d'autres éléments
+  function groupBloc(bi) {
+    const g = M.bloc('groupe', { blocs: [], style: 'encadre' });
+    if (bi.bloc.col) g.col = bi.bloc.col;
+    if (bi.bloc.pos) g.pos = bi.bloc.pos;
+    delete bi.bloc.col; delete bi.bloc.pos;
+    g.c.blocs.push(bi.bloc);
+    // Regroupe aussi l'élément suivant s'il s'agit d'un texte qui suit un titre (titre + texte d'un coup)
+    const next = bi.list[bi.index + 1];
+    if (next && ['titre', 'surtitre', 'pastille'].includes(bi.bloc.k) && next.k !== 'groupe' && (next.col || '') === (g.col || '')) { delete next.col; g.c.blocs.push(bi.list.splice(bi.index + 1, 1)[0]); }
+    bi.list.splice(bi.index, 1, g);
+    changed(); renderFrame(); selectBloc(g.id, 'contenu');
+    ED.toast('Groupe créé. Glisse d’autres éléments dedans avec ⠿, puis choisis son cadre dans le panneau.', 'ok', 6000);
+  }
+  function ungroupBloc(bi) {
+    const g = bi.bloc; if (g.k !== 'groupe') return;
+    const kids = M.arr(g.c.blocs);
+    kids.forEach(k => { if (g.col) k.col = g.col; });
+    bi.list.splice(bi.index, 1, ...kids);
+    changed(); renderFrame();
+    if (kids[0]) selectBloc(kids[0].id); else select(bi.sec.id);
+  }
+  // ✥ Déplacer librement un élément dans l'espace (décalage), sans changer l'ordre
+  function nudgeBloc(e) {
+    const blEl = ov.hBloc, bi = blEl && blocById(blEl.dataset.bid);
+    if (!bi) return;
+    const mob = MOB(), s = bi.bloc.s;
+    const kx = mob ? 'decalXM' : 'decalX', ky = mob ? 'decalYM' : 'decalY';
+    const px = +s[kx] || (mob ? +s.decalX || 0 : 0), py = +s[ky] || (mob ? +s.decalY || 0 : 0), x0 = e.clientX, y0 = e.clientY;
+    let nx = px, ny = py;
+    startDrag('');
+    dragLoop(ev => {
+      nx = Math.round(px + ev.clientX - x0); ny = Math.round(py + ev.clientY - y0);
+      if (Math.abs(nx) < 8) nx = 0; if (Math.abs(ny) < 8) ny = 0;
+      blEl.style.translate = `${nx}px ${ny}px`;
+      ov.tip.textContent = nx || ny ? `Décalé de ${nx} px, ${ny} px` : 'À sa place'; ov.show(ov.tip, true); ov.at(ov.tip, ev.clientX + 14, ev.clientY + 14);
+    }, () => { s[kx] = nx || (mob ? 0 : ''); s[ky] = ny || (mob ? 0 : ''); changed(); refreshPanelSoon(); });
+  }
+
+  /* ---------- Cadrer une photo recadrée en la faisant glisser ---------- */
+  function cropInfo(el) {
+    const img = el && el.querySelector('img');
+    if (!img || !img.naturalWidth || win.getComputedStyle(img).objectFit !== 'cover') return null;
+    const box = img.getBoundingClientRect();
+    if (!box.width || !box.height) return null;
+    const nr = img.naturalWidth / img.naturalHeight, br = box.width / box.height;
+    if (Math.abs(nr - br) / br < 0.03) return null;
+    return { img, ovx: nr > br ? box.height * nr - box.width : 0, ovy: nr < br ? box.width / nr - box.height : 0 };
+  }
+  function reframeImage(e) {
+    const el = ov.hEl && ov.hEl.matches('[data-img]') ? ov.hEl : null, c = cropInfo(el);
+    if (!c) { ED.toast('Cette photo s’affiche en entier : choisis d’abord un format (16:9, 1:1…) pour la recadrer.'); return; }
+    const r = secById(el.closest('[data-sid]').dataset.sid), o = imgObj(r.sec, el.dataset.img);
+    const px = isNumv(o.posX) ? +o.posX : 50, py = isNumv(o.posY) ? +o.posY : 50, x0 = e.clientX, y0 = e.clientY;
+    let nx = px, ny = py;
+    startDrag('');
+    dragLoop(ev => {
+      if (c.ovx) nx = clamp(Math.round(px - (ev.clientX - x0) / c.ovx * 100), 0, 100);
+      if (c.ovy) ny = clamp(Math.round(py - (ev.clientY - y0) / c.ovy * 100), 0, 100);
+      c.img.style.objectPosition = `${nx}% ${ny}%`;
+      ov.tip.textContent = `Cadrage ${nx} % · ${ny} %`; ov.show(ov.tip, true); ov.at(ov.tip, ev.clientX + 14, ev.clientY + 14);
+    }, () => { o.posX = nx; o.posY = ny; changed(); refreshPanelSoon(); });
   }
 
   /* ---------- Poignées de taille (sur la page) ---------- */
@@ -851,7 +1022,7 @@
   function freeCtx() {
     const el = ov.hBloc; if (!el) return null;
     const bi = blocById(el.dataset.bid);
-    if (!bi || !isFree(bi.sec)) return null;
+    if (!bi || !isFree(bi.sec) || bi.parent) return null;
     const b = bi.bloc, P = MOB() ? (b.posM = b.posM || {}) : b.pos;
     const g = k => isNumv(P[k]) ? +P[k] : +b.pos[k] || (k === 'w' ? 30 : 0);
     return { el, bi, b, P, x: g('x'), y: g('y'), w: g('w'), box: el.closest('.libre').getBoundingClientRect() };
@@ -939,7 +1110,7 @@
       tabs = cover ? [['image', 'Image']] : [['image', 'Image'], ['effets', 'Effets'], ['anim', 'Animation']];
       title = cover ? 'Image de couverture' : logo ? 'Logo' : 'Image';
       crumbs = bi ? h('button', { class: 'pn-back', onclick: () => selectBloc(bi.bloc.id) }, '← ' + blocName(bi.bloc)) : h('button', { class: 'pn-back', onclick: () => select(sel.sid) }, '← Section');
-      if (st.tab === 'image') body = fields(o, imageFields(cover, disp, inArr, logo, /^blocs\.\d+\.c\.img$/.test(sel.path)), ctx);
+      if (st.tab === 'image') body = fields(o, imageFields(cover, disp, inArr, logo, /(^|\.)blocs\.\d+\.c\.img$/.test(sel.path), !!cropInfo(fdoc && fdoc.querySelector(`[data-sid="${sel.sid}"] [data-img="${sel.path}"]`))), ctx);
       if (st.tab === 'effets') body = fields(o, EFFETS, ctx);
       if (st.tab === 'anim') body = fields(o, animFields('anim'), ctx);
       if (inArr) body.push(h('button', { class: 'btn danger-btn wide', onclick: () => removeImage(sel.sid, sel.path) }, 'Retirer cette image de la galerie'));
@@ -949,9 +1120,9 @@
       const b = bi.bloc, txt = TEXT_KINDS.includes(b.k);
       tabs = [['contenu', 'Contenu'], ['style', 'Style'], ...(txt ? [['texte', 'Texte']] : []), ['anim', 'Animation']];
       title = blocName(b);
-      crumbs = h('button', { class: 'pn-back', onclick: () => select(sel.sid) }, '← Section ' + M.nomSection(r.sec));
+      crumbs = bi.parent ? h('button', { class: 'pn-back', onclick: () => selectBloc(bi.parent.id) }, '← ' + blocName(bi.parent)) : h('button', { class: 'pn-back', onclick: () => select(sel.sid) }, '← Section ' + M.nomSection(r.sec));
       ctx.bloc = b; ctx.bi = bi;
-      if (st.tab === 'contenu') body = [...fields(b, placeFields(r.sec), ctx), ...fields(b, BLOC_CONTENT[b.k] || [], ctx)];
+      if (st.tab === 'contenu') body = [...fields(b, bi.parent ? [] : placeFields(r.sec), ctx), ...fields(b, BLOC_CONTENT[b.k] || [], ctx), b.k === 'groupe' ? elementsList(r.sec, b.c.blocs, 'Éléments du groupe') : null];
       if (st.tab === 'style') body = [styleTools(b, 'bloc'), ...fields(b, BLOC_STYLE, ctx)];
       if (st.tab === 'texte') body = fields(b, [...typo('t', 'Texte de cet élément'), ...LIENS], ctx);
       if (st.tab === 'anim') body = fields(b, animFields('a'), ctx);
@@ -979,23 +1150,24 @@
       h('button', { class: 'btn small ghost', disabled: !st.clip, onclick: () => { obj.s = M.clone(st.clip.s); changed(); buildPanel(); } }, 'Coller'),
       h('button', { class: 'btn small ghost', onclick: () => { if (confirm('Réinitialiser le style ?')) { obj.s = kind === 'section' ? Object.assign({}, (M.TYPES[obj.type] || {}).s || {}) : {}; changed(); buildPanel(); } } }, 'Réinitialiser'));
   }
-  function elementsList(sec) {
-    const list = sec.blocs;
+  function elementsList(sec, list, titre) {
+    list = list || sec.blocs;
+    const top = list === sec.blocs;
     const rowName = b => {
       const c = b.c;
       const t = c.texte || (c.html ? c.html.replace(/<[^>]+>/g, ' ').trim() : '') || (c.lignes ? c.lignes.map(x => x.label || x.fonction).join(', ') : '') || (c.items ? c.items.map(x => x.titre).join(', ') : '');
       return t ? ' — ' + t.slice(0, 40) : '';
     };
     const mv = (i, d) => { const j = i + d; if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; changed(); refreshPanelSoon(); };
-    return h('div', { class: 'f' }, h('h4', { class: 'pn-h' }, 'Éléments de la section'),
+    return h('div', { class: 'f' }, h('h4', { class: 'pn-h' }, titre || 'Éléments de la section'),
       h('p', { class: 'help' }, 'Clique sur ✎ pour régler un élément (contenu, style, texte, animation). Tu peux aussi les glisser directement sur la page avec ⠿.'),
       h('div', { class: 'el-list' }, list.map((b, i) => h('div', { class: 'el-row' },
         h('button', { class: 'el-name', onclick: () => selectBloc(b.id) }, h('b', {}, blocName(b)), h('span', {}, rowName(b))),
-        sec.layout === 'deux' ? (() => { const s = h('select', { class: 'el-col', title: 'Colonne', onchange: e => { b.col = e.target.value; changed(); } }, [['g', 'Gauche'], ['d', 'Droite'], ['plein', 'Pleine largeur']].map(([v, l]) => h('option', { value: v }, l))); s.value = b.col || 'g'; return s; })() : null,
+        top && sec.layout === 'deux' ? (() => { const s = h('select', { class: 'el-col', title: 'Colonne', onchange: e => { b.col = e.target.value; changed(); } }, [['g', 'Gauche'], ['d', 'Droite'], ['plein', 'Pleine largeur']].map(([v, l]) => h('option', { value: v }, l))); s.value = b.col || 'g'; return s; })() : null,
         h('button', { class: 'sm', title: 'Monter', onclick: () => mv(i, -1) }, '↑'), h('button', { class: 'sm', title: 'Descendre', onclick: () => mv(i, 1) }, '↓'),
         h('button', { class: 'sm', title: 'Régler', onclick: () => selectBloc(b.id) }, '✎'),
-        h('button', { class: 'sm danger', title: 'Supprimer', onclick: () => { if (confirm(`Supprimer « ${blocName(b)} » ?`)) { list.splice(i, 1); changed(); refreshPanelSoon(); } } }, '🗑')))),
-      h('button', { class: 'btn primary small', style: 'margin-top:10px', onclick: () => openAddBloc(sec.id, null) }, '+ Ajouter un élément'));
+        h('button', { class: 'sm danger', title: 'Supprimer', onclick: () => { if (confirm(`Supprimer « ${blocName(b)} » ?`)) { list.splice(i, 1); cleanupGroups(sec.blocs); changed(); refreshPanelSoon(); } } }, '🗑')))),
+      h('button', { class: 'btn primary small', style: 'margin-top:10px', onclick: () => openAddBloc(sec.id, null, null, list) }, '+ Ajouter un élément'));
   }
 
   /* ---------- Définitions des réglages ---------- */
@@ -1050,21 +1222,22 @@
       { k: 'c.legende', l: 'Légende', t: 'text', if: o => o.c.legendeOn || o.c.legende },
       { t: 'note', l: 'Clique sur l’image dans la page pour le cadrage, les filtres, la bordure, le texte par-dessus…' }],
     galerie: [
+      { t: 'note', l: 'Conseil : « Mosaïque automatique » garde le format de chaque photo (horizontale, verticale, carrée…) et chaque rangée remplit toute la largeur. Pour imposer un format à une photo : clique dessus → « Format de cette photo ».' },
       { k: 'c.disposition', l: 'Disposition', t: 'layouts', rerender: true },
-      { k: 'c.colonnes', m: 'c.colonnesM', l: 'Colonnes', lm: 'Colonnes sur téléphone', t: 'range', min: 1, max: 6, if: o => ['puzzle', 'grille', 'mosaique'].includes(o.c.disposition) },
-      { k: 'c.colonnesM', l: '📱 Colonnes sur téléphone', t: 'range', min: 1, max: 3, if: o => !MOB() && ['puzzle', 'grille', 'mosaique'].includes(o.c.disposition) },
-      { k: 'c.hauteurRang', m: 'c.hauteurRangM', l: 'Hauteur d’une rangée', t: 'range', min: 60, max: 900, step: 10, unit: 'px', if: o => ['puzzle', 'rangees'].includes(o.c.disposition) },
-      { k: 'c.remplirDerniere', l: 'La dernière rangée remplit aussi toute la largeur', t: 'check', if: o => o.c.disposition === 'rangees' },
+      { k: 'c.hauteurRang', m: 'c.hauteurRangM', l: 'Taille des photos (hauteur des rangées)', t: 'range', min: 80, max: 900, step: 10, unit: 'px', if: o => ['mosaique', 'rangees'].includes(o.c.disposition), help: 'Ou tire la poignée ↕ sous la galerie.' },
+      { k: 'c.remplirDerniere', l: 'La dernière rangée remplit aussi toute la largeur', t: 'check', if: o => ['mosaique', 'rangees'].includes(o.c.disposition) },
+      { k: 'c.colonnes', m: 'c.colonnesM', l: 'Colonnes', lm: 'Colonnes sur téléphone', t: 'range', min: 1, max: 6, if: o => ['puzzle', 'grille', 'colonnes'].includes(o.c.disposition) },
+      { k: 'c.colonnesM', l: '📱 Colonnes sur téléphone', t: 'range', min: 1, max: 3, if: o => !MOB() && ['puzzle', 'grille', 'colonnes'].includes(o.c.disposition) },
+      { k: 'c.hauteurRang', m: 'c.hauteurRangM', l: 'Hauteur d’une rangée', t: 'range', min: 60, max: 900, step: 10, unit: 'px', if: o => o.c.disposition === 'puzzle' },
       { k: 'c.hauteurBande', m: 'c.hauteurBandeM', l: 'Hauteur de la bande', t: 'range', min: 100, max: 1200, step: 10, unit: 'px', if: o => o.c.disposition === 'bande' },
-      { k: 'c.ratio', l: 'Format des images', t: 'select', options: RATIOS, if: o => ['grille', 'diaporama'].includes(o.c.disposition) },
-      { k: 'c.format', l: 'Format des images', t: 'select', options: RATIOS, if: o => ['rangees', 'pile', 'duo', 'bande', 'mosaique'].includes(o.c.disposition), help: 'Chaque image peut aussi avoir son propre format : clique dessus → « Format de cette image ».' },
-      { k: 'c.ordre', l: 'Ordre des photos', t: 'seg', options: [['lignes', 'Par ligne (gauche → droite)'], ['colonnes', 'Par colonne (haut → bas)']], if: o => o.c.disposition === 'mosaique' },
+      { k: 'c.ratio', l: 'Format de toutes les photos', t: 'select', options: RATIOS, if: o => ['grille', 'diaporama'].includes(o.c.disposition) },
+      { k: 'c.format', l: 'Format de toutes les photos', t: 'select', options: RATIOS, if: o => ['mosaique', 'rangees', 'colonnes', 'pile', 'duo', 'bande'].includes(o.c.disposition), help: '« Format d’origine » garde le format de chaque photo. Une photo peut avoir son propre format : clique dessus.' },
       { k: 'c.defilementAuto', l: 'Défilement automatique', t: 'check', if: o => o.c.disposition === 'diaporama' },
       { k: 'c.espacement', m: 'c.espacementM', l: 'Espacement', t: 'range', min: 0, max: 60, unit: 'px' },
       { k: 's.pleine', l: 'Prendre toute la largeur de l’écran', t: 'check' },
       { k: 'c.survol', l: 'Effet au survol des images', t: 'select', options: M.HOVERS },
-      { t: 'note', l: 'Puzzle et grille : tire la poignée ⇲ dans le coin d’une image pour l’agrandir. ⠿ pour changer l’ordre.', if: o => ['puzzle', 'grille'].includes(o.c.disposition) },
-      { t: 'note', l: 'Rangées, puzzle et bande : tire la poignée ↕ sous la galerie pour la hauteur des images.', if: o => ['rangees', 'puzzle', 'bande'].includes(o.c.disposition) },
+      { t: 'note', l: 'Puzzle et grille : tire la poignée ⇲ dans le coin d’une photo pour l’agrandir. ⠿ pour changer l’ordre. Dans le puzzle, une photo avec un format choisi prend automatiquement la bonne hauteur.', if: o => ['puzzle', 'grille'].includes(o.c.disposition) },
+      { t: 'note', l: 'Tire la poignée ↕ sous la galerie pour agrandir ou réduire les photos.', if: o => ['puzzle', 'bande'].includes(o.c.disposition) },
       { k: 'c.images', l: 'Images', t: 'gallery' }],
     video: [{ k: 'c.url', l: 'Lien de la vidéo (YouTube, Vimeo ou .mp4)', t: 'video' }, { k: 'c.poster', l: 'Image d’aperçu (optionnel)', t: 'image' }, { k: 'c.ratio', l: 'Format', t: 'select', options: RATIOS.slice(1) },
       { k: 'c.legendeOn', l: 'Afficher une légende', t: 'check', after: o => { if (!o.c.legendeOn) o.c.legende = ''; } }, { k: 'c.legende', l: 'Légende', t: 'text', if: o => o.c.legendeOn || o.c.legende }],
@@ -1101,6 +1274,14 @@
       { k: 'c.animation', l: 'Effet sur l’image au survol', t: 'select', options: M.PROJ_ANIMS },
       { t: 'note', l: 'Survole une vignette sur la page pour voir le résultat. Chaque projet peut avoir sa propre animation : ☰ Pages → Projets.' },
       { t: 'action', l: 'Modifier mes projets (typologies, rôles, vignette…)', act: 'pages-projets' }],
+    groupe: [
+      { k: 'c.style', l: 'Cadre', t: 'seg', options: [['encadre', 'Encadré joli'], ['carte', 'Carte'], ['trait', 'Trait fin'], ['fond', 'Fond sombre'], ['aucun', 'Sans cadre']] },
+      { k: 'c.disposition', l: 'Éléments', t: 'seg', options: [['pile', 'Les uns sous les autres'], ['ligne', 'Côte à côte']], rerender: true },
+      { k: 'c.espace', l: 'Espace entre les éléments', t: 'range', min: 0, max: 80, unit: 'px', auto: 16 },
+      { k: 'c.aligner', l: 'Alignement vertical', t: 'seg', options: [['haut', 'Haut'], ['centre', 'Centre'], ['bas', 'Bas'], ['etirer', 'Même hauteur']], if: o => o.c.disposition === 'ligne' },
+      { k: 'c.empileM', l: '📱 Sur téléphone', t: 'seg', options: [['', 'Réglage du site'], ['non', 'Côte à côte'], ['oui', 'Empilés']], if: o => o.c.disposition === 'ligne' },
+      { t: 'note', l: 'Pour mettre un élément dans le groupe : attrape sa poignée ⠿ et dépose-le dans le cadre. Pour le placer à gauche ou à droite d’un autre élément, dépose-le sur le bord gauche ou droit de celui-ci. Largeur du groupe : poignée ↔ ou onglet Style. Couleurs du cadre : onglet Style.' },
+      { t: 'action', l: '⊟ Dégrouper (sortir les éléments du cadre)', act: 'ungroup' }],
     espace: [{ k: 'c.hauteur', l: 'Hauteur', t: 'range', min: 0, max: 400, step: 5, unit: 'px' }, { k: 'c.ligne', l: 'Afficher une ligne', t: 'check', rerender: true },
       { k: 'c.couleurLigne', l: 'Couleur de la ligne', t: 'color', if: o => o.c.ligne }, { k: 'c.epaisseur', l: 'Épaisseur', t: 'range', min: 1, max: 10, unit: 'px', if: o => o.c.ligne },
       { k: 'c.largeurLigne', l: 'Largeur', t: 'range', min: 5, max: 100, unit: '%', if: o => o.c.ligne }]
@@ -1200,15 +1381,17 @@
     { k: base + '.duree', l: 'Durée', t: 'range', min: 0.2, max: 3, step: 0.1, unit: 's', auto: 0.9, if: o => (M.get(o, base) || {}).type },
     { k: base + '.delai', l: 'Délai avant de commencer', t: 'range', min: 0, max: 3, step: 0.1, unit: 's', if: o => (M.get(o, base) || {}).type },
     { t: 'action', l: '▶ Rejouer l’animation', act: 'replay', if: o => (M.get(o, base) || {}).type }];
-  const imageFields = (cover, disp, inArr, logo, blocImg) => [
+  const imageFields = (cover, disp, inArr, logo, blocImg, cropped) => [
     { k: 'src', l: 'Image', t: 'image' },
+    ...(cover || logo ? [] : [{ k: 'ratio', l: 'Format de cette photo', t: 'select', options: [['', 'Comme le reste de la galerie'], ...RATIOS], if: () => inArr && disp !== 'grille', rerender: true, help: '« Format d’origine » : la photo garde son format, la mosaïque s’adapte. 16:9, 9:16, 1:1… : la photo est recadrée à ce format.' }]),
     ...(cover ? [] : [{ k: 'alt', l: 'Description (pour Google et l’accessibilité)', t: 'text' }]),
-    ...(cover || logo ? [] : [{ k: 'ratio', l: 'Format de cette image', t: 'select', options: [['', 'Comme la galerie'], ...RATIOS], if: () => inArr && disp !== 'puzzle' },
+    ...(cover || logo ? [] : [
       { k: 'legendeOn', l: 'Afficher une légende', t: 'check', if: () => inArr, after: o => { if (!o.legendeOn) o.legende = ''; } },
       { k: 'legende', l: 'Légende', t: 'text', if: o => inArr && (o.legendeOn || o.legende) },
       { t: 'note', l: 'Légende : bouton « Légende » sur l’image, ou onglet Contenu de l’élément.', if: () => blocImg },
       { k: 'fit', l: 'Ajustement', t: 'seg', options: [['cover', 'Remplir le cadre'], ['contain', 'Image entière']] }]),
-    ...(logo ? [] : [{ k: 'posX', l: 'Cadrage horizontal (X)', t: 'range', min: 0, max: 100, unit: '%', auto: 50 }, { k: 'posY', l: 'Cadrage vertical (Y)', t: 'range', min: 0, max: 100, unit: '%', auto: 50 }]),
+    ...(logo ? [] : cropped ? [{ t: 'heading', l: 'Cadrage (partie visible)' }, { t: 'note', l: 'Sur la page : survole la photo, maintiens « ✋ Cadrer » et glisse.' }, { k: 'posX', l: 'Cadrage horizontal (X)', t: 'range', min: 0, max: 100, unit: '%', auto: 50 }, { k: 'posY', l: 'Cadrage vertical (Y)', t: 'range', min: 0, max: 100, unit: '%', auto: 50 }]
+      : [{ t: 'note', l: 'Cadrage : cette photo s’affiche en entier, il n’y a rien à cadrer. Pour la recadrer, choisis un format (16:9, 1:1, 9:16…) ci-dessus.' }]),
     ...(cover || logo ? [] : [{ k: 'zoom', l: 'Zoom', t: 'range', min: 100, max: 250, step: 5, unit: '%', auto: 100 }]),
     ...(inArr && ['puzzle', 'grille'].includes(disp) ? [{ k: 'w', l: 'Largeur (en colonnes)', t: 'range', min: 1, max: 6, auto: 1 }] : []),
     ...(inArr && disp === 'puzzle' ? [{ k: 'h', l: 'Hauteur (en rangées)', t: 'range', min: 1, max: 4, auto: 1 }] : []),
@@ -1294,7 +1477,7 @@
             v ? h('button', { type: 'button', class: 'btn small ghost', onclick: () => { set(''); ctx.rerender(); } }, 'Retirer') : null));
       }
       case 'layouts': {
-        const Lg = { rangees: '<rect x="2" y="3" width="17" height="11" rx="2"/><rect x="21" y="3" width="23" height="11" rx="2"/><rect x="2" y="16" width="26" height="11" rx="2"/><rect x="30" y="16" width="14" height="11" rx="2"/>', puzzle: '<rect x="2" y="2" width="26" height="26" rx="2"/><rect x="31" y="2" width="13" height="12" rx="2"/><rect x="31" y="16" width="13" height="12" rx="2"/>', grille: '<rect x="2" y="2" width="12" height="12" rx="2"/><rect x="17" y="2" width="12" height="12" rx="2"/><rect x="32" y="2" width="12" height="12" rx="2"/><rect x="2" y="16" width="12" height="12" rx="2"/><rect x="17" y="16" width="12" height="12" rx="2"/><rect x="32" y="16" width="12" height="12" rx="2"/>', mosaique: '<rect x="2" y="2" width="12" height="16" rx="2"/><rect x="17" y="2" width="12" height="9" rx="2"/><rect x="32" y="2" width="12" height="13" rx="2"/><rect x="2" y="21" width="12" height="7" rx="2"/><rect x="17" y="14" width="12" height="14" rx="2"/><rect x="32" y="18" width="12" height="10" rx="2"/>', bande: '<rect x="-6" y="5" width="16" height="20" rx="2"/><rect x="13" y="5" width="20" height="20" rx="2"/><rect x="36" y="5" width="16" height="20" rx="2"/>', diaporama: '<rect x="6" y="3" width="34" height="20" rx="2"/><circle cx="19" cy="27" r="1.4"/><circle cx="23" cy="27" r="1.4"/><circle cx="27" cy="27" r="1.4"/>', pile: '<rect x="4" y="2" width="38" height="12" rx="2"/><rect x="4" y="16" width="38" height="12" rx="2"/>', duo: '<rect x="2" y="4" width="20" height="22" rx="2"/><rect x="24" y="4" width="20" height="22" rx="2"/>' };
+        const Lg = { puzzle: '<rect x="2" y="2" width="26" height="26" rx="2"/><rect x="31" y="2" width="13" height="12" rx="2"/><rect x="31" y="16" width="13" height="12" rx="2"/>', grille: '<rect x="2" y="2" width="12" height="12" rx="2"/><rect x="17" y="2" width="12" height="12" rx="2"/><rect x="32" y="2" width="12" height="12" rx="2"/><rect x="2" y="16" width="12" height="12" rx="2"/><rect x="17" y="16" width="12" height="12" rx="2"/><rect x="32" y="16" width="12" height="12" rx="2"/>', mosaique: '<rect x="2" y="3" width="17" height="11" rx="2"/><rect x="21" y="3" width="23" height="11" rx="2"/><rect x="2" y="16" width="26" height="11" rx="2"/><rect x="30" y="16" width="14" height="11" rx="2"/>', colonnes: '<rect x="2" y="2" width="12" height="16" rx="2"/><rect x="17" y="2" width="12" height="9" rx="2"/><rect x="32" y="2" width="12" height="13" rx="2"/><rect x="2" y="21" width="12" height="7" rx="2"/><rect x="17" y="14" width="12" height="14" rx="2"/><rect x="32" y="18" width="12" height="10" rx="2"/>', bande: '<rect x="-6" y="5" width="16" height="20" rx="2"/><rect x="13" y="5" width="20" height="20" rx="2"/><rect x="36" y="5" width="16" height="20" rx="2"/>', diaporama: '<rect x="6" y="3" width="34" height="20" rx="2"/><circle cx="19" cy="27" r="1.4"/><circle cx="23" cy="27" r="1.4"/><circle cx="27" cy="27" r="1.4"/>', pile: '<rect x="4" y="2" width="38" height="12" rx="2"/><rect x="4" y="16" width="38" height="12" rx="2"/>', duo: '<rect x="2" y="4" width="20" height="22" rx="2"/><rect x="24" y="4" width="20" height="22" rx="2"/>' };
         return wrap(h('div', { class: 'layouts' }, M.DISPOSITIONS.map(([k, l]) => h('button', { type: 'button', class: v === k ? 'on' : '', title: l, onclick: () => set(k), html: `<svg viewBox="0 0 46 30">${Lg[k]}</svg><span>${l.split(' (')[0]}</span>` }))));
       }
       case 'zone9': return wrap(h('div', { class: 'zone9' }, ['haut-gauche', 'haut', 'haut-droite', 'gauche', 'centre', 'droite', 'bas-gauche', 'bas', 'bas-droite'].map(z => h('button', { type: 'button', title: z, class: (v || 'centre') === z ? 'on' : '', onclick: () => set(z, false) }))));
@@ -1427,7 +1610,7 @@
     espace: '<rect x="10" y="35" width="100" height="1.5" fill="#888"/>',
     libre: '<rect x="10" y="10" width="56" height="42" rx="3" fill="#3b4270"/><rect x="50" y="30" width="56" height="30" rx="3" fill="#232845" stroke="#8a9bff"/><rect x="58" y="38" width="30" height="5" fill="#fff"/>'
   };
-  const BICO = { pastille: '◉', surtitre: 'ᵃ', titre: 'T', soustitre: 't', texte: '¶', tags: '#', image: '▣', galerie: '▦', video: '▶', spotify: '♫', infos: '☰', credits: '👥', liste: '🎓', boutons: '⬭', document: '📎', fichiers: '⬇', reseaux: '◎', coordonnees: '@', formulaire: '✉', projets: '▤', espace: '↕' };
+  const BICO = { groupe: '▣', pastille: '◉', surtitre: 'ᵃ', titre: 'T', soustitre: 't', texte: '¶', tags: '#', image: '▣', galerie: '▦', video: '▶', spotify: '♫', infos: '☰', credits: '👥', liste: '🎓', boutons: '⬭', document: '📎', fichiers: '⬇', reseaux: '◎', coordonnees: '@', formulaire: '✉', projets: '▤', espace: '↕' };
   function openAdd(index) {
     const m = modal('Ajouter une section', h('div', { class: 'add-grid' }, M.GROUPES.map(g => h('div', { class: 'add-group' },
       h('h4', {}, g),
@@ -1443,22 +1626,21 @@
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     ED.toast(`Section « ${M.TYPES[type].nom} » ajoutée. Survole ses éléments pour les modifier, déplacer ou supprimer.`);
   }
-  function openAddBloc(sid, index, col) {
+  function openAddBloc(sid, index, col, list) {
     const r = secById(sid); if (!r) return;
+    list = list || r.sec.blocs;
+    const top = list === r.sec.blocs;
+    const at = () => {
+      if (index != null) return index;
+      if (top && col) { const same = list.filter(x => (x.col || 'g') === col); return same.length ? list.indexOf(same[same.length - 1]) + 1 : list.length; }
+      return list.length;
+    };
+    const card = (k, nom, ico) => h('button', { class: 'bloc-card', onclick: () => { m.close(); insertBloc(k, { sec: r.sec, list, index: at(), col }); } }, h('span', { class: 'bc-ico' }, ico), h('span', {}, nom));
     const m = modal('Ajouter un élément', h('div', {},
-      h('p', { class: 'help', style: 'margin-top:0' }, `Dans la section « ${M.nomSection(r.sec)} ».`),
+      h('p', { class: 'help', style: 'margin-top:0' }, top ? `Dans la section « ${M.nomSection(r.sec)} ».` : 'Dans le groupe.'),
+      h('div', { class: 'add-group' }, h('h4', {}, 'Tout prêts'), h('div', { class: 'bloc-cards' }, Object.entries(M.PRESETS).map(([k, x]) => card(k, x.nom, x.ico)))),
       M.BLOC_GROUPES.map(g => h('div', { class: 'add-group' }, h('h4', {}, g),
-        h('div', { class: 'bloc-cards' }, Object.entries(M.BLOCS).filter(([, b]) => b.g === g).map(([k, b]) =>
-          h('button', { class: 'bloc-card', onclick: () => {
-            m.close();
-            const nb = M.bloc(k);
-            if (r.sec.layout === 'deux') nb.col = col || 'g';
-            if (r.sec.layout === 'libre') nb.pos = { x: 30, y: 30, w: k === 'boutons' ? 24 : 40, z: Math.max(1, ...r.sec.blocs.map(x => +(x.pos || {}).z || 1)) + 1 };
-            const at = index == null ? (col ? (() => { const same = r.sec.blocs.filter(x => (x.col || 'g') === col); return same.length ? r.sec.blocs.indexOf(same[same.length - 1]) + 1 : r.sec.blocs.length; })() : r.sec.blocs.length) : index;
-            r.sec.blocs.splice(at, 0, nb);
-            changed(); renderFrame(); selectBloc(nb.id, 'contenu');
-            if (k === 'galerie') addImages(nb.id);
-          } }, h('span', { class: 'bc-ico' }, BICO[k] || '•'), h('span', {}, b.nom))))))), 'mid');
+        h('div', { class: 'bloc-cards' }, Object.entries(M.BLOCS).filter(([, b]) => b.g === g).map(([k, b]) => card(k, b.nom, BICO[k] || '•')))))), 'mid');
   }
 
   /* ---------- Bibliothèque de photos et de documents ---------- */
@@ -1794,7 +1976,10 @@
     modal('Comment modifier ton site', h('div', { class: 'help-txt', html: `
       <ol>
         <li><b>Une section</b> (grand cadre en pointillés) contient des <b>éléments</b> : titre, pastilles, paragraphe, image, infos, crédits, boutons…</li>
-        <li><b>Déplacer un élément</b> : attrape la poignée <b>⠿</b> à sa gauche (ou son nom dans la barre jaune) et glisse-le où tu veux, même dans une autre section ou une autre colonne.</li>
+        <li><b>Déplacer un élément</b> : attrape la poignée <b>⠿</b> à sa gauche (ou son nom dans la barre jaune) et glisse-le où tu veux : dans une autre section, une autre colonne, dans un groupe, ou <b>sur le bord gauche/droit d’un autre élément pour les mettre côte à côte</b>.</li>
+        <li><b>✥ Décaler librement</b> : dans la barre jaune, maintiens ✥ et glisse l’élément où tu veux dans l’espace (double-clic sur ✥ : le remettre à sa place).</li>
+        <li><b>Grouper</b> (titre + texte dans un joli cadre) : <b>⊞</b> dans la barre jaune, ou l’élément tout prêt <b>« Mon travail (encadré) »</b>. Choisis le cadre dans le panneau. <b>⊟</b> pour dégrouper.</li>
+        <li><b>Photos</b> : la <b>Mosaïque automatique</b> garde le format de chaque photo et remplit la largeur. Pour imposer un format (16:9, 9:16, 1:1…), clique sur la photo → « Format de cette photo », puis <b>✋ Cadrer</b> pour choisir la partie visible.</li>
         <li><b>Ajouter un élément</b> : bouton <b>＋ Ajouter</b> en haut à gauche, puis glisse l’élément dans la page (ou clique dessus). Ou le rond jaune <b>+</b> sous un élément.</li>
         <li><b>Barre jaune</b> d’un élément : <b>✎</b> ses réglages (Contenu, Style, Texte, Animation) · <b>↑ ↓</b> · <b>⧉</b> dupliquer · <b>🗑</b> supprimer.</li>
         <li><b>Changer une taille sur la page</b> : <b>↔</b> à droite d’un élément (largeur), <b>⇲</b> et <b>↕</b> sur une image, <b>⇕</b> en haut/bas à gauche d’une section (espace), <b>⇔</b> entre deux colonnes, <b>↔</b> à droite du contenu (largeur de la section).</li>
@@ -1877,7 +2062,8 @@
         h('button', { class: 'pn-x', title: 'Fermer', onclick: () => toggleDrawer(false) }, '×')),
       h('p', { class: 'dr-help' }, tab === 'elements' ? 'Glisse un élément dans la page, à l’endroit voulu (même dans une colonne). Ou clique : il s’ajoute après l’élément sélectionné.' : 'Glisse une section entre deux sections. Ou clique : elle s’ajoute après la section sélectionnée.'),
       h('div', { class: 'dr-body' }, tab === 'elements'
-        ? M.BLOC_GROUPES.map(g => h('div', { class: 'dr-group' }, h('h4', {}, g), Object.entries(M.BLOCS).filter(([, b]) => b.g === g).map(([k, b]) => item('bloc', k, BICO[k] || '•', b.nom))))
+        ? [h('div', { class: 'dr-group' }, h('h4', {}, 'Tout prêts'), Object.entries(M.PRESETS).map(([k, x]) => item('bloc', k, x.ico, x.nom))),
+          ...M.BLOC_GROUPES.map(g => h('div', { class: 'dr-group' }, h('h4', {}, g), Object.entries(M.BLOCS).filter(([, b]) => b.g === g).map(([k, b]) => item('bloc', k, BICO[k] || '•', b.nom))))]
         : M.GROUPES.map(g => h('div', { class: 'dr-group' }, h('h4', {}, g), Object.entries(M.TYPES).filter(([, t]) => t.groupe === g).map(([k, t]) => item('section', k, '▭', t.nom))))));
   }
   function clickInsert(kind, k) {
@@ -1889,7 +2075,7 @@
     }
     if (st.sel && st.sel.bid) {
       const bi = blocById(st.sel.bid);
-      if (bi) { insertBloc(k, { sec: bi.sec, index: bi.index + 1, col: bi.bloc.col }); return; }
+      if (bi) { insertBloc(k, { sec: bi.sec, list: bi.list, index: bi.index + 1, col: bi.parent ? undefined : bi.bloc.col }); return; }
     }
     if (st.sel) { const r = secById(st.sel.sid); if (r) { insertBloc(k, { sec: r.sec, index: r.sec.blocs.length }); return; } }
     if (pg.sections.length) { const sec = pg.sections[pg.sections.length - 1]; insertBloc(k, { sec, index: sec.blocs.length }); ED.toast('Ajouté à la fin de la page. La prochaine fois, glisse-le directement où tu veux.'); return; }
@@ -2025,7 +2211,7 @@
     updateState();
     if (ED.gh) setTimeout(syncRepo, 1500);
     if (pendingModal) setTimeout(pendingModal, 300);
-    else if (!ED.ls.get('portfolio-ed-aide-v4')) { ED.ls.set('portfolio-ed-aide-v4', '1'); setTimeout(help, 600); }
+    else if (!ED.ls.get('portfolio-ed-aide-v5')) { ED.ls.set('portfolio-ed-aide-v5', '1'); setTimeout(help, 600); }
   }
   ED.startEditor = startEditor;
 
