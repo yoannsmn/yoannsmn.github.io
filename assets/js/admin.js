@@ -7,7 +7,7 @@
   const M = window.Modele, ED = window.ED, h = ED.h, $ = ED.$, $$ = ED.$$;
   const st = { pageId: null, sel: null, tab: 'contenu', device: 'desktop', editing: null, clip: null, synced: false };
   let win = null, fdoc = null, hist = [], hpos = -1, histTimer, draftTimer, editTimer, panelTimer;
-  window.Editeur = { data: null, frameReady, get device() { return st.device; } };
+  window.Editeur = { data: null, frameReady, get device() { return st.device; }, src: p => ED.src(p) };
 
   /* ==========================================================================
      Données, historique, rendu
@@ -63,8 +63,10 @@
     cancelAnimationFrame(raf);
     if (!win || !win.SITE) return;
     const y = win.scrollY;
+    const ae = document.activeElement, keep = ae && /^(INPUT|TEXTAREA)$/.test(ae.tagName) ? { el: ae, a: ae.selectionStart, b: ae.selectionEnd } : null;
     const sid = ov.hSec && ov.hSec.dataset.sid, bid = ov.hBloc && ov.hBloc.dataset.bid;
     win.SITE.render(ED.data, st.pageId);
+    if (keep) setTimeout(() => restoreFocus(keep), 0);
     fixImages();
     win.scrollTo(0, y);
     // Garde les barres d'outils sur l'élément survolé, même après un changement
@@ -72,7 +74,12 @@
     ov.hBloc = bid ? fdoc.querySelector(`[data-bid="${bid}"]`) : null;
     ov.hEl = null;
     const under = st.mx != null ? fdoc.elementFromPoint(st.mx, st.my) : null;
-    if (under && !under.closest('#edo') && !ov.dragging) ov.track(under); else ov.draw();
+    if (under && !under.closest('#edo') && !ov.dragging) ov.track(under, true); else ov.draw();
+  }
+  function restoreFocus(k) {
+    if (!k.el.isConnected || document.activeElement === k.el) return;
+    k.el.focus({ preventScroll: true });
+    try { if (k.a != null) k.el.setSelectionRange(k.a, k.b); } catch (e) { /* champ sans curseur */ }
   }
   // Les photos qui viennent d'être envoyées ne sont pas encore en ligne : on les affiche depuis la mémoire
   function fixImages() {
@@ -146,8 +153,9 @@
 
   /* ---------- Bibliothèque : tout fichier envoyé y est rangé ---------- */
   const isImg = p => /\.(jpe?g|png|webp|gif|svg|avif)$/i.test(p);
+  const isVid = p => /\.(mp4|webm|mov|m4v)$/i.test(p);
   function addToLib(src, nom, raw) {
-    const list = raw ? ED.data.documents : ED.data.bibliotheque;
+    const list = isVid(src) ? (ED.data.videos = M.arr(ED.data.videos)) : raw ? ED.data.documents : ED.data.bibliotheque;
     if (list.some(x => x.src === src)) return false;
     const parts = src.split('/'), dossier = parts.length > 2 && !['bibliotheque', 'documents', 'images'].includes(parts[parts.length - 2]) ? parts[parts.length - 2] + ' · ' : '';
     list.unshift({ src, nom: nom ? nom.replace(/\.[^.]+$/, '') : dossier + parts[parts.length - 1].replace(/\.[^.]+$/, '') });
@@ -163,6 +171,7 @@
         if (e.type !== 'blob') return;
         if (/^images\//.test(e.path) && isImg(e.path) && addToLib(e.path)) n++;
         if (/^documents\//.test(e.path) && addToLib(e.path, null, true)) n++;
+        if (/^videos\//.test(e.path) && isVid(e.path) && addToLib(e.path, null, true)) n++;
       });
       if (n) changed({ render: false });
     } catch (e) { st.synced = false; }
@@ -188,7 +197,7 @@
   function frameReady(w) {
     win = w; fdoc = w.document;
     const l = fdoc.createElement('link');
-    l.rel = 'stylesheet'; l.href = 'assets/css/edit.css?v=5';
+    l.rel = 'stylesheet'; l.href = 'assets/css/edit.css?v=6';
     fdoc.head.appendChild(l);
     fixImages();
     ov.install();
@@ -206,6 +215,12 @@
   const HANDLES = [['bw', '↔', 'Tirer pour changer la largeur de l’élément'], ['iw', '⇲', 'Tirer pour agrandir ou réduire l’image'], ['ih', '↕', 'Tirer pour changer la hauteur de l’image (recadrage)'],
     ['gh', '↕', 'Tirer pour changer la hauteur des images'], ['pt', '⇕', 'Tirer pour l’espace au-dessus de la section'], ['pb', '⇕', 'Tirer pour l’espace en dessous de la section'],
     ['sw', '↔', 'Tirer pour la largeur du contenu de la section'], ['col', '⇔', 'Tirer pour la largeur des colonnes'], ['ch', '↕', 'Tirer pour la hauteur de la couverture']];
+  const HOVER_DELAY = 450;
+  // Élément de liste (pastille, ligne…) et image épinglés par un clic : leur barre reste affichée
+  const pinnedIt = () => st.pin && fdoc ? fdoc.querySelector(`[data-sid="${st.pin.sid}"] [data-it="${st.pin.it}"]`) : null;
+  const pinnedImg = () => st.sel && st.sel.kind === 'image' && st.sel.path ? fdoc.querySelector(`[data-sid="${st.sel.sid}"] [data-img="${st.sel.path}"]`) : null;
+  const curIt = () => (ov.hIt && ov.hIt.isConnected ? ov.hIt : null) || pinnedIt();
+  const curImg = () => (ov.hEl && ov.hEl.isConnected && ov.hEl.matches('[data-img]') ? ov.hEl : null) || pinnedImg();
   const ov = {
     root: null, hSec: null, hBloc: null, hEl: null, hIt: null, moveKind: null, dragging: false, H: {},
     install() {
@@ -233,7 +248,7 @@
         <button class="edo-add edo-add-top" data-a="s-add-before">+ Section</button>
         <button class="edo-add edo-add-bot" data-a="s-add-after">+ Section</button>
         <button class="edo-pen" title="Écrire">✎</button>
-        <div class="edo-img"><button data-a="img-replace">Remplacer</button><button data-a="img-frame" class="edo-grab" title="Maintiens et glisse pour choisir la partie visible de la photo (quand elle est recadrée)">✋ Cadrer</button><button data-a="img-crop">Rogner</button><button data-a="img-cap" title="Ajouter ou retirer la légende">Légende</button><button data-a="img-settings">✎</button><button data-a="img-drag" class="edo-grab" title="Glisser pour réorganiser">⠿</button><button data-a="img-del" class="danger" title="Retirer l’image">✕</button></div>
+        <div class="edo-img"><button data-a="img-replace">Remplacer</button><button data-a="img-frame" class="edo-grab" title="Maintiens et glisse pour choisir la partie visible de la photo (quand elle est recadrée)">✋ Cadrer</button><button data-a="img-crop">Rogner</button><button data-a="img-cap" title="Ajouter ou retirer la légende">Légende</button><button data-a="img-row" title="Commencer une nouvelle rangée avec cette photo">↵ Rangée</button><button data-a="img-merge" title="Remettre cette photo à la fin de la rangée du dessus">⤴ Rangée</button><button data-a="img-settings">✎</button><button data-a="img-drag" class="edo-grab" title="Glisser pour réorganiser (lâche-la à gauche ou à droite d’une autre photo)">⠿</button><button data-a="img-del" class="danger" title="Retirer l’image">✕</button></div>
         <div class="edo-rs" title="Tirer pour agrandir ou réduire">⇲</div>
         <div class="edo-move" title="Glisser pour déplacer">✥</div>
         <div class="edo-rsw" title="Tirer pour changer la largeur">⇲</div>
@@ -257,6 +272,7 @@
         changed(); refreshPanelSoon(); ED.toast('Élément remis à sa place.');
       });
       root.addEventListener('pointerdown', e => {
+        if (e.target.closest('[data-a], .edo-h, .edo-grip, .edo-bname, .edo-rs, .edo-rsw, .edo-move')) flushEdit();
         const b = e.target.closest('[data-a="s-drag"],[data-a="img-drag"],[data-a="it-drag"],[data-a="b-nudge"],[data-a="img-frame"]');
         if (b) { e.preventDefault(); ({ 's-drag': dragSection, 'img-drag': dragImage, 'it-drag': dragItem, 'b-nudge': nudgeBloc, 'img-frame': reframeImage })[b.dataset.a](e); return; }
         if (e.target.closest('.edo-grip, .edo-bname')) { e.preventDefault(); dragBloc(e); return; }
@@ -303,14 +319,26 @@
       Object.assign(el.style, { left: r.left + win.scrollX - pad + 'px', top: r.top + win.scrollY - pad + 'px', width: r.width + pad * 2 + 'px', height: r.height + pad * 2 + 'px' });
     },
     at(el, x, y) { el.style.left = x + win.scrollX + 'px'; el.style.top = y + win.scrollY + 'px'; },
-    track(t) {
-      if (!t || !t.closest || this.dragging || t.closest('#edo')) return;
-      this.hSec = t.closest('[data-sid]');
-      this.hBloc = t.closest('[data-bid]');
-      this.hEl = t.closest('[data-e]') || t.closest('[data-img]');
-      this.hIt = t.closest('[data-it]');
+    // Survol : quand une barre d'outils est affichée, on attend un court instant avant de passer à un autre élément,
+    // le temps que la souris atteigne la barre (sinon elle « saute » sur l'élément voisin qu'on survole en chemin).
+    track(t, now) {
+      if (!t || !t.closest || this.dragging) return;
+      if (t.closest('#edo')) { this.cancelSwitch(); return; }
+      const n = { sec: t.closest('[data-sid]'), bloc: t.closest('[data-bid]'), el: t.closest('[data-e]') || t.closest('[data-img]'), it: t.closest('[data-it]') };
+      if (n.sec === this.hSec && n.bloc === this.hBloc && n.el === this.hEl && n.it === this.hIt) { this.cancelSwitch(); return; }
+      const on = x => x && x.classList.contains('on');
+      // une barre est visible (élément survolé ou épinglé par un clic) et on s'apprête à la déplacer ailleurs
+      const lose = (n.it !== this.hIt && on(this.itbar)) || (n.el !== this.hEl && on(this.img)) || (this.hBloc && n.bloc !== this.hBloc && on(this.bbar));
+      if (now || !lose) { this.apply(n); return; }
+      this.pend = n;
+      if (!this.swT) this.swT = setTimeout(() => { this.swT = null; if (this.pend) this.apply(this.pend); }, HOVER_DELAY);
+    },
+    apply(n) {
+      this.cancelSwitch();
+      this.hSec = n.sec; this.hBloc = n.bloc; this.hEl = n.el; this.hIt = n.it;
       this.draw();
     },
+    cancelSwitch() { clearTimeout(this.swT); this.swT = null; this.pend = null; },
     draw() {
       if (!this.root || !win) return;
       const vw = win.innerWidth, vh = win.innerHeight, drag = this.dragging;
@@ -353,7 +381,7 @@
         this.at(this.badd, r.left + r.width / 2, r.bottom + 4);
       }
       // Ligne, pastille, bouton d'une liste
-      const it = drag ? null : (this.hIt && this.hIt.isConnected ? this.hIt : null);
+      const it = drag ? null : curIt();
       this.show(this.itbar, it); this.show(this.itbox, it);
       if (it) {
         const r = it.getBoundingClientRect(), w = this.itbar.offsetWidth || 140;
@@ -364,19 +392,26 @@
         this.at(this.itbar, ix, iy);
       }
       // Texte ou image survolé
-      const el = drag ? null : this.hEl;
-      const isI = el && el.matches('[data-img]'), isT = el && el.matches('[data-e]');
+      const el = drag ? null : (this.hEl && this.hEl.isConnected ? this.hEl : null);
+      const isT = el && el.matches('[data-e]');
       const editingEl = st.editing && st.editing.el === el;
       this.show(this.elbox, el && !editingEl && !it); if (el) this.box(this.elbox, el.getBoundingClientRect(), 2);
       this.show(this.pen, isT && !editingEl);
       if (isT) { const r = el.getBoundingClientRect(); this.at(this.pen, Math.min(r.right + 2, vw - 18), r.top - 2); }
+      // Barre d'une image : l'image survolée, sinon celle sur laquelle tu as cliqué
+      const imgEl = drag ? null : curImg();
+      const isI = !!imgEl;
       this.show(this.img, isI && !free);
       let rsOn = false;
       if (isI && !free) {
+        const el = imgEl;
         const r = el.getBoundingClientRect(), path = el.dataset.img, inArr = /images\.\d+$/.test(path);
         this.img.querySelector('[data-a="img-drag"]').style.display = inArr ? '' : 'none';
         this.img.querySelector('[data-a="img-frame"]').style.display = cropInfo(el) ? '' : 'none';
         this.img.querySelector('[data-a="img-cap"]').style.display = /(^|\.)blocs\.\d+\.c\.(img|images\.\d+)$/.test(path) ? '' : 'none';
+        const rp = inArr && el.closest('.gal-auto') ? rowPos(el) : null;
+        this.img.querySelector('[data-a="img-row"]').style.display = rp && rp.k > 0 ? '' : 'none';
+        this.img.querySelector('[data-a="img-merge"]').style.display = rp && rp.k === 0 && rp.r > 0 ? '' : 'none';
         const iw = this.img.offsetWidth || 300;
         this.at(this.img, clamp(r.right - 8, iw + 6, vw - 6), Math.max(r.top + 8, 40));
         if (inArr && el.closest('.gal-puzzle, .gal-grille')) { rsOn = true; this.at(this.rs, r.right - 34, r.bottom - 34); }
@@ -406,14 +441,14 @@
           if (m) { const ir = m.getBoundingClientRect(); put('iw', ir.right - 26, ir.bottom - 26); put('ih', ir.left + ir.width / 2 - 11, ir.bottom - 12); }
         } else {
           put('bw', r.right - 11, (Math.max(r.top, 0) + Math.min(r.bottom, vh)) / 2 - 11);
-          if (k === 'galerie' && ['puzzle', 'rangees', 'bande'].includes(info.bloc.c.disposition)) put('gh', r.left + r.width / 2 - 11, r.bottom - 12);
+          if (k === 'galerie' && (['puzzle', 'rangees', 'bande'].includes(info.bloc.c.disposition) || (info.bloc.c.disposition === 'mosaique' && ['auto', 'centre'].includes(galMode(info.bloc.c))))) put('gh', r.left + r.width / 2 - 11, r.bottom - 12);
         }
       }
       if (!drag && sec) {
         const r = sec.getBoundingClientRect();
         put('pt', r.left + r.width * 0.25, r.top + 4); put('pb', r.left + r.width * 0.25, r.bottom - 26);
         const lay = sec.querySelector(':scope > .sec-in > *');
-        if (lay && !MOB() && !sec.classList.contains('w-pleine')) { const lr = lay.getBoundingClientRect(); if (lr.right < vw - 28) put('sw', lr.right + 10, Math.min(lr.bottom, vh) - 34); }
+        if (lay && !MOB() && !sec.classList.contains('w-pleine')) { const lr = lay.getBoundingClientRect(); put('sw', lr.right < vw - 28 ? lr.right + 10 : lr.right - 26, Math.min(lr.bottom, vh) - 34); }
         const row = sec.querySelector('.deux-row'), cols = sec.querySelector('.cols');
         const pair = row ? [row.children[0], row.children[1]] : cols ? [cols.children[0], cols.children[1]] : null;
         if (pair && pair[0] && pair[1]) {
@@ -440,7 +475,7 @@
   function bindFrame() {
     const d = fdoc;
     d.addEventListener('mousemove', e => { st.mx = e.clientX; st.my = e.clientY; ov.track(e.target); }, { passive: true });
-    d.addEventListener('mouseleave', () => { st.mx = null; ov.hSec = ov.hBloc = ov.hEl = ov.hIt = null; ov.draw(); });
+    d.addEventListener('mouseleave', () => { st.mx = null; ov.cancelSwitch(); ov.hSec = ov.hBloc = ov.hEl = ov.hIt = null; ov.draw(); });
     d.addEventListener('mousedown', e => {
       const txt = e.target.closest('[data-e]');
       if (!txt || e.target.closest('#edo')) return;
@@ -454,7 +489,9 @@
       if (!act && t.closest('.filtres button, .sl-btn, .sl-dots button')) return;
       if (t.closest('a, button, form, label')) e.preventDefault();
       e.stopPropagation();
-      ov.track(t);
+      ov.track(t, true);
+      const itEl = t.closest('[data-it]'), itSec = itEl && itEl.closest('[data-sid]');
+      st.pin = itEl && itSec ? { sid: itSec.dataset.sid, it: itEl.dataset.it } : null;
       if (act) { doAct(act.dataset.act, act); return; }
       const zone = t.closest('[data-zone]');
       if (zone && !t.closest('[data-sid]')) { openSite(zone.dataset.zone === 'pied' ? 'pied' : 'menu'); return; }
@@ -482,7 +519,17 @@
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
     else if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
     else if (mod && e.key.toLowerCase() === 's') { e.preventDefault(); flushEdit(); ED.publish(); }
-    else if (e.key === 'Escape' && !st.editing && !$('.modal-back')) closePanel();
+    else if (e.key === 'Escape' && $('.modal-back')) { const x = $$('.modal-back').pop().querySelector('.modal-head .pn-x'); if (x) x.click(); }
+    else if (e.key === 'Escape' && !st.editing) closePanel();
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && !st.editing && !$('.modal-back')) {
+      // Suppr : supprime la pastille / ligne / photo / l'élément sur lequel tu as cliqué
+      const t = e.target, typing = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+      if (typing || !st.sel) return;
+      e.preventDefault();
+      if (pinnedIt()) { itemAction('it-del', pinnedIt()); return; }
+      if (st.sel.kind === 'image' && st.sel.path) { removeImage(st.sel.sid, st.sel.path); return; }
+      if (st.sel.kind === 'bloc') { const bi = blocById(st.sel.bid); if (bi && confirm(`Supprimer l’élément « ${blocName(bi.bloc)} » ?\n(Tu pourras annuler avec ↶)`)) { bi.list.splice(bi.index, 1); cleanupGroups(bi.sec.blocs); select(bi.sec.id); changed(); } }
+    }
   }
 
   /* ---------- Écriture directe ---------- */
@@ -508,7 +555,7 @@
   }
   function commitEdit() {
     const ed = st.editing;
-    if (!ed) return;
+    if (!ed || !ed.el.isConnected) return; // l'élément a été déplacé ou supprimé entre-temps
     const r = secById(ed.sid);
     if (!r) return;
     const v = ed.kind === 'rich' ? M.sanitize(ed.el.innerHTML) : ed.el.innerText.replace(/\s*\n\s*/g, ' ').trim();
@@ -536,10 +583,11 @@
      ========================================================================== */
   const reId = s => { const c = M.clone(s); c.id = M.uid('s'); c.blocs = M.arr(c.blocs).map(reIdBloc); return c; };
   function barAction(a) {
+    flushEdit(); // enregistre le texte en cours avant de déplacer / supprimer quoi que ce soit
     const secEl = ov.hSec || (st.sel && fdoc.querySelector(`[data-sid="${st.sel.sid}"]`));
     const info = secEl && secById(secEl.dataset.sid);
     if (a.startsWith('img-')) {
-      const el = ov.hEl && ov.hEl.matches('[data-img]') ? ov.hEl : null;
+      const el = curImg();
       if (!el) return;
       const sid = el.closest('[data-sid]').dataset.sid, path = el.dataset.img;
       if (a === 'img-replace') replaceImage(sid, path);
@@ -547,6 +595,7 @@
       if (a === 'img-settings') selectImg(el);
       if (a === 'img-del') removeImage(sid, path);
       if (a === 'img-cap') toggleCaption(sid, path);
+      if (a === 'img-row' || a === 'img-merge') galRow(a, el);
       return;
     }
     if (a.startsWith('it-')) { itemAction(a); return; }
@@ -595,6 +644,7 @@
     else if (act === 'add-item' && el) addListItem(el);
     else if (act === 'genres') openGenres();
     else if (act === 'ungroup' && st.sel && st.sel.bid) { const bi = blocById(st.sel.bid); if (bi) ungroupBloc(bi); }
+    else if (act === 'split-parcours' && st.sel && st.sel.bid) { const bi = blocById(st.sel.bid); if (bi) splitParcours(bi); }
   }
 
   /* ---------- Lignes, pastilles, mots-clés, boutons : ajouter, déplacer, supprimer ---------- */
@@ -626,34 +676,57 @@
     if (b.k === 'boutons') { selectBloc(b.id, 'contenu', true); ED.toast('Choisis où mène ce bouton dans le panneau de droite.'); }
   }
   function itemCtx(el) {
-    el = el || ov.hIt;
+    el = el || curIt();
     if (!el || !el.isConnected) return null;
     const r = secById(el.closest('[data-sid]').dataset.sid), m = el.dataset.it.match(/^(.*)\.(\d+)$/);
     return r && m ? { el, sec: r.sec, lp: m[1], i: +m[2], list: M.get(r.sec, m[1]) } : null;
   }
-  function itemAction(a) {
-    const c = itemCtx(); if (!c || !Array.isArray(c.list)) return;
+  function itemAction(a, el) {
+    const c = itemCtx(el); if (!c || !Array.isArray(c.list)) return;
     const { list, i } = c;
-    if (a === 'it-up' && i > 0) [list[i - 1], list[i]] = [list[i], list[i - 1]];
-    else if (a === 'it-down' && i < list.length - 1) [list[i + 1], list[i]] = [list[i], list[i + 1]];
-    else if (a === 'it-dup') list.splice(i + 1, 0, M.clone(list[i]));
-    else if (a === 'it-del') { list.splice(i, 1); ED.toast('Supprimé. ↶ pour annuler.'); }
+    let ni = i;
+    if (a === 'it-up' && i > 0) { [list[i - 1], list[i]] = [list[i], list[i - 1]]; ni = i - 1; }
+    else if (a === 'it-down' && i < list.length - 1) { [list[i + 1], list[i]] = [list[i], list[i + 1]]; ni = i + 1; }
+    else if (a === 'it-dup') { list.splice(i + 1, 0, M.clone(list[i])); ni = i + 1; }
+    else if (a === 'it-del') { list.splice(i, 1); ni = -1; ED.toast('Supprimé. ↶ pour annuler.'); }
     else return;
-    ov.hIt = null; changed();
+    // La barre suit l'élément déplacé (on peut cliquer plusieurs fois sur ↑ ou ↓)
+    st.pin = ni >= 0 ? { sid: c.sec.id, it: `${c.lp}.${ni}` } : null;
+    ov.hIt = null; changed(); renderFrame();
   }
   function dragItem() {
     const c = itemCtx(); if (!c) return;
     const re = new RegExp('^' + c.lp.replace(/\./g, '\\.') + '\\.\\d+$');
-    const sibs = $$(`[data-sid="${c.sec.id}"] [data-it]`, fdoc).filter(x => re.test(x.dataset.it));
-    let to = c.i;
+    // Lignes de parcours, infos, crédits : on peut aussi les passer dans une autre liste du même genre
+    const kind = (c.el.closest('.timeline') ? '.timeline' : c.el.closest('.credits') ? '.credits' : c.el.closest('.infos') ? '.infos' : '');
+    const leaf = c.lp.split('.').pop();
+    const sibs = kind ? $$(`[data-sid] ${kind} [data-it]`, fdoc).filter(x => new RegExp('\\.c\\.' + leaf + '\\.\\d+$').test(x.dataset.it) && x.closest(kind) && !x.parentElement.closest('[data-it]'))
+      : $$(`[data-sid="${c.sec.id}"] [data-it]`, fdoc).filter(x => re.test(x.dataset.it));
+    const ends = kind ? $$(`[data-sid] .ed-additem[data-list$=".c.${leaf}"]`, fdoc) : [];
+    const cands = [...sibs, ...ends];
+    let tgt = null, after = false;
+    const clear = () => cands.forEach(x => x.classList.remove('edo-target', 'edo-t-top', 'edo-t-bot', 'edo-t-l', 'edo-t-r'));
     startDrag('⠿');
     dragLoop(ev => {
       ov.at(ov.ghost, ev.clientX, ev.clientY);
-      sibs.forEach(x => x.classList.remove('edo-target'));
+      clear();
       let best = null, bd = 1e12;
-      sibs.forEach((x, k) => { const b = x.getBoundingClientRect(); const dx = ev.clientX - (b.left + b.width / 2), dy = ev.clientY - (b.top + b.height / 2); if (dx * dx + dy * dy < bd) { bd = dx * dx + dy * dy; best = k; } });
-      if (best !== null) { to = best; sibs[best].classList.add('edo-target'); }
-    }, () => { if (to !== c.i) { const [x] = c.list.splice(c.i, 1); c.list.splice(to, 0, x); changed(); } });
+      cands.forEach(x => { const b = x.getBoundingClientRect(); const dx = ev.clientX - Math.max(b.left, Math.min(ev.clientX, b.right)), dy = ev.clientY - Math.max(b.top, Math.min(ev.clientY, b.bottom)); const dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; best = x; } });
+      tgt = best && best !== c.el ? best : null;
+      if (tgt) { const b = tgt.getBoundingClientRect(); after = !tgt.matches('[data-it]') || (kind ? ev.clientY > b.top + b.height / 2 : ev.clientX > b.left + b.width / 2); tgt.classList.add('edo-target', kind ? (after ? 'edo-t-bot' : 'edo-t-top') : (after ? 'edo-t-r' : 'edo-t-l')); }
+    }, () => {
+      clear();
+      if (!tgt) return;
+      const tr = secById(tgt.closest('[data-sid]').dataset.sid); if (!tr) return;
+      let tlp, ti;
+      if (tgt.matches('[data-it]')) { const m = tgt.dataset.it.match(/^(.*)\.(\d+)$/); tlp = m[1]; ti = +m[2] + (after ? 1 : 0); }
+      else { tlp = tgt.dataset.list; ti = M.arr(M.get(tr.sec, tlp)).length; }
+      const tlist = M.get(tr.sec, tlp) || (M.set(tr.sec, tlp, []), M.get(tr.sec, tlp));
+      if (tlist === c.list) { if (ti > c.i) ti--; if (ti === c.i) return; }
+      const [x] = c.list.splice(c.i, 1);
+      tlist.splice(Math.min(ti, tlist.length), 0, x);
+      st.pin = null; changed();
+    });
   }
   function toggleCaption(sid, path) {
     const r = secById(sid); if (!r) return;
@@ -846,6 +919,38 @@
     changed(); renderFrame(); selectBloc(g.id, 'contenu');
     ED.toast('Groupe créé. Glisse d’autres éléments dedans avec ⠿, puis choisis son cadre dans le panneau.', 'ok', 6000);
   }
+  /* ---------- Parcours : projets à gauche, formations à droite ---------- */
+  const FORMA = /(formation|[ée]cole|master|licence|bachelor|\bbts\b|\bdut\b|\bbut\b|dipl[ôo]me|universit|lyc[ée]e|\bbac\b|cursus|\bfac\b|\biut\b|conservatoire|femis|eicar|esra|\b3is\b|school|campus|certificat|pr[ée]pa)/i;
+  function parcoursSplit(bloc) {
+    const bi = blocById(bloc.id); if (!bi) return false;
+    let n = 0;
+    (function walk(list) { list.forEach(b => { if (b.k === 'liste') n++; if (b.k === 'groupe') walk(M.arr(b.c.blocs)); }); })(bi.sec.blocs);
+    return n > 1;
+  }
+  function splitParcours(bi) {
+    const b = bi.bloc, sec = bi.sec, items = M.arr(b.c.items);
+    const isF = it => FORMA.test([it.titre, it.sousTitre, it.html].join(' '));
+    const ex = (date, titre, sous) => ({ date, titre, sousTitre: sous, html: '', logo: { src: '' }, lien: '' });
+    let proj = items.filter(it => !isF(it)), form = items.filter(isF);
+    if (!proj.length) proj = [ex('2025', 'Nom du projet', 'Rôle, structure')];
+    if (!form.length) form = [ex('2024', 'Diplôme ou formation', 'École')];
+    const right = M.bloc('liste', Object.assign(M.clone(b.c), { items: form }));
+    b.c.items = proj;
+    const tP = M.bloc('titre', { texte: 'Projets', taille: 'bloc' }), tF = M.bloc('titre', { texte: 'Formations', taille: 'bloc' });
+    if (bi.list === sec.blocs && (sec.layout === 'pile' || sec.layout === 'deux')) {
+      if (sec.layout === 'pile') {
+        sec.layout = 'deux'; sec.blocs.forEach(x => { x.col = 'plein'; }); // le reste (ex. le titre « Parcours ») reste au-dessus, sur toute la largeur
+        sec.c.proportion = 50; if (!sec.c.empileM) sec.c.empileM = 'oui';
+      }
+      tP.col = b.col = 'g'; tF.col = right.col = 'd';
+      sec.blocs.splice(sec.blocs.indexOf(b), 1, tP, b, tF, right);
+    } else {
+      const L = M.bloc('groupe', { blocs: [tP, b], disposition: 'pile', style: 'aucun' }), R = M.bloc('groupe', { blocs: [tF, right], disposition: 'pile', style: 'aucun' });
+      bi.list.splice(bi.index, 1, M.bloc('groupe', { blocs: [L, R], disposition: 'ligne', style: 'aucun', empileM: 'oui', espace: 48 }));
+    }
+    changed(); select(sec.id);
+    ED.toast('Projets à gauche, formations à droite. Pour changer une ligne de colonne : glisse-la avec ⠿.');
+  }
   function ungroupBloc(bi) {
     const g = bi.bloc; if (g.k !== 'groupe') return;
     const kids = M.arr(g.c.blocs);
@@ -874,15 +979,17 @@
   /* ---------- Cadrer une photo recadrée en la faisant glisser ---------- */
   function cropInfo(el) {
     const img = el && el.querySelector('img');
-    if (!img || !img.naturalWidth || win.getComputedStyle(img).objectFit !== 'cover') return null;
+    // format réel de la photo : celui de l'image chargée, sinon celui retenu (data-nr) si elle se charge encore
+    const nr = img && img.naturalWidth ? img.naturalWidth / img.naturalHeight : +(el && el.dataset.nr) || 0;
+    if (!img || !nr || win.getComputedStyle(img).objectFit !== 'cover') return null;
     const box = img.getBoundingClientRect();
     if (!box.width || !box.height) return null;
-    const nr = img.naturalWidth / img.naturalHeight, br = box.width / box.height;
+    const br = box.width / box.height;
     if (Math.abs(nr - br) / br < 0.03) return null;
     return { img, ovx: nr > br ? box.height * nr - box.width : 0, ovy: nr < br ? box.width / nr - box.height : 0 };
   }
   function reframeImage(e) {
-    const el = ov.hEl && ov.hEl.matches('[data-img]') ? ov.hEl : null, c = cropInfo(el);
+    const el = curImg(), c = cropInfo(el);
     if (!c) { ED.toast('Cette photo s’affiche en entier : choisis d’abord un format (16:9, 1:1…) pour la recadrer.'); return; }
     const r = secById(el.closest('[data-sid]').dataset.sid), o = imgObj(r.sec, el.dataset.img);
     const px = isNumv(o.posX) ? +o.posX : 50, py = isNumv(o.posY) ? +o.posY : 50, x0 = e.clientX, y0 = e.clientY;
@@ -919,9 +1026,9 @@
     } else if (kind === 'gh' && bi) {
       const c = bi.bloc.c, gal = blEl.querySelector('.gal'), band = c.disposition === 'bande', first = gal && gal.querySelector('.gi');
       if (!gal || !first) return;
-      const v0 = c.disposition === 'puzzle' ? parseFloat(win.getComputedStyle(gal).gridAutoRows) || 220 : first.getBoundingClientRect().height, H0 = gal.getBoundingClientRect().height || 1;
+      const v0 = c.disposition === 'puzzle' ? parseFloat(win.getComputedStyle(gal).gridAutoRows) || 220 : c.disposition === 'mosaique' ? (mob ? parseFloat(win.getComputedStyle(gal).getPropertyValue('--row-m')) || (parseFloat(win.getComputedStyle(gal).getPropertyValue('--row')) || 220) * 0.55 : parseFloat(win.getComputedStyle(gal).getPropertyValue('--row')) || 220) : first.getBoundingClientRect().height, H0 = gal.getBoundingClientRect().height || 1;
       obj = bi.bloc; key = 'c.' + (band ? 'hauteurBande' : 'hauteurRang') + (mob ? 'M' : '');
-      show = ev => { val = clamp(Math.round(v0 * (H0 + ev.clientY - y0) / H0), 60, 1400); gal.style.setProperty(band ? (mob ? '--band-m' : '--band') : (mob ? '--row-m' : '--row'), val + 'px'); tip(`Hauteur des images ${val} px`, ev); };
+      show = ev => { val = clamp(Math.round(v0 * (H0 + ev.clientY - y0) / H0), 60, 1400); gal.style.setProperty(band ? (mob ? '--band-m' : '--band') : (mob ? '--row-m' : '--row'), val + 'px'); if (c.disposition === 'mosaique' && win.SITE && win.SITE.relayout) win.SITE.relayout(); tip(`Taille des photos ${val} px`, ev); };
     } else if ((kind === 'pt' || kind === 'pb') && si) {
       const cs = win.getComputedStyle(secEl), v0 = parseFloat(kind === 'pt' ? cs.paddingTop : cs.paddingBottom) || 0;
       obj = si.sec; key = 's.' + kind + (mob ? 'M' : '');
@@ -959,10 +1066,53 @@
     const r = secById(sid); if (!r) return;
     openLibrary({ pick: true, onPick: src => { const o = imgObj(r.sec, path); o.src = src; changed(); if (st.sel && st.sel.path === path) buildPanel(); } });
   }
+  /* Rangées d'une galerie mosaïque : nombre de photos de chaque rangée, telles qu'affichées */
+  function domRows(gal) {
+    if (!gal.classList.contains('gal-auto')) { const n = $$(':scope > .gi', gal).length, out = []; for (let i = 0; i < n; i += 3) out.push(Math.min(3, n - i)); return out; }
+    const out = []; let n = 0;
+    [...gal.children].forEach(ch => { if (ch.classList.contains('gi')) n++; else if (ch.classList.contains('gbrk') && n) { out.push(n); n = 0; } });
+    if (n) out.push(n);
+    return out;
+  }
+  function rowPos(el) {
+    const gal = el.closest('.gal'); if (!gal) return null;
+    const idx = $$(':scope > .gi', gal).indexOf(el), rows = domRows(gal);
+    let start = 0;
+    for (let r = 0; r < rows.length; r++) { if (idx < start + rows[r]) return { gal, rows, r, k: idx - start, idx }; start += rows[r]; }
+    return null;
+  }
+  // Quelle liste de rangées « sur mesure » est affichée en ce moment (ordi : c.lignes, téléphone : c.lignesM)
+  function libreKey(c) {
+    if (c.disposition !== 'mosaique') return null;
+    if (!MOB()) return c.rangees === 'libre' ? 'lignes' : null;
+    if (c.rangeesM === 'libre') return 'lignesM';
+    if (c.rangeesM === 'ordi' && c.rangees === 'libre') return 'lignes';
+    return null;
+  }
+  const galBloc = el => { const b = el.closest('[data-bid]'); const bi = b && blocById(b.dataset.bid); return bi && bi.bloc.k === 'galerie' ? bi : null; };
+  function galRow(a, el) {
+    const p = rowPos(el), bi = galBloc(el);
+    if (!p || !bi) return;
+    const counts = p.rows.slice();
+    if (a === 'img-row') { if (p.k === 0) return; counts.splice(p.r, 1, p.k, counts[p.r] - p.k); }
+    else { if (p.r === 0 || p.k !== 0) return; counts[p.r - 1] += counts[p.r]; counts.splice(p.r, 1); }
+    const c = bi.bloc.c, mob = MOB();
+    c[mob ? 'rangeesM' : 'rangees'] = 'libre'; c[mob ? 'lignesM' : 'lignes'] = counts;
+    changed(); refreshPanelSoon();
+  }
+  function removeAtRows(counts, idx) {
+    const out = M.arr(counts).map(Number); let start = 0;
+    for (let r = 0; r < out.length; r++) { if (idx < start + out[r]) { out[r]--; break; } start += out[r]; }
+    return out.filter(n => n > 0);
+  }
   function removeImage(sid, path) {
     const r = secById(sid); if (!r) return;
     const m = path.match(/^(.*images)\.(\d+)$/);
-    if (m) M.get(r.sec, m[1]).splice(+m[2], 1);
+    if (m) {
+      M.get(r.sec, m[1]).splice(+m[2], 1);
+      const g = M.get(r.sec, m[1].replace(/\.images$/, ''));
+      if (g && g.disposition === 'mosaique') ['lignes', 'lignesM'].forEach(k => { if (M.arr(g[k]).length) g[k] = removeAtRows(g[k], +m[2]); });
+    }
     else imgObj(r.sec, path).src = '';
     if (st.sel && st.sel.path === path) select(sid);
     ov.hEl = null; changed();
@@ -973,23 +1123,39 @@
     openLibrary({ pick: true, multi: true, onPick: srcs => { M.arr(srcs).forEach(src => list.push({ src })); changed(); if (st.sel) buildPanel(); } });
   }
   function dragImage() {
-    const el = ov.hEl; if (!el) return;
+    const el = curImg(); if (!el) return;
     const sid = el.closest('[data-sid]').dataset.sid, m = el.dataset.img.match(/^(.*images)\.(\d+)$/);
     if (!m) return;
     const r = secById(sid), arrPath = m[1], from = +m[2];
-    const sibs = $$(`[data-sid="${sid}"] [data-img^="${arrPath}."]`, fdoc);
-    let to = from;
+    const sibs = $$(`[data-sid="${sid}"] [data-img^="${arrPath}."]`, fdoc).filter(x => /\.\d+$/.test(x.dataset.img.slice(arrPath.length)));
+    const gal = el.closest('.gal'), gc = M.get(r.sec, arrPath.replace(/\.images$/, '')) || {};
+    const lk = gal && gal.classList.contains('gal-auto') ? libreKey(gc) : null, rows0 = lk ? domRows(gal) : null;
+    let to = null, after = false;
     startDrag('⠿ Image ' + (from + 1));
     dragLoop(ev => {
       ov.at(ov.ghost, ev.clientX, ev.clientY);
-      sibs.forEach(s => s.classList.remove('edo-target'));
-      let best = null, bd = 1e9;
-      sibs.forEach((s, i) => { const b = s.getBoundingClientRect(); const dx = ev.clientX - (b.left + b.width / 2), dy = ev.clientY - (b.top + b.height / 2); if (dx * dx + dy * dy < bd) { bd = dx * dx + dy * dy; best = i; } });
-      if (best !== null) { to = best; sibs[best].classList.add('edo-target'); }
-    }, () => { if (to !== from) { const list = M.get(r.sec, arrPath); const [x] = list.splice(from, 1); list.splice(to, 0, x); changed(); } });
+      sibs.forEach(s => s.classList.remove('edo-target', 'edo-t-l', 'edo-t-r'));
+      let best = null, bd = 1e9, bb = null;
+      sibs.forEach((s, i) => { const b = s.getBoundingClientRect(); const dx = ev.clientX - Math.max(b.left, Math.min(ev.clientX, b.right)), dy = ev.clientY - Math.max(b.top, Math.min(ev.clientY, b.bottom)); const d = dx * dx + dy * dy - (dx === 0 && dy === 0 ? 1 : 0); if (d < bd) { bd = d; best = i; bb = b; } });
+      if (best !== null && best !== from) { to = best; after = ev.clientX > bb.left + bb.width / 2; sibs[best].classList.add('edo-target', after ? 'edo-t-r' : 'edo-t-l'); } else to = null;
+    }, () => {
+      sibs.forEach(s => s.classList.remove('edo-target', 'edo-t-l', 'edo-t-r'));
+      if (to === null || to === from) return;
+      const list = M.get(r.sec, arrPath), n = list.length;
+      // Rangées en indices : on retire la photo de sa rangée et on la pose à côté de la photo visée (dans SA rangée)
+      let rowsIx = [];
+      if (rows0) { let i = 0; rows0.forEach(k => { rowsIx.push(Array.from({ length: k }, (_, j) => i + j)); i += k; }); if (i < n) rowsIx.push(Array.from({ length: n - i }, (_, j) => i + j)); }
+      else rowsIx = [Array.from({ length: n }, (_, j) => j)];
+      rowsIx.forEach(rw => { const j = rw.indexOf(from); if (j >= 0) rw.splice(j, 1); });
+      const tr = rowsIx.find(rw => rw.includes(to)); tr.splice(tr.indexOf(to) + (after ? 1 : 0), 0, from);
+      const order = rowsIx.flat(), copy = list.slice();
+      list.splice(0, n, ...order.map(i => copy[i]));
+      if (lk) gc[lk] = rowsIx.map(rw => rw.length).filter(Boolean);
+      changed();
+    });
   }
   function resizeImage(e) {
-    const el = ov.hEl; if (!el) return;
+    const el = curImg(); if (!el) return;
     const sid = el.closest('[data-sid]').dataset.sid, it = imgObj(secById(sid).sec, el.dataset.img);
     const gal = el.closest('.gal'), puzzle = gal.classList.contains('gal-puzzle'), cs = win.getComputedStyle(gal);
     const cols = cs.gridTemplateColumns.split(' ').length, gap = parseFloat(cs.columnGap) || 0;
@@ -1090,7 +1256,7 @@
     if (prev !== 'image') st.tab = 'image';
     buildPanel(); ov.draw();
   }
-  function closePanel() { st.sel = null; const P = $('#panel'); if (P) { P.hidden = true; document.body.classList.remove('has-panel'); } if (ov.root) ov.draw(); }
+  function closePanel() { st.sel = null; st.pin = null; const P = $('#panel'); if (P) { P.hidden = true; document.body.classList.remove('has-panel'); } if (ov.root) ov.draw(); }
   function refreshPanelSoon() { clearTimeout(panelTimer); panelTimer = setTimeout(buildPanel, 30); }
 
   function buildPanel() {
@@ -1171,7 +1337,7 @@
   }
 
   /* ---------- Définitions des réglages ---------- */
-  const RATIOS = [['auto', 'Format d’origine'], ['16/9', '16:9'], ['2.39/1', '2.39:1 (cinémascope)'], ['3/2', '3:2'], ['4/3', '4:3'], ['1/1', 'Carré'], ['4/5', 'Portrait 4:5'], ['3/4', 'Portrait 3:4'], ['9/16', 'Vertical 9:16']];
+  const RATIOS = [['auto', 'Format d’origine'], ['16/9', '16:9'], ['2.39/1', '2.39:1 (cinémascope)'], ['1.618/1', 'Nombre d’or (1,618:1)'], ['3/2', '3:2'], ['4/3', '4:3'], ['1/1', 'Carré'], ['4/5', 'Portrait 4:5'], ['3/4', 'Portrait 3:4'], ['9/16', 'Vertical 9:16']];
   const NOTE_TXT = { t: 'note', l: 'Le texte se modifie directement sur la page : clique dedans et écris. Sélectionne des mots pour les mettre en gras, en lien, en couleur, ou relier un document (📎).' };
   const TEXT_KINDS = ['pastille', 'surtitre', 'titre', 'soustitre', 'texte', 'tags', 'boutons', 'document', 'infos', 'credits', 'liste', 'coordonnees', 'formulaire', 'reseaux', 'fichiers', 'projets'];
   const placeFields = sec => sec.layout === 'deux'
@@ -1183,7 +1349,7 @@
       { t: 'heading', l: 'Image ou vidéo de fond' },
       { k: 'c.media.type', t: 'seg', options: [['image', 'Image'], ['video', 'Vidéo']], rerender: true },
       { k: 'c.media.src', l: 'Image (aussi utilisée sur téléphone)', t: 'image' },
-      { k: 'c.media.video', l: 'Lien de la vidéo (YouTube, Vimeo ou .mp4)', t: 'video', if: o => o.c.media && o.c.media.type === 'video', help: 'En boucle, sans son. Sur téléphone, l’image s’affiche à la place.' },
+      { k: 'c.media.video', l: 'Vidéo', t: 'video', if: o => o.c.media && o.c.media.type === 'video', help: 'En boucle, sans son. Sur téléphone, l’image s’affiche à la place.' },
       { k: 'c.hauteur', m: 'c.hauteurM', l: 'Hauteur', t: 'range', min: 25, max: 100, unit: '% écran' },
       { t: 'note', l: 'Astuce : tire la poignée ↕ en bas de la couverture pour régler sa hauteur.' },
       { t: 'heading', l: 'Superposition' },
@@ -1197,14 +1363,79 @@
       { k: 'c.alignTexte', m: 'c.alignTexteM', l: 'Alignement', t: 'seg', options: [['left', 'Gauche'], ['center', 'Centre'], ['right', 'Droite']] },
       { k: 'c.largeurTexte', m: 'c.largeurTexteM', l: 'Largeur maximale', t: 'range', min: 240, max: 1400, step: 10, unit: 'px' }],
     colonnes: [{ k: 'c.img.src', l: 'Image', t: 'image' }, { k: 'c.imageCote', l: 'Image à', t: 'seg', options: [['gauche', 'Gauche'], ['droite', 'Droite']] },
-      { k: 'c.proportion', m: 'c.proportionM', l: 'Largeur de l’image', t: 'range', min: 20, max: 80, unit: '%' }, { k: 'c.img.ratio', l: 'Format de l’image', t: 'select', options: RATIOS }, { k: 'c.empileM', l: '📱 Sur téléphone, les colonnes sont', t: 'seg', options: [['', 'Réglage du site'], ['non', 'Côte à côte'], ['oui', 'Empilées']] }],
-    deux: [{ k: 'c.proportion', m: 'c.proportionM', l: 'Largeur de la colonne de gauche', t: 'range', min: 20, max: 80, unit: '%' }, { k: 'c.empileM', l: '📱 Sur téléphone, les colonnes sont', t: 'seg', options: [['', 'Réglage du site'], ['non', 'Côte à côte'], ['oui', 'Empilées']] },
+      { k: 'c.proportion', m: 'c.proportionM', l: 'Largeur de l’image', t: 'range', min: 20, max: 80, unit: '%' }, { k: 'c.img.ratio', l: 'Format de l’image', t: 'select', options: RATIOS },
+      { k: 'c.aligner', l: 'L’image et le texte commencent', t: 'seg', options: [['haut', 'En haut'], ['centre', 'Centrés'], ['bas', 'En bas']], help: '« En haut » : l’image ne bouge plus quand tu ajoutes des lignes au texte.' }, { k: 'c.empileM', l: '📱 Sur téléphone, les colonnes sont', t: 'seg', options: [['', 'Réglage du site'], ['non', 'Côte à côte'], ['oui', 'Empilées']] }],
+    deux: [{ k: 'layout', l: 'Colonnes de la section', t: 'seg', options: [['pile', 'Une colonne'], ['deux', 'Deux colonnes (gauche | droite)']], rerender: true, after: o => { if (o.layout === 'deux') o.blocs.forEach(b => { if (!b.col) b.col = 'g'; }); } }, { k: 'c.proportion', m: 'c.proportionM', l: 'Largeur de la colonne de gauche', t: 'range', min: 20, max: 80, unit: '%' }, { k: 'c.empileM', l: '📱 Sur téléphone, les colonnes sont', t: 'seg', options: [['', 'Réglage du site'], ['non', 'Côte à côte'], ['oui', 'Empilées']] },
       { t: 'note', l: 'Tire la poignée ⇔ entre les deux colonnes pour changer leur largeur. Glisse un élément d’une colonne à l’autre avec ⠿.' }],
     libre: [{ k: 'c.hauteur', m: 'c.hauteurM', l: 'Hauteur de la zone', t: 'range', min: 150, max: 1600, step: 10, unit: 'px' },
       { k: 'c.mobile', l: '📱 Sur téléphone', t: 'seg', options: [['empile', 'Éléments empilés'], ['compo', 'Composition comme sur ordi']], rerender: true },
       { t: 'note', l: '✥ déplace un élément, ⇲ change sa largeur, ⬆/⬇ le passe devant ou derrière. En mode 📱 « composition », tu peux placer les éléments autrement que sur ordinateur.' }],
-    pile: [{ k: 's.encadre', l: 'Encadré avec bordure d’accent', t: 'check' }]
+    pile: [{ k: 'layout', l: 'Colonnes de la section', t: 'seg', options: [['pile', 'Une colonne'], ['deux', 'Deux colonnes (gauche | droite)']], rerender: true, after: o => { if (o.layout === 'deux') o.blocs.forEach(b => { if (!b.col) b.col = 'g'; }); } }, { t: 'note', l: 'Deux colonnes : chaque élément va à gauche ou à droite (glisse-le avec ⠿, ou choisis sa colonne dans la liste ci-dessous).' }, { k: 's.encadre', l: 'Encadré avec bordure d’accent', t: 'check' }]
   };
+  const LG = { puzzle: '<rect x="2" y="2" width="26" height="26" rx="2"/><rect x="31" y="2" width="13" height="12" rx="2"/><rect x="31" y="16" width="13" height="12" rx="2"/>', grille: '<rect x="2" y="2" width="12" height="12" rx="2"/><rect x="17" y="2" width="12" height="12" rx="2"/><rect x="32" y="2" width="12" height="12" rx="2"/><rect x="2" y="16" width="12" height="12" rx="2"/><rect x="17" y="16" width="12" height="12" rx="2"/><rect x="32" y="16" width="12" height="12" rx="2"/>', mosaique: '<rect x="2" y="3" width="17" height="11" rx="2"/><rect x="21" y="3" width="23" height="11" rx="2"/><rect x="2" y="16" width="26" height="11" rx="2"/><rect x="30" y="16" width="14" height="11" rx="2"/>', colonnes: '<rect x="2" y="2" width="12" height="16" rx="2"/><rect x="17" y="2" width="12" height="9" rx="2"/><rect x="32" y="2" width="12" height="13" rx="2"/><rect x="2" y="21" width="12" height="7" rx="2"/><rect x="17" y="14" width="12" height="14" rx="2"/><rect x="32" y="18" width="12" height="10" rx="2"/>', bande: '<rect x="-6" y="5" width="16" height="20" rx="2"/><rect x="13" y="5" width="20" height="20" rx="2"/><rect x="36" y="5" width="16" height="20" rx="2"/>', diaporama: '<rect x="6" y="3" width="34" height="20" rx="2"/><circle cx="19" cy="27" r="1.4"/><circle cx="23" cy="27" r="1.4"/><circle cx="27" cy="27" r="1.4"/>', pile: '<rect x="4" y="2" width="38" height="12" rx="2"/><rect x="4" y="16" width="38" height="12" rx="2"/>', duo: '<rect x="2" y="4" width="20" height="22" rx="2"/><rect x="24" y="4" width="20" height="22" rx="2"/>' };
+  const Lg0 = k => LG[k];
+  /* ---------- Modèles de galerie (à la Portfoliobox) ---------- */
+  const galMode = c => { if (!c || c.disposition !== 'mosaique') return ''; if (MOB() && c.rangeesM && c.rangeesM !== 'ordi') return c.rangeesM; return c.rangees || 'auto'; };
+  const isMosa = o => o.c.disposition === 'mosaique';
+  // Petit dessin : chaque rangée = liste de largeurs relatives ; c = rangées centrées (pas étirées)
+  function rowsSvg(rows, centre) {
+    const top = 2, H = 26, g = 2, rh = (H - g * (rows.length - 1)) / rows.length;
+    return rows.map((row, i) => {
+      const y = top + i * (rh + g), n = row.length, sum = row.reduce((a, b) => a + b, 0);
+      const full = 42 - g * (n - 1), tot = centre ? Math.min(full, sum * rh * 0.9) : full;
+      let x = 2 + (full - tot) / 2;
+      return row.map(w => { const ww = tot * w / sum, out = `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${ww.toFixed(1)}" height="${rh.toFixed(1)}" rx="1.5"/>`; x += ww + g; return out; }).join('');
+    }).join('');
+  }
+  const GAL_MODELES = [
+    ['Rangées sur toute la largeur — chaque photo garde son format', [
+      { id: 'auto', l: 'Automatique', r: 'auto', svg: rowsSvg([[1.5, 0.7, 1.8], [1, 1.5, 0.7, 1.2]]), tip: 'Les photos se rangent toutes seules : chaque rangée remplit la largeur. « Taille des photos » règle leur hauteur.' },
+      { id: 'centre', l: 'Centrée', r: 'centre', svg: rowsSvg([[1.5, 0.7, 1.5], [1.5, 1]], true), tip: 'Toutes les photos à la même hauteur, rangées centrées (sans étirer).' },
+      { id: '1', l: '1 par rangée', r: '1', svg: rowsSvg([[1], [1]]) },
+      { id: '2', l: '2 par rangée', r: '2', svg: rowsSvg([[1.3, 1], [1, 1.4]]) },
+      { id: '3', l: '3 par rangée', r: '3', svg: rowsSvg([[1, 1.3, 0.8], [1.2, 0.8, 1]]) },
+      { id: '4', l: '4 par rangée', r: '4', svg: rowsSvg([[1, 1.3, 0.8, 1], [1.2, 0.8, 1, 1.1]]) },
+      { id: '2-1', l: 'Deux-Un', r: '2-1', svg: rowsSvg([[1, 1], [1], [1, 1]]) },
+      { id: '1-2', l: 'Un-Deux', r: '1-2', svg: rowsSvg([[1], [1, 1], [1]]) },
+      { id: '3-1', l: 'Trois-Un', r: '3-1', svg: rowsSvg([[1, 1, 1], [1]]) },
+      { id: '2-3', l: 'Deux-Trois', r: '2-3', svg: rowsSvg([[1, 1], [1, 1, 1]]) },
+      { id: 'libre', l: 'Sur mesure', r: 'libre', svg: rowsSvg([[1.4, 1], [1], [0.8, 1, 0.7, 1]]), tip: 'Tu fais les rangées toi-même : sur la page, ↵ Rangée sur une photo pour commencer une rangée avec elle, ⤴ pour la remonter, ⠿ pour la déplacer.' }]],
+    ['Toutes les photos au même format', [
+      { id: 'carre', l: 'Carrés', d: 'grille', ratio: '1/1', svg: Lg0('grille') },
+      { id: 'or', l: 'Nombre d’or', d: 'grille', ratio: '1.618/1', svg: '<rect x="2" y="3" width="12.5" height="7.8" rx="1.5"/><rect x="16.7" y="3" width="12.5" height="7.8" rx="1.5"/><rect x="31.4" y="3" width="12.5" height="7.8" rx="1.5"/><rect x="2" y="12.8" width="12.5" height="7.8" rx="1.5"/><rect x="16.7" y="12.8" width="12.5" height="7.8" rx="1.5"/><rect x="31.4" y="12.8" width="12.5" height="7.8" rx="1.5"/>' },
+      { id: 'grille', l: 'Grille', d: 'grille', svg: '<rect x="2" y="2" width="12.5" height="9.4" rx="1.5"/><rect x="16.7" y="2" width="12.5" height="9.4" rx="1.5"/><rect x="31.4" y="2" width="12.5" height="9.4" rx="1.5"/><rect x="2" y="13.6" width="12.5" height="9.4" rx="1.5"/><rect x="16.7" y="13.6" width="12.5" height="9.4" rx="1.5"/><rect x="31.4" y="13.6" width="12.5" height="9.4" rx="1.5"/>', tip: 'Grille régulière : choisis le format plus bas.' },
+      { id: 'puzzle', l: 'Puzzle', d: 'puzzle', svg: Lg0('puzzle'), tip: 'Tu choisis la taille de chaque photo avec la poignée ⇲.' }]],
+    ['Autres', [
+      { id: 'colonnes', l: 'Cascade', d: 'colonnes', svg: Lg0('colonnes'), tip: 'Photos empilées en colonnes (comme Pinterest).' },
+      { id: 'bande', l: 'Bande', d: 'bande', svg: Lg0('bande'), tip: 'Une bande qui défile de gauche à droite.' },
+      { id: 'diaporama', l: 'Diaporama', d: 'diaporama', svg: Lg0('diaporama') },
+      { id: 'pile', l: 'Empilées', d: 'pile', svg: Lg0('pile') },
+      { id: 'duo', l: 'Duo', d: 'duo', svg: Lg0('duo') }]]
+  ];
+  const GAL_MOB = [
+    { id: '', l: 'Automatique', svg: rowsSvg([[1, 1], [1], [1, 1]]), tip: 'Comme sur ordinateur, avec 2 photos au maximum par rangée.' },
+    { id: 'ordi', l: 'Comme sur ordi', svg: rowsSvg([[1, 1, 1], [1, 1.4]]) },
+    { id: '1', l: '1 par rangée', svg: rowsSvg([[1], [1]]) },
+    { id: '2', l: '2 par rangée', svg: rowsSvg([[1.3, 1], [1, 1.4]]) },
+    { id: '2-1', l: 'Deux-Un', svg: rowsSvg([[1, 1], [1], [1, 1]]) },
+    { id: '1-2', l: 'Un-Deux', svg: rowsSvg([[1], [1, 1], [1]]) },
+    { id: 'libre', l: 'Sur mesure', svg: rowsSvg([[1.4, 1], [1], [0.8, 1]]), tip: 'Sur la page : ↵ Rangée / ⤴ Rangée sur une photo. Ne change que le téléphone.' }
+  ];
+  function galModelId(c) {
+    if (c.disposition === 'mosaique' || c.disposition === 'rangees') return c.rangees || 'auto';
+    if (c.disposition === 'grille') return c.ratio === '1/1' ? 'carre' : c.ratio === '1.618/1' ? 'or' : 'grille';
+    return c.disposition;
+  }
+  function applyGalModel(bloc, m) {
+    const c = bloc.c, gal = fdoc && fdoc.querySelector(`[data-bid="${bloc.id}"] .gal, [data-bid="${bloc.id}"] .slider`);
+    if (m.r) {
+      if (m.r === 'libre' && !(c.disposition === 'mosaique' && c.rangees === 'libre')) c.lignes = gal && !MOB() ? domRows(gal) : (() => { const n = M.arr(c.images).length, o = []; for (let i = 0; i < n; i += 3) o.push(Math.min(3, n - i)); return o; })();
+      c.disposition = 'mosaique'; c.rangees = m.r;
+    } else {
+      c.disposition = m.d;
+      if (m.ratio) c.ratio = m.ratio; else if (m.d === 'grille' && ['1/1', '1.618/1', 'auto', '', undefined].includes(c.ratio)) c.ratio = '4/3';
+    }
+  }
   const BLOC_CONTENT = {
     pastille: [NOTE_TXT, { t: 'note', l: 'Plusieurs pastilles sur la même ligne : clique sur le petit « + » à droite des pastilles. Survole une pastille pour la déplacer (⠿), la dupliquer ou la supprimer.' }],
     surtitre: [NOTE_TXT], soustitre: [NOTE_TXT], texte: [NOTE_TXT],
@@ -1222,30 +1453,34 @@
       { k: 'c.legende', l: 'Légende', t: 'text', if: o => o.c.legendeOn || o.c.legende },
       { t: 'note', l: 'Clique sur l’image dans la page pour le cadrage, les filtres, la bordure, le texte par-dessus…' }],
     galerie: [
-      { t: 'note', l: 'Conseil : « Mosaïque automatique » garde le format de chaque photo (horizontale, verticale, carrée…) et chaque rangée remplit toute la largeur. Pour imposer un format à une photo : clique dessus → « Format de cette photo ».' },
-      { k: 'c.disposition', l: 'Disposition', t: 'layouts', rerender: true },
-      { k: 'c.hauteurRang', m: 'c.hauteurRangM', l: 'Taille des photos (hauteur des rangées)', t: 'range', min: 80, max: 900, step: 10, unit: 'px', if: o => ['mosaique', 'rangees'].includes(o.c.disposition), help: 'Ou tire la poignée ↕ sous la galerie.' },
-      { k: 'c.remplirDerniere', l: 'La dernière rangée remplit aussi toute la largeur', t: 'check', if: o => ['mosaique', 'rangees'].includes(o.c.disposition) },
+      { k: 'c.disposition', l: 'Modèle de galerie', t: 'galmodeles' },
+      { k: 'c.ratio', l: 'Format des photos', t: 'select', options: RATIOS.slice(1), if: o => ['grille', 'diaporama'].includes(o.c.disposition), rerender: true, help: 'S’applique à toutes les photos de la galerie.' },
+      { k: 'c.format', l: 'Format des photos', t: 'select', options: RATIOS, if: o => !['grille', 'diaporama'].includes(o.c.disposition), help: '16:9, 2.39:1, 4:3, carré… pour toutes les photos de la galerie. « Format d’origine » garde le format de chaque photo. Une photo peut avoir son propre format : clique dessus → « Format de cette photo ».' },
+      { k: 'c.hauteurRang', m: 'c.hauteurRangM', l: 'Taille des photos', t: 'range', min: 80, max: 900, step: 10, unit: 'px', if: o => isMosa(o) && ['auto', 'centre'].includes(galMode(o.c)), help: 'Hauteur des rangées. Ou tire la poignée ↕ sous la galerie.' },
+      { k: 'c.hauteurMax', m: 'c.hauteurMaxM', l: 'Hauteur maximale d’une photo', t: 'range', min: 120, max: 1600, step: 10, unit: 'px', auto: 0, rest: 800, if: isMosa, help: 'Une photo seule sur sa rangée (surtout verticale) ne dépassera pas cette hauteur : elle est alors centrée. Auto = 82 % de la hauteur de l’écran.' },
+      { k: 'c.remplirDerniere', l: 'La dernière rangée remplit aussi toute la largeur', t: 'check', if: o => isMosa(o) && galMode(o.c) === 'auto' },
+      { t: 'note', l: 'Chaque rangée remplit toute la largeur en gardant le format exact de chaque photo. Pour ajuster photo par photo : survole une photo sur la page → « ↵ Rangée » pour commencer une nouvelle rangée avec elle, « ⤴ Rangée » pour la remonter dans la rangée du dessus, ⠿ pour la déplacer (lâche-la à gauche ou à droite d’une autre photo).', if: isMosa },
       { k: 'c.colonnes', m: 'c.colonnesM', l: 'Colonnes', lm: 'Colonnes sur téléphone', t: 'range', min: 1, max: 6, if: o => ['puzzle', 'grille', 'colonnes'].includes(o.c.disposition) },
       { k: 'c.colonnesM', l: '📱 Colonnes sur téléphone', t: 'range', min: 1, max: 3, if: o => !MOB() && ['puzzle', 'grille', 'colonnes'].includes(o.c.disposition) },
       { k: 'c.hauteurRang', m: 'c.hauteurRangM', l: 'Hauteur d’une rangée', t: 'range', min: 60, max: 900, step: 10, unit: 'px', if: o => o.c.disposition === 'puzzle' },
       { k: 'c.hauteurBande', m: 'c.hauteurBandeM', l: 'Hauteur de la bande', t: 'range', min: 100, max: 1200, step: 10, unit: 'px', if: o => o.c.disposition === 'bande' },
-      { k: 'c.ratio', l: 'Format de toutes les photos', t: 'select', options: RATIOS, if: o => ['grille', 'diaporama'].includes(o.c.disposition) },
-      { k: 'c.format', l: 'Format de toutes les photos', t: 'select', options: RATIOS, if: o => ['mosaique', 'rangees', 'colonnes', 'pile', 'duo', 'bande'].includes(o.c.disposition), help: '« Format d’origine » garde le format de chaque photo. Une photo peut avoir son propre format : clique dessus.' },
       { k: 'c.defilementAuto', l: 'Défilement automatique', t: 'check', if: o => o.c.disposition === 'diaporama' },
       { k: 'c.espacement', m: 'c.espacementM', l: 'Espacement', t: 'range', min: 0, max: 60, unit: 'px' },
-      { k: 's.pleine', l: 'Prendre toute la largeur de l’écran', t: 'check' },
+      { k: 's.pleine', l: 'Prendre toute la largeur de l’écran (bord à bord)', t: 'check' },
       { k: 'c.survol', l: 'Effet au survol des images', t: 'select', options: M.HOVERS },
       { t: 'note', l: 'Puzzle et grille : tire la poignée ⇲ dans le coin d’une photo pour l’agrandir. ⠿ pour changer l’ordre. Dans le puzzle, une photo avec un format choisi prend automatiquement la bonne hauteur.', if: o => ['puzzle', 'grille'].includes(o.c.disposition) },
       { t: 'note', l: 'Tire la poignée ↕ sous la galerie pour agrandir ou réduire les photos.', if: o => ['puzzle', 'bande'].includes(o.c.disposition) },
+      { t: 'note', l: 'Galerie trop large ? Tire la poignée ↔ à droite de la galerie pour réduire sa largeur.' },
       { k: 'c.images', l: 'Images', t: 'gallery' }],
-    video: [{ k: 'c.url', l: 'Lien de la vidéo (YouTube, Vimeo ou .mp4)', t: 'video' }, { k: 'c.poster', l: 'Image d’aperçu (optionnel)', t: 'image' }, { k: 'c.ratio', l: 'Format', t: 'select', options: RATIOS.slice(1) },
+    video: [{ k: 'c.url', l: 'Vidéo', t: 'video' }, { k: 'c.poster', l: 'Image d’aperçu (optionnel)', t: 'image' }, { k: 'c.ratio', l: 'Format', t: 'select', options: RATIOS.slice(1) },
       { k: 'c.legendeOn', l: 'Afficher une légende', t: 'check', after: o => { if (!o.c.legendeOn) o.c.legende = ''; } }, { k: 'c.legende', l: 'Légende', t: 'text', if: o => o.c.legendeOn || o.c.legende }],
     spotify: [{ k: 'c.liens', l: 'Liens Spotify (un par ligne)', t: 'lines', help: 'Dans Spotify : ⋯ → Partager → Copier le lien (titre, album, playlist, artiste, podcast).' },
       { k: 'c.taille', l: 'Taille du lecteur', t: 'seg', options: [['compact', 'Compact'], ['grand', 'Grand']] }, { k: 'c.colonnes', l: 'Lecteurs par ligne', t: 'range', min: 1, max: 3 }],
     infos: [NOTE_TXT, { t: 'note', l: '« + Ajouter une ligne » sous la liste, sur la page.' }, { k: 'c.lignes', l: 'Lignes', t: 'pairs', a: ['label', 'Intitulé'], b: ['valeur', 'Valeur'] }, { k: 'c.colonnes', l: 'Colonnes', t: 'seg', options: [[1, '1'], [2, '2']] }],
     credits: [NOTE_TXT, { t: 'note', l: '« + Ajouter une personne » sous la liste, sur la page.' }, { k: 'c.lignes', l: 'Personnes', t: 'pairs', a: ['fonction', 'Fonction'], b: ['noms', 'Noms (séparés par « - »)'], area: true }],
-    liste: [{ t: 'note', l: 'Ajoute une ligne directement sur la page avec « + Ajouter une ligne ». Survole une ligne pour la déplacer (⠿), la dupliquer ou la supprimer. Clique sur « + Logo » pour ajouter un logo.' }, { k: 'c.items', l: 'Lignes du parcours', t: 'liste' }, { k: 'c.logos', l: 'Couleur des logos', t: 'seg', options: [['nb', 'Noir & blanc'], ['blanc', 'Blanc'], ['noir', 'Noir'], ['couleur', 'Couleur']] },
+    liste: [{ t: 'action', l: '⇆ Projets à gauche | Formations à droite', act: 'split-parcours', if: (o, ctx) => !parcoursSplit(o) },
+      { t: 'note', l: 'Pour passer une ligne d’une colonne à l’autre : survole-la et glisse-la avec ⠿ dans l’autre liste.' },
+      { t: 'note', l: 'Ajoute une ligne directement sur la page avec « + Ajouter une ligne ». Survole une ligne pour la déplacer (⠿), la dupliquer ou la supprimer. Clique sur « + Logo » pour ajouter un logo.' }, { k: 'c.items', l: 'Lignes du parcours', t: 'liste' }, { k: 'c.logos', l: 'Couleur des logos', t: 'seg', options: [['nb', 'Noir & blanc'], ['blanc', 'Blanc'], ['noir', 'Noir'], ['couleur', 'Couleur']] },
       { k: 'c.tailleLogo', l: 'Taille des logos', t: 'range', min: 24, max: 140, unit: 'px' }],
     reseaux: [{ k: 'c.style', l: 'Affichage', t: 'seg', options: [['icones', 'Icônes'], ['icones-texte', 'Icône + nom'], ['texte', 'Texte']] }, { k: 'c.taille', l: 'Taille des icônes', t: 'range', min: 14, max: 40, unit: 'px' },
       { t: 'action', l: 'Modifier la liste de mes réseaux', act: 'site-reseaux' }],
@@ -1441,7 +1676,11 @@
         const stt = h('div', { class: 'vid-st' });
         const upd = () => { const x = M.video(get()); stt.textContent = !get() ? '' : x ? `✓ ${{ youtube: 'YouTube', vimeo: 'Vimeo', file: 'Fichier vidéo' }[x.type]} reconnu` : '⚠ Lien non reconnu'; stt.className = 'vid-st ' + (x ? 'ok' : 'warn'); };
         upd();
-        return wrap(h('input', { type: 'url', inputmode: 'url', value: v || '', placeholder: 'https://www.youtube.com/watch?v=…', oninput: e => { set(e.target.value.trim()); upd(); } }), stt);
+        const inp = h('input', { type: 'text', inputmode: 'url', value: v || '', placeholder: 'https://www.youtube.com/watch?v=…', oninput: e => { set(e.target.value.trim()); upd(); } });
+        return wrap(inp, stt, h('div', { class: 'row' },
+          h('button', { type: 'button', class: 'btn small primary', onclick: () => openLibrary({ tab: 'videos', pick: true, onPick: p => { inp.value = p; set(p); upd(); ctx.rerender(); } }) }, '🎞 Choisir / envoyer une vidéo'),
+          v ? h('button', { type: 'button', class: 'btn small ghost', onclick: () => { inp.value = ''; set(''); upd(); ctx.rerender(); } }, 'Retirer') : null),
+          h('p', { class: 'help' }, 'Colle un lien YouTube / Vimeo, ou choisis une vidéo .mp4 de ta bibliothèque (onglet Vidéos).'));
       }
       case 'select': { const s = h('select', { onchange: e => set(e.target.value) }, def.options.map(([val, l]) => h('option', { value: val }, l))); s.value = v ?? def.options[0][0]; return wrap(s); }
       case 'font': { const s = h('select', { onchange: e => set(e.target.value) }, h('option', { value: '' }, 'Police du site'), Object.keys(M.FONTS).map(f => h('option', { value: f }, f))); s.value = v || ''; return wrap(s); }
@@ -1456,7 +1695,7 @@
         const unset = !has(v);
         const fb = def.deskK ? M.get(obj, def.deskK) : undefined;
         const unsetLabel = def.deskK ? '= ordi' : (def.auto !== undefined ? 'Auto' : '—');
-        const rest = has(fb) && !isNaN(+fb) ? +fb : (def.auto || def.min);
+        const rest = has(fb) && !isNaN(+fb) ? +fb : (def.rest || def.auto || def.min);
         const out = h('output', {}, unset ? unsetLabel : `${v}${def.unit ? ' ' + def.unit : ''}`);
         const r = h('input', { type: 'range', min: def.min, max: def.max, step: def.step || 1, value: unset ? rest : v,
           oninput: e => { const x = +e.target.value; set(x, true); out.textContent = `${x}${def.unit ? ' ' + def.unit : ''}`; }, onchange: () => { if (def.rerender) ctx.rerender(); } });
@@ -1476,8 +1715,22 @@
           h('div', { class: 'row' }, h('button', { type: 'button', class: 'btn small primary', onclick: () => openLibrary({ tab: 'documents', pick: true, onPick: p => { set(p); ctx.rerender(); } }) }, v ? 'Changer' : 'Choisir un document'),
             v ? h('button', { type: 'button', class: 'btn small ghost', onclick: () => { set(''); ctx.rerender(); } }, 'Retirer') : null));
       }
+      case 'galmodeles': {
+        const c = obj.c, mobRows = MOB() && c.disposition === 'mosaique';
+        const btn = (m, on, click) => h('button', { type: 'button', class: on ? 'on' : '', title: m.tip || m.l, onclick: click, html: `<svg viewBox="0 0 46 30">${m.svg}</svg><span>${m.l}</span>` });
+        if (mobRows) {
+          const cur = c.rangeesM || '';
+          return wrap(h('p', { class: 'help' }, '📱 Rangées sur téléphone (ne change pas l’ordinateur) :'), h('div', { class: 'layouts gal-mods' }, GAL_MOB.map(m => btn(m, cur === m.id, () => {
+            if (m.id === 'libre' && c.rangeesM !== 'libre') { const gal = fdoc && fdoc.querySelector(`[data-bid="${obj.id}"] .gal`); c.lignesM = gal ? domRows(gal) : []; }
+            c.rangeesM = m.id; changed(); ctx.rerender();
+          }))));
+        }
+        const cur = galModelId(c);
+        return wrap(...GAL_MODELES.map(([g, list]) => h('div', { class: 'gal-grp' }, h('p', { class: 'gal-gl' }, g), h('div', { class: 'layouts gal-mods' }, list.map(m => btn(m, cur === m.id, () => { applyGalModel(obj, m); changed(); ctx.rerender(); }))))),
+          MOB() ? h('p', { class: 'help' }, '📱 Ce choix change aussi l’ordinateur. Choisis une mosaïque (rangées) pour régler le téléphone à part.') : null);
+      }
       case 'layouts': {
-        const Lg = { puzzle: '<rect x="2" y="2" width="26" height="26" rx="2"/><rect x="31" y="2" width="13" height="12" rx="2"/><rect x="31" y="16" width="13" height="12" rx="2"/>', grille: '<rect x="2" y="2" width="12" height="12" rx="2"/><rect x="17" y="2" width="12" height="12" rx="2"/><rect x="32" y="2" width="12" height="12" rx="2"/><rect x="2" y="16" width="12" height="12" rx="2"/><rect x="17" y="16" width="12" height="12" rx="2"/><rect x="32" y="16" width="12" height="12" rx="2"/>', mosaique: '<rect x="2" y="3" width="17" height="11" rx="2"/><rect x="21" y="3" width="23" height="11" rx="2"/><rect x="2" y="16" width="26" height="11" rx="2"/><rect x="30" y="16" width="14" height="11" rx="2"/>', colonnes: '<rect x="2" y="2" width="12" height="16" rx="2"/><rect x="17" y="2" width="12" height="9" rx="2"/><rect x="32" y="2" width="12" height="13" rx="2"/><rect x="2" y="21" width="12" height="7" rx="2"/><rect x="17" y="14" width="12" height="14" rx="2"/><rect x="32" y="18" width="12" height="10" rx="2"/>', bande: '<rect x="-6" y="5" width="16" height="20" rx="2"/><rect x="13" y="5" width="20" height="20" rx="2"/><rect x="36" y="5" width="16" height="20" rx="2"/>', diaporama: '<rect x="6" y="3" width="34" height="20" rx="2"/><circle cx="19" cy="27" r="1.4"/><circle cx="23" cy="27" r="1.4"/><circle cx="27" cy="27" r="1.4"/>', pile: '<rect x="4" y="2" width="38" height="12" rx="2"/><rect x="4" y="16" width="38" height="12" rx="2"/>', duo: '<rect x="2" y="4" width="20" height="22" rx="2"/><rect x="24" y="4" width="20" height="22" rx="2"/>' };
+        const Lg = LG;
         return wrap(h('div', { class: 'layouts' }, M.DISPOSITIONS.map(([k, l]) => h('button', { type: 'button', class: v === k ? 'on' : '', title: l, onclick: () => set(k), html: `<svg viewBox="0 0 46 30">${Lg[k]}</svg><span>${l.split(' (')[0]}</span>` }))));
       }
       case 'zone9': return wrap(h('div', { class: 'zone9' }, ['haut-gauche', 'haut', 'haut-droite', 'gauche', 'centre', 'droite', 'bas-gauche', 'bas', 'bas-droite'].map(z => h('button', { type: 'button', title: z, class: (v || 'centre') === z ? 'on' : '', onclick: () => set(z, false) }))));
@@ -1649,13 +1902,14 @@
     let tab = opt.tab || 'photos', filtre = 'toutes', q = '';
     const picked = new Set();
     const box = h('div', { class: 'lib-wrap' });
-    const m = modal(opt.pick ? (tab === 'documents' ? 'Choisis un document' : opt.multi ? 'Choisis des photos' : 'Choisis une photo') : 'Bibliothèque', box, 'wide');
+    const m = modal(opt.pick ? (tab === 'documents' ? 'Choisis un document' : tab === 'videos' ? 'Choisis une vidéo' : opt.multi ? 'Choisis des photos' : 'Choisis une photo') : 'Bibliothèque', box, 'wide');
     const upload = async files => {
       if (!ED.requireConnection()) return;
-      const imgs = tab === 'photos';
+      const imgs = tab === 'photos', vids = tab === 'videos';
       const added = [];
       for (let n = 0; n < files.length; n++) {
-        const p = await ED.upload(files[n], 'bibliotheque', { raw: !imgs, max: 2400, label: files.length > 1 ? `${n + 1}/${files.length}` : '' });
+        if (vids && /\.mov$/i.test(files[n].name)) ED.toast('Conseil : une vidéo en .mp4 (H.264) se lit sur tous les navigateurs ; le .mov ne marche pas partout.', 'warn', 7000);
+        const p = await ED.upload(files[n], 'bibliotheque', vids ? { raw: true, dir: 'videos', maxMo: 50, label: files.length > 1 ? `${n + 1}/${files.length}` : '' } : { raw: !imgs, max: 2400, label: files.length > 1 ? `${n + 1}/${files.length}` : '' });
         if (p) { added.push(p); if (opt.pick && opt.multi) picked.add(p); draw(); }
       }
       if (opt.pick && !opt.multi && added.length === 1) { m.close(); opt.onPick(added[0]); }
@@ -1665,17 +1919,18 @@
     m.el.addEventListener('drop', e => { e.preventDefault(); box.classList.remove('drag'); const f = [...(e.dataTransfer.files || [])]; if (f.length) upload(f); });
     function draw() {
       const used = usedPaths();
-      const isPhotos = tab === 'photos';
-      let items = isPhotos ? ED.data.bibliotheque : ED.data.documents;
+      const isPhotos = tab === 'photos', isVids = tab === 'videos';
+      let items = isPhotos ? ED.data.bibliotheque : isVids ? (ED.data.videos = M.arr(ED.data.videos)) : ED.data.documents;
       if (isPhotos) usedPaths().forEach(p => { if (/^images\//.test(p) && isImg(p) && !items.some(x => x.src === p)) items.push({ src: p, nom: p.split('/').pop().replace(/\.[^.]+$/, '') }); });
       items = items.filter(x => (!q || (x.nom + ' ' + x.src).toLowerCase().includes(q)) && (filtre === 'toutes' || (filtre === 'utilisees') === used.has(x.src)));
       const top = h('div', { class: 'lib-top' },
-        opt.pick ? null : h('div', { class: 'seg' }, [['photos', 'Photos'], ['documents', 'Documents']].map(([k, l]) => h('button', { class: tab === k ? 'on' : '', onclick: () => { tab = k; draw(); } }, l))),
-        h('button', { class: 'btn primary small', onclick: async () => upload(await ED.pickFiles(isPhotos ? 'image/*' : '*/*', true)) }, isPhotos ? '+ Envoyer des photos' : '+ Envoyer des documents'),
+        opt.pick ? null : h('div', { class: 'seg' }, [['photos', 'Photos'], ['videos', 'Vidéos'], ['documents', 'Documents']].map(([k, l]) => h('button', { class: tab === k ? 'on' : '', onclick: () => { tab = k; draw(); } }, l))),
+        h('button', { class: 'btn primary small', onclick: async () => upload(await ED.pickFiles(isPhotos ? 'image/*' : isVids ? 'video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov,.m4v' : '*/*', true)) }, isPhotos ? '+ Envoyer des photos' : isVids ? '+ Envoyer des vidéos' : '+ Envoyer des documents'),
         h('input', { type: 'search', class: 'lib-search', placeholder: 'Rechercher…', value: q, oninput: e => { q = e.target.value.toLowerCase(); clearTimeout(box._t); box._t = setTimeout(draw, 150); } }),
         h('div', { class: 'seg' }, [['toutes', 'Toutes'], ['utilisees', 'Sur le site'], ['libres', 'Pas encore utilisées']].map(([k, l]) => h('button', { class: filtre === k ? 'on' : '', onclick: () => { filtre = k; draw(); } }, l))));
       const hint = h('p', { class: 'help' }, isPhotos
         ? 'Glisse des photos ici pour les ajouter. Elles sont allégées automatiquement. « Rogner » crée une copie recadrée, l’original est gardé.'
+        : isVids ? 'Vidéos courtes (bande-annonce, extrait, boucle de couverture) en .mp4, 50 Mo maximum. Pour un film entier, mets-le sur YouTube ou Vimeo et colle simplement le lien dans l’élément Vidéo : la lecture sera plus fluide.'
         : 'CV, dossier de presse, PDF… tout type de fichier (25 Mo maximum).');
       const grid = isPhotos
         ? h('div', { class: 'lib' }, items.map(x => h('div', { class: 'lib-it' + (picked.has(x.src) ? ' picked' : '') },
@@ -1686,13 +1941,13 @@
           h('div', { class: 'lib-meta' }, h('span', { class: 'lib-name' }, x.nom || x.src.split('/').pop()),
             h('span', {}, h('button', { class: 'sm', title: 'Rogner (crée une copie)', onclick: () => openCrop(x.src, p => { if (opt.pick && !opt.multi) { m.close(); opt.onPick(p); } else { if (opt.multi) picked.add(p); draw(); } }) }, '✂'),
               opt.pick ? null : h('button', { class: 'sm danger', title: 'Retirer de la bibliothèque', onclick: () => { if (used.has(x.src) && !confirm('Cette photo est utilisée sur ton site. La retirer quand même de la bibliothèque ? (Elle restera sur le site.)')) return; const i = ED.data.bibliotheque.findIndex(y => y.src === x.src); if (i > -1) ED.data.bibliotheque.splice(i, 1); changed({ render: false }); draw(); } }, '✕'))))))
-        : h('div', { class: 'docs' }, items.map(x => h('div', { class: 'doc-row' + (picked.has(x.src) ? ' picked' : '') },
-          h('span', { class: 'dl-ext' }, M.ext(x.src).toUpperCase().slice(0, 4) || '?'),
+        : h('div', { class: 'docs' }, items.map(x => h('div', { class: 'doc-row' + (picked.has(x.src) ? ' picked' : '') + (isVids ? ' vid-row' : '') },
+          isVids ? h('video', { class: 'lib-vid', src: ED.src(x.src) + '#t=0.5', muted: true, preload: 'metadata', playsinline: true }) : h('span', { class: 'dl-ext' }, M.ext(x.src).toUpperCase().slice(0, 4) || '?'),
           h('input', { type: 'text', value: x.nom || '', title: 'Nom affiché', oninput: e => { x.nom = e.target.value; changed({ render: false }); } }),
           used.has(x.src) ? h('span', { class: 'lib-used static' }, 'Sur le site') : null,
           h('a', { class: 'sm', href: ED.src(x.src), target: '_blank', rel: 'noopener', title: 'Ouvrir' }, '↗'),
           opt.pick ? h('button', { class: 'btn small', onclick: () => { if (opt.multi) { picked.has(x.src) ? picked.delete(x.src) : picked.add(x.src); draw(); } else { m.close(); opt.onPick(x.src); } } }, picked.has(x.src) ? '✓ Choisi' : 'Choisir')
-            : h('button', { class: 'sm danger', title: 'Retirer de la liste', onclick: () => { const i = ED.data.documents.indexOf(x); if (i > -1) ED.data.documents.splice(i, 1); changed({ render: false }); draw(); } }, '✕'))));
+            : h('button', { class: 'sm danger', title: 'Retirer de la liste', onclick: () => { const list = isVids ? ED.data.videos : ED.data.documents, i = list.indexOf(x); if (i > -1) list.splice(i, 1); changed({ render: false }); draw(); } }, '✕'))));
       const foot = opt.pick && opt.multi ? h('div', { class: 'lib-foot' }, h('button', { class: 'btn primary', disabled: !picked.size, onclick: () => { m.close(); opt.onPick([...picked]); } }, `Ajouter la sélection (${picked.size})`)) : null;
       box.replaceChildren(...[top, hint, items.length ? grid : h('p', { class: 'lib-empty' }, isPhotos ? 'Aucune photo pour l’instant : clique sur « + Envoyer des photos » ou glisse-les ici.' : 'Aucun document pour l’instant : clique sur « + Envoyer des documents ».'), foot].filter(Boolean));
     }
@@ -1871,7 +2126,7 @@
       const pageRow = p => h('div', { class: 'pg-row' + (p.id === st.pageId ? ' current' : '') },
         h('div', { class: 'pg-main' },
           h('div', { class: 'pg-arrows' }, h('button', { class: 'sm', onclick: () => mv(p, -1, pages) }, '↑'), h('button', { class: 'sm', onclick: () => mv(p, 1, pages) }, '↓')),
-          h('input', { type: 'text', class: 'pg-name', value: p.titre, oninput: e => { p.titre = e.target.value; fillPageSelect(); changed(); } }),
+          h('input', { type: 'text', class: 'pg-name', value: p.titre, oninput: e => { p.titre = e.target.value; changed({ render: false }); }, onchange: () => { fillPageSelect(); changed(); } }),
           sw('Menu', p.menu, v => { p.menu = v; reload(); }, 'small'), sw('Publiée', !p.masquer, v => { p.masquer = !v; reload(); }, 'small'),
           h('label', { class: 'radio small' }, h('input', { type: 'radio', name: 'accueil', checked: !!p.accueil, onchange: () => { ED.data.pages.forEach(x => { x.accueil = x === p; }); reload(); draw(); } }), ' Accueil'),
           h('button', { class: 'btn small', onclick: () => { m.close(); loadPage(p.id); } }, 'Modifier'),
@@ -1885,9 +2140,9 @@
             h('button', { class: 'pj-thumb', title: 'Changer la vignette', onclick: () => openLibrary({ pick: true, onPick: setThumb }) }, k.vignette ? thumb(k.vignette) : h('span', {}, '+ Vignette')),
             h('div', { class: 'pj-fields' },
               h('div', { class: 'row' }, h('div', { class: 'pg-arrows' }, h('button', { class: 'sm', onclick: () => mv(p, -1, projs) }, '↑'), h('button', { class: 'sm', onclick: () => mv(p, 1, projs) }, '↓')),
-                h('input', { type: 'text', class: 'pg-name', value: p.titre, oninput: e => { p.titre = e.target.value; fillPageSelect(); changed(); } })),
+                h('input', { type: 'text', class: 'pg-name', value: p.titre, oninput: e => { p.titre = e.target.value; changed({ render: false }); }, onchange: () => { fillPageSelect(); changed(); } })),
               h('div', { class: 'pj-genres' }, h('span', {}, 'Typologies (une ou plusieurs, servent aux filtres)'), genreChips(p, draw)),
-              h('label', { class: 'pj-roles' }, h('span', {}, 'Mes rôles (séparés par des virgules)'), h('input', { type: 'text', value: M.arr(k.roles).join(', '), placeholder: 'Producteur, Réalisateur…', oninput: e => { k.roles = e.target.value.split(',').map(x => x.trim()).filter(Boolean); changed(); } })),
+              h('label', { class: 'pj-roles' }, h('span', {}, 'Mes rôles (séparés par des virgules)'), h('input', { type: 'text', value: M.arr(k.roles).join(', '), placeholder: 'Producteur, Réalisateur…', oninput: e => { k.roles = e.target.value.split(',').map(x => x.trim()).filter(Boolean); changed({ render: false }); }, onchange: () => changed() })),
               h('div', { class: 'row' },
                 (() => { const s = h('select', { title: 'Animation du texte au survol', onchange: e => { k.animSurvol = e.target.value; changed(); } }, h('option', { value: '' }, 'Survol (texte) : comme la grille'), M.ANIMS.slice(1).map(([a, l]) => h('option', { value: a }, 'Survol : ' + l))); s.value = k.animSurvol || ''; return s; })(),
                 (() => { const s = h('select', { title: 'Effet sur l’image au survol', onchange: e => { k.animation = e.target.value; changed(); } }, h('option', { value: '' }, 'Effet image : comme la grille'), M.PROJ_ANIMS.map(([a, l]) => h('option', { value: a }, 'Effet : ' + l))); s.value = k.animation || ''; return s; })()),
@@ -1928,7 +2183,11 @@
     const m = modal('Réglages du site', h('div', { class: 'site-ed' }, h('div', { class: 'pn-tabs' }), body), 'mid');
     const tabsEl = m.body.querySelector('.pn-tabs');
     const DEF = {
-      general: [{ k: 'nom', l: 'Ton nom (logo en haut, pied de page)', t: 'text' }, { k: 'titreOnglet', l: 'Titre dans l’onglet du navigateur', t: 'text' }, { k: 'descriptionGoogle', l: 'Description pour Google', t: 'text' }],
+      general: [{ k: 'nom', l: 'Ton nom (logo en haut, pied de page)', t: 'text' }, { k: 'titreOnglet', l: 'Titre dans l’onglet du navigateur', t: 'text' }, { k: 'descriptionGoogle', l: 'Description pour Google', t: 'text' },
+        { t: 'heading', l: 'Largeur du site' },
+        { k: 'largeurSite', l: 'Le contenu occupe', t: 'seg', options: [['pleine', 'Toute la page'], ['large', 'Large'], ['centree', 'Centré (comme avant)']], help: '« Toute la page » : plus d’espace perdu sur les côtés. Une section peut toujours avoir sa propre largeur (onglet Style de la section).' },
+        { k: 'marges', l: 'Marges sur les côtés (ordinateur)', t: 'range', min: 0, max: 120, unit: 'px', auto: 0 },
+        { k: 'margesM', l: 'Marges sur les côtés (téléphone)', t: 'range', min: 0, max: 40, unit: 'px', auto: 0 }],
       design: [{ k: 'theme.fond', l: 'Couleur de fond', t: 'color' }, { k: 'theme.texte', l: 'Couleur du texte', t: 'color' }, { k: 'theme.texteDoux', l: 'Couleur du texte secondaire', t: 'color' }, { k: 'theme.accent', l: 'Couleur d’accent', t: 'color' },
         { k: 'theme.police', l: 'Police du texte', t: 'font' }, { k: 'theme.policeTitres', l: 'Police des titres', t: 'font' }, { k: 'theme.grain', l: 'Effet grain de pellicule', t: 'check' }],
       menu: [{ k: 'entete.disposition', l: 'Disposition', t: 'seg', options: [['centre', 'Centré'], ['gauche', 'Nom à gauche, menu à droite']] }, { k: 'entete.majuscules', l: 'Liens du menu en majuscules', t: 'check' }, { k: 'entete.masquerAuDefilement', l: 'Cacher le menu quand on descend', t: 'check' },
@@ -1979,7 +2238,10 @@
         <li><b>Déplacer un élément</b> : attrape la poignée <b>⠿</b> à sa gauche (ou son nom dans la barre jaune) et glisse-le où tu veux : dans une autre section, une autre colonne, dans un groupe, ou <b>sur le bord gauche/droit d’un autre élément pour les mettre côte à côte</b>.</li>
         <li><b>✥ Décaler librement</b> : dans la barre jaune, maintiens ✥ et glisse l’élément où tu veux dans l’espace (double-clic sur ✥ : le remettre à sa place).</li>
         <li><b>Grouper</b> (titre + texte dans un joli cadre) : <b>⊞</b> dans la barre jaune, ou l’élément tout prêt <b>« Mon travail (encadré) »</b>. Choisis le cadre dans le panneau. <b>⊟</b> pour dégrouper.</li>
-        <li><b>Photos</b> : la <b>Mosaïque automatique</b> garde le format de chaque photo et remplit la largeur. Pour imposer un format (16:9, 9:16, 1:1…), clique sur la photo → « Format de cette photo », puis <b>✋ Cadrer</b> pour choisir la partie visible.</li>
+        <li><b>Galeries</b> (comme sur Portfoliobox) : ✎ de la galerie → choisis un <b>modèle</b> (Automatique, 2 par rangée, Deux-Un, Trois-Un, Carrés, Puzzle…) et le <b>format des photos</b> (format d’origine, 16:9, 4:3, 1:1…). Chaque rangée prend toute la largeur. Photo par photo : survole-la → <b>↵ Rangée</b> (commencer une rangée avec elle), <b>⤴ Rangée</b> (la remonter), <b>⠿</b> (la déplacer), « Format de cette photo » et <b>✋ Cadrer</b>.</li>
+        <li><b>Petits éléments</b> (pastille, logo, ligne) : <b>clique dessus</b> pour garder sa barre d’outils, puis va tranquillement sur ⠿ ↑ ↓ ⧉ 🗑 (ou touche <b>Suppr</b>).</li>
+        <li><b>Gauche / droite</b> : réglages d’une section (✎ Section) → <b>Colonnes de la section : Deux colonnes</b>, puis glisse chaque élément à gauche ou à droite. Parcours : ✎ de la liste → <b>⇆ Projets à gauche | Formations à droite</b> ; une ligne se glisse d’une colonne à l’autre avec ⠿.</li>
+        <li><b>Largeur du site</b> : ⚙ Réglages → Général → « Largeur du site » (Toute la page, Large, Centré) et les marges sur les côtés.</li>
         <li><b>Ajouter un élément</b> : bouton <b>＋ Ajouter</b> en haut à gauche, puis glisse l’élément dans la page (ou clique dessus). Ou le rond jaune <b>+</b> sous un élément.</li>
         <li><b>Barre jaune</b> d’un élément : <b>✎</b> ses réglages (Contenu, Style, Texte, Animation) · <b>↑ ↓</b> · <b>⧉</b> dupliquer · <b>🗑</b> supprimer.</li>
         <li><b>Changer une taille sur la page</b> : <b>↔</b> à droite d’un élément (largeur), <b>⇲</b> et <b>↕</b> sur une image, <b>⇕</b> en haut/bas à gauche d’une section (espace), <b>⇔</b> entre deux colonnes, <b>↔</b> à droite du contenu (largeur de la section).</li>
@@ -1992,7 +2254,7 @@
         <li><b>Aperçu</b> : ton site avec les modifications. <b>Publier</b> : en ligne en 1 à 2 minutes. Tes modifications non publiées restent gardées sur cet appareil.</li>
         <li><b>Menu ⋯ → 🕘 Historique</b> : rouvrir n’importe quelle version déjà publiée.</li>
       </ol>
-      <p><b>Raccourcis :</b> Ctrl/Cmd + Z annuler · Ctrl/Cmd + Maj + Z rétablir · Ctrl/Cmd + S publier · Échap fermer le panneau.</p>` }), 'mid');
+      <p><b>Raccourcis :</b> Ctrl/Cmd + Z annuler · Ctrl/Cmd + Maj + Z rétablir · Ctrl/Cmd + S publier · Échap fermer le panneau · Suppr supprimer l’élément cliqué.</p>` }), 'mid');
   }
 
   /* ---------- Sécurité : rien ne se perd ---------- */
@@ -2211,7 +2473,7 @@
     updateState();
     if (ED.gh) setTimeout(syncRepo, 1500);
     if (pendingModal) setTimeout(pendingModal, 300);
-    else if (!ED.ls.get('portfolio-ed-aide-v5')) { ED.ls.set('portfolio-ed-aide-v5', '1'); setTimeout(help, 600); }
+    else if (!ED.ls.get('portfolio-ed-aide-v6')) { ED.ls.set('portfolio-ed-aide-v6', '1'); ED.ls.set('portfolio-ed-aide-v5', '1'); setTimeout(help, 600); }
   }
   ED.startEditor = startEditor;
 

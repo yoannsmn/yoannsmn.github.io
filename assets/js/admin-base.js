@@ -120,18 +120,20 @@
     ED.toast('Connecte-toi à GitHub pour envoyer des fichiers (menu ⋯ → Se connecter).', 'err', 5000);
     return false;
   };
-  ED.upload = async (file, folder, { max = 2200, raw = false, label = '' } = {}) => {
+  ED.upload = async (file, folder, { max = 2200, raw = false, label = '', dir = '', maxMo = 25 } = {}) => {
     if (!ED.requireConnection()) return null;
     if (!raw && !file.type.startsWith('image/')) { ED.toast(`« ${file.name} » n’est pas une image.`, 'err'); return null; }
+    if (dir === 'videos' && !/^video\//.test(file.type) && !/\.(mp4|webm|mov|m4v)$/i.test(file.name)) { ED.toast(`« ${file.name} » n’est pas une vidéo (.mp4 conseillé).`, 'err'); return null; }
     ED.uploading++; ED.onState && ED.onState();
     const t = ED.toast(`Envoi ${label} : ${file.name}…`, 'busy', 0);
     try {
       const { blob, ext } = raw ? { blob: file, ext: M.ext(file.name) || 'bin' } : await prepareImage(file, max);
-      if (blob.size > 25 * 1024 * 1024) throw Object.assign(new Error(), { status: 413 });
+      if (blob.size > maxMo * 1024 * 1024) throw new Error(`fichier trop lourd (${Math.round(blob.size / 1048576)} Mo, ${maxMo} Mo maximum).${dir === 'videos' ? ' Pour une vidéo longue, mets-la sur YouTube ou Vimeo et colle le lien.' : ''}`);
       const base = M.slugify(file.name.replace(/\.[^.]+$/, '')).slice(0, 40) || 'fichier';
-      const path = `${raw ? 'documents' : 'images/' + folder}/${base}-${Date.now().toString(36).slice(-5)}.${ext}`;
+      const path = `${dir || (raw ? 'documents' : 'images/' + folder)}/${base}-${Date.now().toString(36).slice(-5)}.${ext.toLowerCase()}`;
       await ED.uploadBlob(blob, path);
       if (!raw) { ED.blobs.set(path, URL.createObjectURL(blob)); ED.uploaded.unshift(path); }
+      if (dir === 'videos') ED.blobs.set(path, URL.createObjectURL(blob)); // visible tout de suite dans l'éditeur, avant la mise en ligne
       if (ED.onUploaded) ED.onUploaded(path, file.name, raw);
       t.done(`Envoyé ✓ (${Math.max(1, Math.round(blob.size / 1024))} Ko)`);
       return path;

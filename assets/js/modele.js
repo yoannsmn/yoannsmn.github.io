@@ -151,7 +151,7 @@
     texte: { nom: 'Paragraphe', g: 'Texte', c: () => ({ html: '<p>Écris ton texte ici.</p>' }) },
     tags: { nom: 'Mots-clés', g: 'Texte', c: () => ({ tags: ['Production', 'Réalisation'] }) },
     image: { nom: 'Image', g: 'Médias', c: () => ({ img: { src: '' }, legende: '', legendeOn: false, largeur: 100, hauteur: 0 }) },
-    galerie: { nom: 'Galerie', g: 'Médias', c: () => ({ disposition: 'puzzle', colonnes: 3, colonnesM: 2, espacement: 12, ratio: '4/3', hauteurRang: 220, hauteurBande: 440, defilementAuto: false, survol: '', images: [] }) },
+    galerie: { nom: 'Galerie', g: 'Médias', c: () => ({ disposition: 'mosaique', rangees: 'auto', colonnes: 3, colonnesM: 2, espacement: 12, ratio: '4/3', hauteurRang: 300, hauteurBande: 440, defilementAuto: false, survol: '', images: [] }) },
     video: { nom: 'Vidéo', g: 'Médias', c: () => ({ url: '', poster: '', ratio: '16/9', legende: '', legendeOn: false }) },
     spotify: { nom: 'Spotify', g: 'Médias', c: () => ({ liens: [], taille: 'compact', colonnes: 1 }) },
     infos: { nom: 'Infos en lignes', g: 'Listes', c: () => ({ lignes: [{ label: 'Durée', valeur: '18 min' }, { label: 'Format', valeur: '2.35:1' }], colonnes: 1 }) },
@@ -275,7 +275,7 @@
 
   /* ---------- Site par défaut ---------- */
   M.defaultSite = nom => ({
-    nom: nom || 'Mon portfolio', titreOnglet: '', descriptionGoogle: '',
+    nom: nom || 'Mon portfolio', titreOnglet: '', descriptionGoogle: '', largeurSite: 'pleine', marges: '', margesM: '',
     theme: { fond: '#000000', texte: '#f3f3f3', texteDoux: '#9a9a9a', accent: '#8a9bff', police: 'Figtree', policeTitres: 'Figtree', grain: true },
     entete: { disposition: 'centre', masquerAuDefilement: true, majuscules: true },
     pied: { afficher: true, texte: 'Tous droits réservés', reseaux: true, reseauxStyle: 'icones' },
@@ -429,55 +429,63 @@
     return d;
   };
 
-  /* ---------- Normalisation (remplit ce qui manque) ---------- */
+  /* ---------- Normalisation (remplit ce qui manque) ----------
+     Important : on complète les objets SANS les remplacer. L'éditeur garde des références vers
+     ces objets (fenêtres ouvertes, champs en cours de saisie) : les remplacer à chaque aperçu
+     faisait « perdre » ce qu'on tapait après la première lettre. */
+  const fill = (o, def) => { Object.keys(def).forEach(k => { if (o[k] === undefined) o[k] = def[k]; }); return o; };
+  const keepIf = (a, fn) => { const k = a.filter(fn); if (k.length !== a.length) a.splice(0, a.length, ...k); return a; };
+  const obj = v => v && typeof v === 'object' && !Array.isArray(v) ? v : {};
   M.normalize = d => {
     if (!d || !d.version) d = M.migrate(d || {});
     if (d.version === 2) d = M.upgrade3(d);
     d.version = 3;
     const def = M.defaultSite();
-    d.site = Object.assign({}, def, d.site || {});
-    ['theme', 'entete', 'pied'].forEach(k => { d.site[k] = Object.assign({}, def[k], d.site[k] || {}); });
+    d.site = fill(obj(d.site), def);
+    ['theme', 'entete', 'pied'].forEach(k => { d.site[k] = fill(obj(d.site[k]), def[k]); });
     d.site.reseaux = M.arr(d.site.reseaux);
-    d.bibliotheque = M.arr(d.bibliotheque).filter(x => x && x.src);
-    d.documents = M.arr(d.documents).filter(x => x && x.src);
+    d.bibliotheque = keepIf(M.arr(d.bibliotheque), x => x && x.src);
+    d.documents = keepIf(M.arr(d.documents), x => x && x.src);
+    d.videos = keepIf(M.arr(d.videos), x => x && x.src);
     d.pages = M.arr(d.pages);
     if (!d.pages.length) d.pages.push({ id: 'accueil', titre: 'Accueil', menu: true, accueil: true, sections: [] });
     if (!d.pages.some(p => p.accueil)) (d.pages.find(p => p.type !== 'projet') || d.pages[0]).accueil = true;
     d.pages.forEach(p => {
-      p.sections = M.arr(p.sections).filter(x => x && M.LAYOUTS.includes(x.layout));
+      p.sections = keepIf(M.arr(p.sections), x => x && M.LAYOUTS.includes(x.layout));
       p.sections.forEach(x => {
-        x.id = x.id || M.uid('s'); x.c = x.c || {}; x.s = x.s || {};
-        x.a = Object.assign({ type: '', duree: 0.9, delai: 0, cible: 'section' }, x.a || {});
+        x.id = x.id || M.uid('s'); x.c = obj(x.c); x.s = obj(x.s);
+        x.a = fill(obj(x.a), { type: '', duree: 0.9, delai: 0, cible: 'section' });
         const normBloc = (b, depth) => {
           b.id = b.id || M.uid('b');
-          b.c = Object.assign(M.BLOCS[b.k].c(), b.c || {});
-          b.s = b.s || {}; b.t = b.t || {}; b.a = Object.assign({ type: '' }, b.a || {});
+          b.c = fill(obj(b.c), M.BLOCS[b.k].c());
+          b.s = obj(b.s); b.t = obj(b.t); b.a = fill(obj(b.a), { type: '' });
           if (b.k === 'pastille') {
-            if (Array.isArray(b.c.textes)) b.c.textes = b.c.textes.map(t => String(t ?? '')); else b.c.textes = [String(b.c.texte || '')];
+            if (Array.isArray(b.c.textes)) b.c.textes.forEach((t, i) => { if (typeof t !== 'string') b.c.textes[i] = String(t ?? ''); }); else b.c.textes = [String(b.c.texte || '')];
             b.c.texte = b.c.textes[0] || '';
           }
           if (b.k === 'galerie') {
             if (b.c.disposition === 'rangees') b.c.disposition = 'mosaique';
             if (b.c.disposition === 'mosaique' && b.c.ordre === 'colonnes') { b.c.disposition = 'colonnes'; b.c.ordre = 'lignes'; }
           }
-          if (b.k === 'groupe') b.c.blocs = M.arr(b.c.blocs).filter(k => k && M.BLOCS[k.k] && (depth < 3 || k.k !== 'groupe')).map(k => normBloc(k, depth + 1));
+          if (b.k === 'groupe') { b.c.blocs = keepIf(M.arr(b.c.blocs), k => k && M.BLOCS[k.k] && (depth < 3 || k.k !== 'groupe')); b.c.blocs.forEach(k => normBloc(k, depth + 1)); }
           return b;
         };
-        x.blocs = M.arr(x.blocs).filter(b => b && M.BLOCS[b.k]).map(b => {
+        x.blocs = keepIf(M.arr(x.blocs), b => b && M.BLOCS[b.k]);
+        x.blocs.forEach(b => {
           normBloc(b, 0);
           if (x.layout === 'deux' && !b.col) b.col = 'g';
-          if (x.layout === 'libre') b.pos = Object.assign({ x: 10, y: 10, w: 40, z: 1 }, b.pos || {});
-          return b;
+          if (x.layout === 'libre') b.pos = fill(obj(b.pos), { x: 10, y: 10, w: 40, z: 1 });
         });
       });
       if (p.type === 'projet') {
-        p.carte = Object.assign({ vignette: '', genre: '', genres: null, roles: [], animation: '', animSurvol: '', sousTitre: '' }, p.carte || {});
+        p.carte = fill(obj(p.carte), { vignette: '', genre: '', genres: null, roles: [], animation: '', animSurvol: '', sousTitre: '' });
         if (!Array.isArray(p.carte.genres)) p.carte.genres = p.carte.genre ? [p.carte.genre] : [];
-        p.carte.genres = [...new Set(p.carte.genres.map(g => String(g || '').trim()).filter(Boolean))];
+        const gs = [...new Set(p.carte.genres.map(g => String(g || '').trim()).filter(Boolean))];
+        if (gs.join('\u0001') !== p.carte.genres.join('\u0001')) p.carte.genres.splice(0, p.carte.genres.length, ...gs);
         p.carte.genre = p.carte.genres[0] || '';
       }
     });
-    d.site.mobile = Object.assign({}, def.mobile, d.site.mobile || {});
+    d.site.mobile = fill(obj(d.site.mobile), def.mobile);
     // Typologies de projets : une liste gérée par toi, dans l'ordre des filtres
     if (!Array.isArray(d.site.genres)) d.site.genres = [];
     if (!d.site.genresInit) {

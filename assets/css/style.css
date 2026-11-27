@@ -169,7 +169,8 @@ body.grain-on::after { content: ''; position: fixed; inset: 0; pointer-events: n
 .al-right .chips, .al-right .btns, .al-right .socials { justify-content: flex-end; }
 .chips li { border: 1px solid var(--line); border-radius: 999px; padding: 5px 13px; font-size: 12px; color: var(--soft); }
 .chips.big li { font-size: 14px; padding: 8px 18px; }
-.cols { display: grid; grid-template-columns: var(--prop, 45%) 1fr; gap: clamp(28px, calc(6 * var(--vw1, 1vw)), 90px); align-items: center; }
+.cols { display: grid; grid-template-columns: var(--prop, 45%) 1fr; gap: clamp(28px, calc(6 * var(--vw1, 1vw)), 90px); align-items: start; }
+.cols.al-centre { align-items: center; } .cols.al-bas { align-items: end; }
 .cols.img-droite { grid-template-columns: 1fr var(--prop, 45%); }
 .cols.img-droite .cols-img { order: 2; }
 
@@ -635,3 +636,19 @@ html.vm .bl.bl-groupe.bl-pm { padding: var(--bpm) !important; }
 /* Rien ne doit élargir la page sur le côté (un élément décalé, une image…) */
 html, body { overflow-x: hidden; }
 @supports (overflow: clip) { html, body { overflow-x: clip; } }
+
+/* ==========================================================================
+   Largeur du site : toute la page / large / centré
+   ========================================================================== */
+html.sw-pleine { --pad: var(--pad-site, clamp(16px, calc(2.6 * var(--vw1, 1vw)), 48px)); }
+html.sw-pleine .wrap { max-width: none; }
+html.sw-pleine .w-normale, html.sw-pleine .w-large { --maxw: none; }
+html.sw-pleine .w-etroite { --maxw: 1100px; }
+html.sw-large .wrap { max-width: 1520px; }
+html.sw-large .w-normale { --maxw: 1520px; } html.sw-large .w-large { --maxw: 1800px; }
+html.sw-large, html.sw-centree { --pad: var(--pad-site, clamp(18px, calc(4 * var(--vw1, 1vw)), 44px)); }
+html.vm { --pad: var(--pad-site-m, 20px); }
+html.vm.sw-pleine { --pad: var(--pad-site-m, 14px); }
+/* Mosaïque : rangées pleine largeur, une rangée plus étroite (photo verticale) est centrée */
+.gal-auto { justify-content: center; }
+.gal-auto > .gbrk { flex-basis: 100%; height: 0; padding: 0; margin: 0; }

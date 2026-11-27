@@ -10,6 +10,8 @@
   let ED_PARENT = null;
   try { if (params.has('edit') && window.parent !== window && window.parent.Editeur) ED_PARENT = window.parent.Editeur; } catch (e) { /* autre origine */ }
   const EDIT = !!ED_PARENT;
+  // Vidéo de la bibliothèque : dans l'éditeur, celle qui vient d'être envoyée est lue depuis la mémoire
+  const vidSrc = p => (EDIT && ED_PARENT.src ? ED_PARENT.src(p) : p);
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- Ordinateur ou téléphone : choisi selon l'appareil, pas la largeur de la fenêtre ----------
@@ -266,15 +268,17 @@
     const gr = c.format && c.format !== 'auto' ? c.format : null;
     const auto = disp === 'mosaique' || disp === 'rangees';
     const cls = auto ? 'gal-auto' : disp === 'colonnes' ? 'gal-mosaique' : 'gal-' + esc(disp);
-    const ratioOf = disp === 'grille' ? (c.ratio || '4/3') : ['pile', 'duo', 'bande', 'colonnes'].includes(disp) || auto ? gr : null;
+    const ratioOf = disp === 'grille' ? (c.ratio || '4/3') : ['pile', 'duo', 'bande', 'colonnes', 'puzzle'].includes(disp) || auto ? gr : null;
     const full = auto && c.remplirDerniere ? ' r-full' : '';
-    return `<div class="gal ${cls}${ordre}${full}" style="${vars}${vm ? ';' + vm : ''}">${imgs.map((it, i) => figure(it, P(i), { cols, colsM, ratio: disp === 'grille' ? ratioOf : (it.ratio && it.ratio !== 'auto' ? null : ratioOf), rangees: auto || disp === 'puzzle', noRatio: disp === 'puzzle', hover: c.survol, eager: i < 2 })).join('')}</div>`;
+    const lg = x => M.arr(x).map(n => +n).filter(n => n > 0).join(',');
+    const rows = auto ? ` data-rows="${esc(c.rangees || 'auto')}" data-rowsm="${esc(c.rangeesM || '')}" data-lignes="${lg(c.lignes)}" data-lignesm="${lg(c.lignesM)}" data-hmax="${+c.hauteurMax || 0}" data-hmaxm="${+c.hauteurMaxM || 0}"` : '';
+    return `<div class="gal ${cls}${ordre}${full}"${rows} style="${vars}${vm ? ';' + vm : ''}">${imgs.map((it, i) => figure(it, P(i), { cols, colsM, ratio: disp === 'grille' ? ratioOf : (it.ratio && it.ratio !== 'auto' ? null : ratioOf), rangees: auto || disp === 'puzzle', noRatio: disp === 'puzzle', hover: c.survol, eager: i < 2 })).join('')}</div>`;
   };
   BR.video = (b, p) => {
     const c = b.c, v = M.video(c.url);
-    if (!v) return empty('+ Colle un lien YouTube ou Vimeo (réglages de l’élément)');
+    if (!v) return empty('+ Clique ici : choisis une vidéo de ta bibliothèque ou colle un lien YouTube / Vimeo');
     let player;
-    if (v.type === 'file') player = `<video src="${esc(v.src)}" controls playsinline preload="none"${c.poster ? ` poster="${esc(c.poster)}"` : ''}></video>`;
+    if (v.type === 'file') player = `<video src="${esc(vidSrc(v.src))}" controls playsinline preload="${EDIT ? 'metadata' : 'none'}"${c.poster ? ` poster="${esc(c.poster)}"` : ''}></video>`;
     else {
       const src = v.type === 'youtube' ? `https://www.youtube-nocookie.com/embed/${v.id}?rel=0&modestbranding=1&playsinline=1&autoplay=1` : `https://player.vimeo.com/video/${v.id}?title=0&byline=0&portrait=0&dnt=1&autoplay=1`;
       const img = c.poster || (v.type === 'youtube' ? `https://i.ytimg.com/vi/${v.id}/maxresdefault.jpg` : '');
@@ -459,7 +463,7 @@
   const propM = c => +c.proportionM ? `;--propm:${Math.min(80, Math.max(20, +c.proportionM))}%` : '';
   L.colonnes = (sec, d, page) => {
     const c = sec.c;
-    return `<div class="cols ${mobCols(sec, d)}${c.imageCote === 'droite' ? ' img-droite' : ''}" style="--prop:${Math.min(75, Math.max(25, +c.proportion || 45))}%${propM(c)}">
+    return `<div class="cols ${mobCols(sec, d)}${c.imageCote === 'droite' ? ' img-droite' : ''} al-${esc(c.aligner || 'haut')}" style="--prop:${Math.min(75, Math.max(25, +c.proportion || 45))}%${propM(c)}">
       ${figure(M.img(c.img), 'c.img', { cls: 'cols-img', ratio: c.img && c.img.ratio, caption: false })}
       <div class="stack${sec.s.encadre ? ' box-accent' : ''}">${stackOf(sec, d, page, allIdx(sec))}${emptyHint(sec)}</div>
     </div>`;
@@ -566,6 +570,11 @@
     r.setProperty('--fg', t.texte || '#f3f3f3');
     r.setProperty('--muted', t.texteDoux || '#9a9a9a');
     r.setProperty('--accent', t.accent || '#8a9bff');
+    // Largeur du site : toute la page (par défaut), large ou centrée
+    const lw = d.site.largeurSite || 'pleine', root = document.documentElement;
+    ['pleine', 'large', 'centree'].forEach(k => root.classList.toggle('sw-' + k, lw === k));
+    if (d.site.marges !== '' && d.site.marges != null && !isNaN(+d.site.marges)) r.setProperty('--pad-site', +d.site.marges + 'px'); else r.removeProperty('--pad-site');
+    if (d.site.margesM !== '' && d.site.margesM != null && !isNaN(+d.site.margesM)) r.setProperty('--pad-site-m', +d.site.margesM + 'px'); else r.removeProperty('--pad-site-m');
     const mob = d.site.mobile || {};
     r.setProperty('--ms', Math.max(0.6, Math.min(1.2, (+mob.echelle || 90) / 100)));
     r.setProperty('--font', `'${t.police || 'Figtree'}', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif`);
@@ -647,7 +656,7 @@
       if (!v || ((small || saveData || reduceMotion) && box.querySelector('img'))) return;
       const start = () => {
         let el;
-        if (v.type === 'file') { el = document.createElement('video'); Object.assign(el, { src: v.src, autoplay: true, muted: true, loop: true, playsInline: true }); }
+        if (v.type === 'file') { el = document.createElement('video'); Object.assign(el, { src: vidSrc(v.src), autoplay: true, muted: true, loop: true, playsInline: true }); }
         else {
           el = document.createElement('iframe');
           el.src = v.type === 'youtube'
@@ -717,33 +726,70 @@
     if (img && img.naturalWidth && img.naturalHeight) return img.naturalWidth / img.naturalHeight;
     return +f.dataset.nr || 1.5;
   };
-  // Mosaïque automatique : chaque rangée remplit toute la largeur et chaque photo garde son format
+  // Mosaïque : chaque rangée remplit toute la largeur et chaque photo garde son format.
+  // Modes : auto (rangées automatiques), centre (même hauteur, rangées centrées), 1 / 2 / 3 / 2-1… (photos par rangée),
+  // libre (rangées faites à la main : data-lignes = nombre de photos de chaque rangée).
   function justify(g) {
+    $$(':scope > .gbrk', g).forEach(x => x.remove());
     const items = $$(':scope > .gi', g), W = g.clientWidth;
     if (!items.length || !W) return;
     const cs = getComputedStyle(g), gap = parseFloat(cs.columnGap) || 0, vm = document.documentElement.classList.contains('vm');
     const base = parseFloat(cs.getPropertyValue('--row')) || 220;
     const target = (vm && parseFloat(cs.getPropertyValue('--row-m'))) || base * (vm ? 0.55 : 1);
-    const place = (row, sum, full) => {
-      const n = row.length, avail = W - gap * (n - 1);
-      const h = full ? avail / sum : Math.min(target, avail / sum);
-      let used = 0;
-      row.forEach(([f, r], k) => {
-        const w = full && k === n - 1 ? Math.max(10, Math.floor((avail - used - 0.6) * 100) / 100) : Math.floor(r * h * 100) / 100;
-        used += w;
-        f.style.width = w + 'px';
-        f.style.setProperty('--r', r.toFixed(4));
-      });
+    const vh1 = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--vh1')) || innerHeight / 100;
+    const hmax = (vm ? +g.dataset.hmaxm : 0) || (+g.dataset.hmax ? +g.dataset.hmax * (vm ? 0.75 : 1) : vh1 * (vm ? 60 : 82));
+    const ownM = vm && g.dataset.rowsm && g.dataset.rowsm !== 'ordi';
+    let mode = ownM ? g.dataset.rowsm : (g.dataset.rows || 'auto');
+    const cap = vm && !g.dataset.rowsm; // téléphone, réglage automatique : 2 photos par rangée au maximum
+    if (cap && /^[\d-]+$/.test(mode)) mode = mode.split('-').map(n => Math.min(2, +n)).join('-');
+    const r = items.map(figRatio);
+    const range = (a, n) => Array.from({ length: n }, (_, j) => a + j);
+    // 1. Découpe en rangées
+    let rows = [];
+    const autoRows = from => {
+      let row = [], sum = 0;
+      for (let i = from; i < items.length; i++) {
+        row.push(i); sum += r[i];
+        if (sum * target + gap * (row.length - 1) >= W) { rows.push({ ix: row, full: true }); row = []; sum = 0; }
+      }
+      if (row.length) rows.push({ ix: row, full: rows.length === 0 || g.classList.contains('r-full') || sum * target + gap * (row.length - 1) >= W * 0.62, last: true });
     };
-    let row = [], sum = 0;
-    items.forEach(f => {
-      const r = figRatio(f);
-      row.push([f, r]); sum += r;
-      if (sum * target + gap * (row.length - 1) >= W) { place(row, sum, true); row = []; sum = 0; }
+    if (mode === 'auto') autoRows(0);
+    else if (mode === 'centre') {
+      let row = [], sum = 0;
+      items.forEach((f, i) => {
+        if (row.length && (sum + r[i]) * target + gap * row.length > W) { rows.push({ ix: row }); row = []; sum = 0; }
+        row.push(i); sum += r[i];
+      });
+      if (row.length) rows.push({ ix: row });
+    } else if (mode === 'libre') {
+      const counts = ((ownM ? g.dataset.lignesm : g.dataset.lignes) || '').split(',').map(Number).filter(n => n > 0);
+      let i = 0;
+      for (const n of counts) { if (i >= items.length) break; const k = Math.min(n, items.length - i); rows.push({ ix: range(i, k), full: true }); i += k; }
+      if (i < items.length) autoRows(i); // photos ajoutées après coup : rangées automatiques à la fin
+      if (cap) rows = rows.flatMap(row => row.ix.length <= 2 ? [row] : Array.from({ length: Math.ceil(row.ix.length / 2) }, (_, k) => ({ ix: row.ix.slice(k * 2, k * 2 + 2), full: true })));
+    } else {
+      const counts = mode.split('-').map(n => Math.max(1, +n || 1));
+      let i = 0, k = 0;
+      while (i < items.length) { const n = counts[k++ % counts.length], m = Math.min(n, items.length - i); rows.push({ ix: range(i, m), full: m === n, last: m < n }); i += m; }
+    }
+    // 2. Taille de chaque rangée : toute la largeur, sans dépasser la hauteur maximale (une rangée plus étroite est centrée)
+    let prevH = target;
+    rows.forEach((row, ri) => {
+      const n = row.ix.length, sum = row.ix.reduce((a, i) => a + r[i], 0), avail = W - gap * (n - 1);
+      let h = row.full ? avail / sum : Math.min(mode === 'auto' || mode === 'centre' ? target : prevH, avail / sum);
+      if (h > hmax) h = hmax;
+      const fill = Math.abs(h - avail / sum) < 0.5;
+      let used = 0;
+      row.ix.forEach((i, k) => {
+        const w = fill && k === n - 1 ? Math.max(10, Math.floor((avail - used - 0.6) * 100) / 100) : Math.floor(r[i] * h * 100) / 100;
+        used += w;
+        items[i].style.width = w + 'px';
+        items[i].style.setProperty('--r', r[i].toFixed(4));
+      });
+      prevH = h;
+      if (ri < rows.length - 1) { const br = document.createElement('span'); br.className = 'gbrk'; br.style.marginTop = -gap + 'px'; items[row.ix[n - 1]].after(br); }
     });
-    // Dernière rangée : pleine largeur si c'est la seule, si elle est presque pleine, ou si tu l'as demandé
-    const only = row.length === items.length;
-    if (row.length) place(row, sum, only || g.classList.contains('r-full') || sum * target + gap * (row.length - 1) >= W * 0.62);
   }
   // Puzzle : une photo avec un format choisi prend la hauteur qui correspond à ce format
   function puzzleSpans(g) {
@@ -899,7 +945,7 @@
   }
 
   const pageId = params.get('p') || params.get('id') || (document.body.dataset.page !== 'films' ? document.body.dataset.page : '') || '';
-  window.SITE = { render, isEdit: EDIT, fit: () => { fit(); galleries(); } };
+  window.SITE = { render, isEdit: EDIT, fit: () => { fit(); galleries(); }, relayout: () => galleries() };
 
   if (EDIT) {
     render(ED_PARENT.data, pageId);

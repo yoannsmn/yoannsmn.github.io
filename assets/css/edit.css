@@ -110,3 +110,10 @@ html.is-edit .bl-groupe { outline: 1px dashed rgba(255, 196, 92, .28); outline-o
 html.is-edit .bl-groupe.grp-st-aucun { outline-color: rgba(255, 196, 92, .18); }
 html.is-edit .grp-in:empty, html.is-edit .grp-in > .ed-empty { min-height: 60px; }
 html.is-edit .grp-ligne > .ed-empty { flex: 1; }
+/* v6 : où la photo sera posée pendant un glisser */
+.edo-t-l, .edo-t-r { position: relative; }
+.edo-t-l::before, .edo-t-r::before { content: ''; position: absolute; top: 0; bottom: 0; width: 5px; border-radius: 3px; background: #f5c518; z-index: 6; pointer-events: none; }
+.edo-t-l::before { left: 0; } .edo-t-r::before { right: 0; }
+.edo-t-top, .edo-t-bot { position: relative; }
+.edo-t-top::before, .edo-t-bot::before { content: ''; position: absolute; left: 0; right: 0; height: 4px; border-radius: 3px; background: #f5c518; z-index: 6; pointer-events: none; }
+.edo-t-top::before { top: -3px; } .edo-t-bot::before { bottom: -3px; }

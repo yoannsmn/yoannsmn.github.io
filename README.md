@@ -1,4 +1,4 @@
-# Portfolio de Yoann SIMONNEAU (version 5 : groupes, mosaïque automatique, déplacement libre)
+# Portfolio de Yoann SIMONNEAU (version 6 : galeries comme sur Portfoliobox, site pleine largeur, petits éléments faciles à modifier)
 
 Ton site se modifie **directement sur la page**, depuis `https://tonpseudo.github.io/admin.html`, sur ordinateur comme sur téléphone.
 
@@ -13,7 +13,8 @@ Chaque élément a sa propre barre jaune et ses propres réglages : **Contenu, S
 |---|---|
 | Changer un texte | Clique dedans et écris. Sélectionne des mots : gras, italique, lien, couleur, liste, **📎 Document** (lien vers ton CV). |
 | Régler un seul élément | Survole-le → barre jaune → **✎**. Onglets Contenu, Style, Texte, Animation. |
-| Supprimer un élément (ex. la pastille) | Barre jaune → **🗑**. |
+| Supprimer un élément (ex. la pastille) | Barre jaune → **🗑**. Ou clique dessus puis touche **Suppr**. |
+| Modifier un petit élément (pastille, logo, ligne) | **Clique dessus** : sa barre d’outils reste affichée, tu peux aller tranquillement sur ⠿ ↑ ↓ ⧉ 🗑. |
 | Déplacer un élément | Attrape la poignée jaune **⠿** à sa gauche (ou son nom dans la barre jaune) et glisse-le, même dans une autre section ou colonne. |
 | Mettre deux éléments côte à côte | Glisse un élément (⠿) sur le **bord gauche ou droit** d’un autre. |
 | Décaler librement un élément | Barre jaune → maintiens **✥** et glisse. Double-clic sur ✥ : retour à sa place. |
@@ -22,12 +23,18 @@ Chaque élément a sa propre barre jaune et ses propres réglages : **Contenu, S
 | Changer une taille à la souris | **↔** à droite d’un élément, **⇲** / **↕** sur une image, **⇕** en haut/bas d’une section, **⇔** entre deux colonnes, **↔** à droite du contenu d’une section, **↕** sous une galerie ou une couverture. |
 | Plusieurs pastilles sur une ligne | Petit **+** à droite des pastilles. Survole une pastille : ⠿ ↑ ↓ ⧉ 🗑. |
 | Lignes de parcours, infos, crédits | **+ Ajouter une ligne** sous la liste, sur la page. Survole une ligne pour la déplacer ou la supprimer. |
-| Parcours projets / formations | **+ Section → Parcours : projets \| formations** (deux colonnes). |
+| Parcours projets / formations | ✎ sur la liste du parcours → **⇆ Projets à gauche \| Formations à droite**. Glisse une ligne (⠿) d’une colonne à l’autre. Nouvelle section : **+ Section → Parcours : projets \| formations**. |
+| Mettre des éléments à gauche / à droite | **✎ Section → Colonnes de la section : Deux colonnes**, puis glisse chaque élément dans sa colonne (⠿). |
+| Image + texte (ex. À propos) | ✎ Section → « L’image et le texte commencent » : **En haut** (l’image ne bouge plus quand le texte s’allonge), centrés ou en bas. |
 | Typologies de projets (filtres) | Accueil → **+ Typologie** au bout des filtres, ou ☰ Pages → Projets. Autant que tu veux, plusieurs par projet. |
 | Survol des vignettes | Accueil → Grille de projets → ✎ → « Animation du texte au survol » (mêmes choix que l’apparition). |
 | Légende d’une photo | Facultative : bouton **Légende** sur l’image pour l’ajouter ou la retirer. |
-| Photos de formats différents | Disposition **Mosaïque automatique** : chaque photo garde son format (horizontale, verticale, carrée), chaque rangée remplit la largeur. Taille : poignée ↕ sous la galerie. |
-| Imposer un format à une photo | Clique sur la photo → **Format de cette photo** (16:9, 9:16, 4:3, 1:1…), puis **✋ Cadrer** pour choisir la partie visible. |
+| Choisir le modèle d’une galerie | ✎ de la galerie → **Modèle de galerie** : Automatique, Centrée, 1 / 2 / 3 / 4 par rangée, Deux-Un, Un-Deux, Trois-Un, Deux-Trois, Sur mesure, Carrés, Nombre d’or, Grille, Puzzle, Cascade, Bande, Diaporama. Chaque rangée prend toute la largeur et garde le format exact des photos. |
+| Format des photos d’une galerie | ✎ de la galerie → **Format des photos** : format d’origine, 16:9, 2.39:1, 4:3, 1:1, 9:16… (pour tous les modèles). |
+| Ranger les photos à la main | Survole une photo → **↵ Rangée** (commencer une nouvelle rangée avec elle) ou **⤴ Rangée** (la remonter dans la rangée du dessus). **⠿** pour la déplacer : lâche-la à gauche ou à droite d’une autre photo. |
+| Photo verticale trop grande | ✎ de la galerie → **Hauteur maximale d’une photo**. |
+| Imposer un format à une seule photo | Clique sur la photo → **Format de cette photo** (16:9, 9:16, 4:3, 1:1…), puis **✋ Cadrer** pour choisir la partie visible. |
+| Largeur du site | **⚙ Réglages → Général → Largeur du site** : Toute la page, Large ou Centré, et les marges sur les côtés (ordinateur et téléphone). |
 | Version téléphone différente | Bouton **📱 Mobile** : les tailles, espacements, positions et colonnes réglés à ce moment ne changent que sur téléphone. |
 | Retrouver une ancienne version | Menu **⋯ → 🕘 Historique des publications**. Modifications mises de côté : **⋯ → 🛟**. |
 | Régler toute une section | Barre blanche → **✎ Section** (mise en page + liste des éléments) ou **Style**. |
@@ -35,6 +42,7 @@ Chaque élément a sa propre barre jaune et ses propres réglages : **Contenu, S
 | Changer une image | Clique dessus : panneau « Image ». Double-clic ou **Remplacer** : choisir dans la bibliothèque. |
 | Rogner une image | Survole-la → **Rogner**, ou ✂ dans la bibliothèque. Une copie recadrée est créée, l’original est gardé. |
 | Bibliothèque de photos et documents | Bouton **🖼 Bibliothèque** : envoie tout une fois (glisser-déposer accepté), puis choisis partout. |
+| Vidéo depuis ton ordinateur | **🖼 Bibliothèque → onglet Vidéos → + Envoyer des vidéos** (.mp4, 50 Mo maximum). Dans l’élément Vidéo (ou une couverture) : **🎞 Choisir / envoyer une vidéo**. Film long : mets-le sur YouTube ou Vimeo et colle le lien. |
 | CV ou document à télécharger | Élément **Lien vers un document (CV…)**, bouton « Télécharger un document », ou 📎 dans un texte. |
 | Formations avec logos | Section **Parcours / formations** → ✎ sur la liste → « + Logo » sur chaque ligne. Logos en noir & blanc, blanc, noir ou couleur. |
 | Icônes des réseaux sociaux | **⚙ Réglages du site → Réseaux sociaux** (icône choisie d’après le lien). Affichage icônes / icône + nom / texte. |
