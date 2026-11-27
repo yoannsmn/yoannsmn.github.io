@@ -38,7 +38,8 @@ window.CONTENU = {
    "Court-métrage",
    "Mini-série",
    "Clip",
-   "Publicité"
+   "Publicité",
+   "Album"
   ],
   "mobile": {
    "colonnes": "cote",
@@ -1316,9 +1317,9 @@ window.CONTENU = {
    "navigation": true,
    "carte": {
     "vignette": "images/films/projet-3/vignette.jpg",
-    "genre": "Court-métrage",
+    "genre": "Album",
     "genres": [
-     "Court-métrage"
+     "Album"
     ],
     "roles": [
      "Rôle à compléter"
@@ -1439,7 +1440,7 @@ window.CONTENU = {
        "id": "bjfkmdh65",
        "k": "texte",
        "c": {
-        "html": "<h2>Studio 205</h2><p>Une intelligence artificielle nommée \"NEURONA\" prend peu à peu le contrôle du cerveau d'un patient, le forçant à oublier son passé douloureux en contrepartie de changements d'humeur parfois très brusques et inattendus. Cette dynamique influe sur le comportement du patient qui ne se reconnais plus. Au fur et à mesure que l'histoire avance, il embrasse son destin, et est forcé de reconnaitre qu'il ne peut plus rien maîtriser.</p><p>C'est un album riche sur le plan musical qui mêle les genres Dark-pop et rap, afin de donner une atmosphère sombre, en cohérence avec le thème choisi. Avec une grande variété d'instrumentales, Studio 205 parvient à rendre le tout cohérent, renforcé par des visuels prenants et dystopiques.</p><p>\"NEURONA\" s'inscrit dans notre société actuelle, non seulement sur le sujet des IA qui prennent une place de plus en plus importante dans notre vie, mais également avec la volonté de changement de la jeune génération qui s'embarque sur des chemins remplis d'embûches, parfois au péril de leur innocence.</p>"
+        "html": "<h2>Studio 205 - \"NEURONA\"</h2><p>Une intelligence artificielle nommée \"NEURONA\" prend peu à peu le contrôle du cerveau d'un patient, le forçant à oublier son passé douloureux en contrepartie de changements d'humeur parfois très brusques et inattendus. Cette dynamique influe sur le comportement de ce dernier qui ne se reconnais plus. Au fur et à mesure que l'histoire avance, il embrasse son destin, et est forcé de reconnaitre qu'il ne peut plus rien maîtriser.</p><p>C'est un album riche sur le plan musical qui mêle les genres Dark-pop et rap, afin de donner une atmosphère sombre, en cohérence avec le thème choisi. Avec une grande variété d'instrumentales, Studio 205 parvient à rendre le tout cohérent, renforcé par des visuels prenants et dystopiques.</p><p>\"NEURONA\" s'inscrit dans notre société actuelle, non seulement sur le sujet des IA qui prennent une place de plus en plus importante dans notre vie, mais également avec la volonté de changement de la jeune génération qui s'embarque sur des chemins remplis d'embûches, parfois au péril de leur innocence.</p>"
        },
        "s": {},
        "t": {},
@@ -1456,6 +1457,18 @@ window.CONTENU = {
          {
           "label": "Production Musicale",
           "valeur": "Studio 205"
+         },
+         {
+          "label": "Artistes Interprètes",
+          "valeur": "Nicolas PANCHOUT - Alexandre TRAYSSAC - Yoann SIMONNEAU"
+         },
+         {
+          "label": "Ingénierie du mixage",
+          "valeur": "Nathan CHEVALLIER - Théo ROUK - Maximilien DUDEMAIDE - Yoann SIMONNEAU"
+         },
+         {
+          "label": "Compositeurs ",
+          "valeur": "Austin WELLER - Producer X"
          },
          {
           "label": "Visualizers",
@@ -1524,7 +1537,7 @@ window.CONTENU = {
        "a": {
         "type": ""
        },
-       "col": "d"
+       "col": "g"
       },
       {
        "id": "bcla8n6me",
@@ -1543,7 +1556,7 @@ window.CONTENU = {
        "a": {
         "type": ""
        },
-       "col": "d"
+       "col": "g"
       }
      ],
      "s": {
@@ -1594,7 +1607,7 @@ window.CONTENU = {
        "id": "b24i6up2i",
        "k": "texte",
        "c": {
-        "html": "<p>En tant que co-fondateur et co-président de l'association Studio 205, j'ai pris en charge la production musicale de ce projet (Ecriture, mix de voix, chant) avec le logiciel FL Studio, en collaboration avec plusieurs ingénieurs du son comme Nathan Chevallier ou encore SODASOUND. Au sein de l'association nous avons construit toute la direction artistique du projet ainsi que sa diffusion sur les plateformes numériques (Réseaux sociaux via MetaAds et TikTok Studio, distribution sur Distrokid, ...).</p><p>Enfin, j'ai pu réaliser l'ensemble des vizualizers disponible sur l'instagram de Studio 205, de l'idée / captation jusqu'au rendu final, en utilisant le logiciel Davinci Resolve Studio.</p>"
+        "html": "<p>En tant que co-fondateur et co-président de l'association Studio 205, j'ai pris en charge la production musicale de ce projet (Ecriture, mix de voix, chant) avec le logiciel FL Studio, en collaboration avec plusieurs ingénieurs du son comme Nathan Chevallier ou encore avec SODASOUND. Au sein de l'association nous avons construit toute la direction artistique du projet ainsi que sa diffusion sur les plateformes numériques (Réseaux sociaux via MetaAds et TikTok Studio, distribution sur Distrokid, ...).</p><p>Enfin, j'ai pu réaliser l'ensemble des vizualizers disponible sur l'instagram de Studio 205, de l'idée / captation jusqu'au rendu final, en utilisant le logiciel Davinci Resolve Studio.</p>"
        },
        "s": {},
        "t": {},
