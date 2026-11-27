@@ -46,7 +46,10 @@ window.CONTENU = {
    "echelle": 90
   },
   "genresInit": true,
-  "mobileV": 4
+  "mobileV": 4,
+  "largeurSite": "pleine",
+  "marges": "",
+  "margesM": ""
  },
  "pages": [
   {
@@ -295,7 +298,8 @@ window.CONTENU = {
           "src": "images/films/2072/still-3.jpg",
           "legende": ""
          }
-        ]
+        ],
+        "rangees": "auto"
        },
        "s": {},
        "t": {},
@@ -363,7 +367,8 @@ window.CONTENU = {
           "src": "images/films/freres/still-1.jpg",
           "legende": ""
          }
-        ]
+        ],
+        "rangees": "auto"
        },
        "s": {},
        "t": {},
@@ -395,10 +400,12 @@ window.CONTENU = {
       "img": {
        "src": "images/bibliotheque/dsc-0506-enhanced-nr-sfodg-rognee-2udq9.webp",
        "nr": 0.7769,
-       "nrs": "images/bibliotheque/dsc-0506-enhanced-nr-sfodg-rognee-2udq9.webp"
+       "nrs": "images/bibliotheque/dsc-0506-enhanced-nr-sfodg-rognee-2udq9.webp",
+       "zoom": 100,
+       "fit": "cover"
       },
       "imageCote": "gauche",
-      "proportion": 45
+      "proportion": 27
      },
      "blocs": [
       {
@@ -420,7 +427,7 @@ window.CONTENU = {
        "id": "bf0gr2h65",
        "k": "soustitre",
        "c": {
-        "texte": "Producteur · Directeur de Production"
+        "texte": "Chargé de Production"
        },
        "s": {},
        "t": {},
@@ -434,7 +441,9 @@ window.CONTENU = {
        "c": {
         "html": "<p>Je m'appelle Yoann Simonneau, je suis chargé de production, j'aime me mettre au service de projets et de personnes ayant une vision singulière, dans la musique, le clip et le cinéma, afin d'y apporter mon énergie, mon organisation et ma rigueur pour les aider à les concrétiser. Mon but sera toujours de privilégier la créativité en établissant un cadre bienveillant dans lequel chaque personne se sent à l'aise.</p><p>Ingénieur de formation, spécialisé en gestion de projet, je me suis reconverti dans la production audiovisuelle pour m'épanouir dans un milieu qui me ressemble et où je retrouve ce que je sais faire : planifier, coordonner, tenir un budget et gérer les imprévus.</p><p>Je suis co-président de deux associations de production audiovisuelle et musicale, Studio 205 et OMIRA Films, avec lesquelles j'ai produit des formats variés (courts-métrages, docu, ...) tout en produisant de la musique de mon coté depuis maintenant 5 ans. Au sein de mon groupe, je suis artiste interprète, mixeur, arrangeur vocal, directeur artistique, chargé de communication, je filme et monte nos vidéos. Cette double casquette m'a appris à comprendre aussi bien les besoins d'un artiste que les contraintes d'une production.</p><p>Mes inspirations s'étendent de Blade Runner aux clips PNL, en passant par Fallen Angels ou encore l'univers artistique de Dajak pour lequel j'ai beaucoup d'affection.</p><p>En bref je souhaite apporter et produire des œuvres avec une esthétique futuriste, épurée, parfois liminaire dans des univers et contextes sombres et mélancoliques. A termes, je souhaite rallier les genres en faisant des ponts entre clips, courts et longs métrage pour permettre à des artistes et réalisateurs de proposer des univers riches et variés.</p>"
        },
-       "s": {},
+       "s": {
+        "largeur": 78
+       },
        "t": {
         "interligne": 1.5,
         "interlettrage": -0.02
@@ -476,22 +485,29 @@ window.CONTENU = {
     {
      "id": "suh42sh64",
      "type": "liste",
-     "layout": "pile",
-     "c": {},
+     "layout": "deux",
+     "c": {
+      "proportion": 80
+     },
      "blocs": [
       {
        "id": "bfc2v1ez1",
        "k": "document",
        "c": {
         "texte": "TÉLÉCHARGER MON CV",
-        "src": "",
+        "src": "documents/simonneau-yoann-c4m9r.pdf",
         "style": "contour"
        },
-       "s": {},
+       "s": {
+        "decalX": 170,
+        "decalY": -13,
+        "mt": 6
+       },
        "t": {},
        "a": {
         "type": ""
-       }
+       },
+       "col": "g"
       },
       {
        "id": "b69fvih65",
@@ -502,11 +518,15 @@ window.CONTENU = {
         "taille": "bloc",
         "lettres": false
        },
-       "s": {},
+       "s": {
+        "decalX": -166,
+        "decalY": ""
+       },
        "t": {},
        "a": {
         "type": ""
-       }
+       },
+       "col": "g"
       },
       {
        "id": "b4cs6gh65",
@@ -541,11 +561,46 @@ window.CONTENU = {
         "logos": "nb",
         "tailleLogo": 56
        },
-       "s": {},
+       "s": {
+        "decalX": -165,
+        "decalY": "",
+        "largeur": ""
+       },
        "t": {},
        "a": {
         "type": ""
-       }
+       },
+       "col": "g"
+      },
+      {
+       "id": "bgh1zm171",
+       "k": "liste",
+       "c": {
+        "items": [
+         {
+          "date": "2026 - 2027",
+          "titre": "Chargé de Production",
+          "sousTitre": "INA Campus",
+          "html": "",
+          "logo": {
+           "src": ""
+          },
+          "lien": ""
+         }
+        ],
+        "logos": "nb",
+        "tailleLogo": 56
+       },
+       "s": {
+        "largeur": "",
+        "decalX": -48,
+        "decalY": 148
+       },
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
       }
      ],
      "s": {
@@ -764,7 +819,8 @@ window.CONTENU = {
           "nr": 2.2926,
           "nrs": "images/bibliotheque/3-30vpr.webp"
          }
-        ]
+        ],
+        "rangees": "auto"
        },
        "s": {},
        "t": {},
@@ -975,33 +1031,33 @@ window.CONTENU = {
           "nrs": "images/bibliotheque/8-312zv.webp"
          },
          {
-          "src": "images/bibliotheque/7-311mn.webp",
-          "nr": 2.2946,
-          "nrs": "images/bibliotheque/7-311mn.webp"
-         },
-         {
           "src": "images/bibliotheque/6-3107c.webp",
           "nr": 2.2992,
           "nrs": "images/bibliotheque/6-3107c.webp"
          },
          {
-          "src": "images/bibliotheque/5-30yjf.webp",
-          "nr": 2.2993,
-          "nrs": "images/bibliotheque/5-30yjf.webp"
-         },
-         {
-          "src": "images/bibliotheque/4-30xac.webp",
-          "nr": 2.2964,
-          "nrs": "images/bibliotheque/4-30xac.webp"
-         },
-         {
           "src": "images/bibliotheque/img-20260804-wa0018-4nsm2.webp",
           "nr": 2.2237,
           "nrs": "images/bibliotheque/img-20260804-wa0018-4nsm2.webp"
+         },
+         {
+          "src": "images/bibliotheque/7-311mn.webp",
+          "nr": 2.2946,
+          "nrs": "images/bibliotheque/7-311mn.webp"
+         },
+         {
+          "src": "images/bibliotheque/5-30yjf.webp",
+          "nr": 2.2993,
+          "nrs": "images/bibliotheque/5-30yjf.webp"
          }
-        ]
+        ],
+        "rangees": "auto"
        },
-       "s": {},
+       "s": {
+        "largeur": 91,
+        "decalX": 85,
+        "decalY": ""
+       },
        "t": {},
        "a": {
         "type": ""
@@ -1322,7 +1378,8 @@ window.CONTENU = {
           "nr": 1.5,
           "nrs": "images/bibliotheque/5-dsc04668-pglu8.webp"
          }
-        ]
+        ],
+        "rangees": "auto"
        },
        "s": {},
        "t": {},
@@ -1449,7 +1506,8 @@ window.CONTENU = {
           "nr": 1.7778,
           "nrs": "images/bibliotheque/still-2026-09-04-221743-1-5-1-4uuoq.webp"
          }
-        ]
+        ],
+        "rangees": "auto"
        },
        "s": {},
        "t": {},
@@ -1677,7 +1735,8 @@ window.CONTENU = {
           "nr": 1.7778,
           "nrs": "images/bibliotheque/still-2026-09-04-221819-1-10-1-4v09f.webp"
          }
-        ]
+        ],
+        "rangees": "auto"
        },
        "s": {},
        "t": {},
@@ -1710,7 +1769,10 @@ window.CONTENU = {
      "Album"
     ],
     "roles": [
-     "Pr"
+     "Réalisation",
+     "Production",
+     "Captation",
+     "Post-production"
     ],
     "animation": "",
     "animSurvol": "",
@@ -1801,7 +1863,8 @@ window.CONTENU = {
           "nr": 1.7778,
           "nrs": "images/bibliotheque/vlcsnap-2026-03-17-19h07m45s189-fjwff.webp"
          }
-        ]
+        ],
+        "rangees": "auto"
        },
        "s": {},
        "t": {},
@@ -2068,7 +2131,8 @@ window.CONTENU = {
           "nr": 1.7778,
           "nrs": "images/bibliotheque/still-2026-09-04-235236-2-1-1-gi430.webp"
          }
-        ]
+        ],
+        "rangees": "auto"
        },
        "s": {},
        "t": {},
@@ -2340,7 +2404,8 @@ window.CONTENU = {
            "opacite": 19
           }
          }
-        ]
+        ],
+        "rangees": "auto"
        },
        "s": {
         "largeur": ""
@@ -2538,7 +2603,8 @@ window.CONTENU = {
         "hauteurBande": 440,
         "defilementAuto": false,
         "survol": "",
-        "images": []
+        "images": [],
+        "rangees": "auto"
        },
        "s": {},
        "t": {},
@@ -2872,5 +2938,11 @@ window.CONTENU = {
    "nom": "still-1"
   }
  ],
- "documents": []
+ "documents": [
+  {
+   "src": "documents/simonneau-yoann-c4m9r.pdf",
+   "nom": "SIMONNEAU Yoann"
+  }
+ ],
+ "videos": []
 };
