@@ -32,6 +32,10 @@ window.CONTENU = {
    {
     "nom": "Instagram",
     "url": "https://instagram.com/205.mp3"
+   },
+   {
+    "nom": "Linkedin",
+    "url": "https://www.linkedin.com/in/yoann-simonneau-b320b9261/"
    }
   ],
   "genres": [
@@ -422,7 +426,7 @@ window.CONTENU = {
        "fit": "cover"
       },
       "imageCote": "gauche",
-      "proportion": 31
+      "proportion": 29
      },
      "blocs": [
       {
@@ -600,7 +604,21 @@ window.CONTENU = {
           "sousTitre": "INA Campus",
           "html": "",
           "logo": {
-           "src": ""
+           "src": "images/bibliotheque/article-corporate-10820997-0105-456b-950-dx9pt.webp",
+           "nr": 1.95,
+           "nrs": "images/bibliotheque/article-corporate-10820997-0105-456b-950-dx9pt.webp"
+          },
+          "lien": ""
+         },
+         {
+          "date": "2019 - 2024",
+          "titre": "Ingénieur",
+          "sousTitre": "IPSA",
+          "html": "",
+          "logo": {
+           "src": "images/bibliotheque/icon-dxawr.webp",
+           "nr": 1,
+           "nrs": "images/bibliotheque/icon-dxawr.webp"
           },
           "lien": ""
          }
@@ -642,8 +660,8 @@ window.CONTENU = {
      "type": "contact",
      "layout": "deux",
      "c": {
-      "proportion": 50,
-      "empileM": "oui"
+      "proportion": 80,
+      "empileM": "non"
      },
      "blocs": [
       {
@@ -665,27 +683,20 @@ window.CONTENU = {
        "col": "plein"
       },
       {
-       "id": "blor20h65",
-       "k": "texte",
-       "c": {
-        "html": "<p>Un projet, une collaboration, une question ? Écris-moi.</p>"
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       },
-       "col": "g"
-      },
-      {
        "id": "bb9nk6h65",
        "k": "coordonnees",
        "c": {
-        "email": "ton.email@exemple.com",
-        "telephone": "",
+        "email": "yoann.simonneau14@gmail.com",
+        "telephone": "+33 6 95 88 86 57",
         "lieu": "Paris, France"
        },
-       "s": {},
+       "s": {
+        "largeur": 58,
+        "pleine": false,
+        "mt": 0,
+        "decalX": 154,
+        "decalY": -15
+       },
        "t": {},
        "a": {
         "type": ""
@@ -697,23 +708,12 @@ window.CONTENU = {
        "k": "reseaux",
        "c": {
         "style": "icones-texte",
-        "taille": 22
+        "taille": 40
        },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
+       "s": {
+        "decalX": -187,
+        "decalY": ""
        },
-       "col": "g"
-      },
-      {
-       "id": "b8go08h65",
-       "k": "formulaire",
-       "c": {
-        "formspree": "",
-        "email": "ton.email@exemple.com"
-       },
-       "s": {},
        "t": {},
        "a": {
         "type": ""
@@ -721,7 +721,10 @@ window.CONTENU = {
        "col": "d"
       }
      ],
-     "s": {},
+     "s": {
+      "pb": 0,
+      "largeurPx": 1195
+     },
      "a": {
       "type": "",
       "duree": 0.9,
@@ -1161,20 +1164,49 @@ window.CONTENU = {
      }
     },
     {
-     "id": "s8jfgx9hw",
-     "type": "video",
+     "id": "sr0tof9hw",
+     "type": "galerie",
      "layout": "pile",
      "c": {},
      "blocs": [
       {
-       "id": "bku9ox9hw",
-       "k": "video",
+       "id": "b67muw9hw",
+       "k": "galerie",
        "c": {
-        "url": "",
-        "poster": "",
-        "ratio": "16/9",
-        "legende": "",
-        "legendeOn": false
+        "disposition": "grille",
+        "colonnes": 3,
+        "colonnesM": 3,
+        "espacement": 60,
+        "ratio": "1.618/1",
+        "hauteurRang": 220,
+        "hauteurBande": 440,
+        "defilementAuto": false,
+        "survol": "",
+        "images": [
+         {
+          "src": "images/bibliotheque/1-1-dsc04166-pgegd.webp",
+          "nr": 1.5,
+          "nrs": "images/bibliotheque/1-1-dsc04166-pgegd.webp",
+          "posX": 44,
+          "posY": 23
+         },
+         {
+          "src": "images/bibliotheque/1-dsc04706-pgj7v.webp",
+          "nr": 1.5,
+          "nrs": "images/bibliotheque/1-dsc04706-pgj7v.webp",
+          "posX": 50,
+          "posY": 78,
+          "fit": "cover"
+         },
+         {
+          "src": "images/bibliotheque/1-2-dsc04590-pgg9g.webp",
+          "nr": 1.5,
+          "nrs": "images/bibliotheque/1-2-dsc04590-pgg9g.webp",
+          "fit": "cover"
+         }
+        ],
+        "rangees": "auto",
+        "espacementM": 13
        },
        "s": {},
        "t": {},
@@ -1183,7 +1215,10 @@ window.CONTENU = {
        }
       }
      ],
-     "s": {},
+     "s": {
+      "largeur": "pleine",
+      "largeurPx": ""
+     },
      "a": {
       "type": "",
       "duree": 0.9,
@@ -1337,7 +1372,9 @@ window.CONTENU = {
        "col": "g"
       }
      ],
-     "s": {},
+     "s": {
+      "ptM": 0
+     },
      "a": {
       "type": "",
       "duree": 0.9,
@@ -1346,40 +1383,26 @@ window.CONTENU = {
      }
     },
     {
-     "id": "sr0tof9hw",
+     "id": "s8571chrg",
      "type": "galerie",
      "layout": "pile",
      "c": {},
      "blocs": [
       {
-       "id": "b67muw9hw",
+       "id": "bl1ye9hrg",
        "k": "galerie",
        "c": {
-        "disposition": "puzzle",
+        "disposition": "grille",
+        "rangees": "auto",
         "colonnes": 3,
         "colonnesM": 2,
-        "espacement": 12,
-        "ratio": "4/3",
-        "hauteurRang": 220,
+        "espacement": 53,
+        "ratio": "1.618/1",
+        "hauteurRang": 300,
         "hauteurBande": 440,
         "defilementAuto": false,
         "survol": "",
         "images": [
-         {
-          "src": "images/bibliotheque/1-1-dsc04166-pgegd.webp",
-          "nr": 1.5,
-          "nrs": "images/bibliotheque/1-1-dsc04166-pgegd.webp"
-         },
-         {
-          "src": "images/bibliotheque/1-dsc04706-pgj7v.webp",
-          "nr": 1.5,
-          "nrs": "images/bibliotheque/1-dsc04706-pgj7v.webp"
-         },
-         {
-          "src": "images/bibliotheque/1-2-dsc04590-pgg9g.webp",
-          "nr": 1.5,
-          "nrs": "images/bibliotheque/1-2-dsc04590-pgg9g.webp"
-         },
          {
           "src": "images/bibliotheque/87-dsc04110-ph7ig.webp",
           "nr": 0.6667,
@@ -1395,8 +1418,7 @@ window.CONTENU = {
           "nr": 1.5,
           "nrs": "images/bibliotheque/5-dsc04668-pglu8.webp"
          }
-        ],
-        "rangees": "auto"
+        ]
        },
        "s": {},
        "t": {},
@@ -1498,11 +1520,11 @@ window.CONTENU = {
        "id": "b9rj8shey",
        "k": "galerie",
        "c": {
-        "disposition": "puzzle",
+        "disposition": "grille",
         "colonnes": 3,
         "colonnesM": 2,
         "espacement": 39,
-        "ratio": "4/3",
+        "ratio": "1.618/1",
         "hauteurRang": 220,
         "hauteurBande": 440,
         "defilementAuto": false,
@@ -1526,7 +1548,11 @@ window.CONTENU = {
         ],
         "rangees": "auto"
        },
-       "s": {},
+       "s": {
+        "largeur": 94,
+        "decalX": 54,
+        "decalY": -8
+       },
        "t": {},
        "a": {
         "type": ""
@@ -1712,11 +1738,11 @@ window.CONTENU = {
        "id": "bt5uvuh65",
        "k": "galerie",
        "c": {
-        "disposition": "mosaique",
+        "disposition": "grille",
         "colonnes": 3,
         "colonnesM": 2,
-        "espacement": 12,
-        "ratio": "4/3",
+        "espacement": 26,
+        "ratio": "1.618/1",
         "hauteurRang": 220,
         "hauteurBande": 440,
         "defilementAuto": false,
@@ -1756,26 +1782,10 @@ window.CONTENU = {
         "rangees": "auto"
        },
        "s": {
-        "largeur": 73,
-        "decalX": 180,
-        "decalY": ""
+        "largeur": 90,
+        "decalX": 95,
+        "decalY": -22
        },
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
-       "id": "b3gnmyn4l",
-       "k": "video",
-       "c": {
-        "url": "",
-        "poster": "",
-        "ratio": "16/9",
-        "legende": "",
-        "legendeOn": false
-       },
-       "s": {},
        "t": {},
        "a": {
         "type": ""
@@ -1875,11 +1885,11 @@ window.CONTENU = {
        "id": "bpbmvcnat",
        "k": "galerie",
        "c": {
-        "disposition": "puzzle",
+        "disposition": "grille",
         "colonnes": 3,
         "colonnesM": 2,
         "espacement": 41,
-        "ratio": "4/3",
+        "ratio": "1.618/1",
         "hauteurRang": 220,
         "hauteurBande": 440,
         "defilementAuto": false,
@@ -2188,7 +2198,7 @@ window.CONTENU = {
    "titre": "DEPARTURE",
    "type": "projet",
    "menu": false,
-   "masquer": false,
+   "masquer": true,
    "navigation": true,
    "carte": {
     "vignette": "images/films/projet-4/vignette.jpg",
@@ -2399,11 +2409,11 @@ window.CONTENU = {
        "id": "b3rp1r57l",
        "k": "galerie",
        "c": {
-        "disposition": "puzzle",
+        "disposition": "grille",
         "colonnes": 3,
         "colonnesM": 2,
         "espacement": 29,
-        "ratio": "4/3",
+        "ratio": "1.618/1",
         "hauteurRang": 220,
         "hauteurBande": 440,
         "defilementAuto": false,
@@ -2539,7 +2549,10 @@ window.CONTENU = {
         ],
         "colonnes": 1
        },
-       "s": {},
+       "s": {
+        "decalX": "",
+        "decalY": 23
+       },
        "t": {},
        "a": {
         "type": ""
@@ -2614,35 +2627,65 @@ window.CONTENU = {
      }
     },
     {
-     "id": "s1oexmqls",
+     "id": "solqgmnim",
      "type": "galerie",
      "layout": "pile",
      "c": {},
      "blocs": [
       {
-       "id": "b6hcu8qls",
+       "id": "buxe5ynim",
        "k": "galerie",
        "c": {
-        "disposition": "puzzle",
+        "disposition": "mosaique",
+        "rangees": "auto",
         "colonnes": 3,
         "colonnesM": 2,
         "espacement": 12,
         "ratio": "4/3",
-        "hauteurRang": 220,
+        "hauteurRang": 300,
         "hauteurBande": 440,
         "defilementAuto": false,
         "survol": "",
-        "images": [],
-        "rangees": "auto"
+        "images": [
+         {
+          "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-47-slpx0.webp",
+          "nr": 2.1136,
+          "nrs": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-47-slpx0.webp"
+         },
+         {
+          "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-46-sloq7.webp",
+          "nr": 2.1164,
+          "nrs": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-46-sloq7.webp"
+         },
+         {
+          "src": "images/films/resonances/whatsapp-image-2026-11-09-at-18-54-01-slmf9.webp",
+          "nr": 2.2957,
+          "nrs": "images/films/resonances/whatsapp-image-2026-11-09-at-18-54-01-slmf9.webp"
+         },
+         {
+          "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-49-slsjt.webp",
+          "nr": 2.122,
+          "nrs": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-49-slsjt.webp"
+         },
+         {
+          "src": "images/films/resonances/whatsapp-image-2026-11-09-at-18-54-01-3-sll4b.webp",
+          "nr": 2.3632,
+          "nrs": "images/films/resonances/whatsapp-image-2026-11-09-at-18-54-01-3-sll4b.webp"
+         }
+        ]
        },
-       "s": {},
+       "s": {
+        "mt": 0
+       },
        "t": {},
        "a": {
         "type": ""
        }
       }
      ],
-     "s": {},
+     "s": {
+      "pt": 27
+     },
      "a": {
       "type": "",
       "duree": 0.9,
@@ -2654,6 +2697,14 @@ window.CONTENU = {
   }
  ],
  "bibliotheque": [
+  {
+   "src": "images/bibliotheque/icon-dxawr.webp",
+   "nom": "icon"
+  },
+  {
+   "src": "images/bibliotheque/article-corporate-10820997-0105-456b-950-dx9pt.webp",
+   "nom": "article-corporate_10820997-0105-456b-950c-f0c1d28ab2fb"
+  },
   {
    "src": "images/bibliotheque/87-dsc04110-ph7ig.webp",
    "nom": "87-DSC04110"
