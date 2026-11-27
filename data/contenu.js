@@ -62,21 +62,25 @@ window.CONTENU = {
      "c": {
       "media": {
        "type": "image",
-       "src": "images/accueil/hero.jpg",
-       "video": ""
+       "src": "images/accueil/img-20260605-wa0015-nbz39.webp",
+       "video": "",
+       "nr": 1.5009,
+       "nrs": "images/accueil/img-20260605-wa0015-nbz39.webp",
+       "posX": 54
       },
-      "hauteur": 25,
+      "hauteur": 34,
       "pos": {
        "x": 50,
        "y": 50
       },
       "alignTexte": "center",
-      "largeurTexte": 680,
+      "largeurTexte": 640,
       "superposition": {
        "couleur": "#000000",
-       "opacite": 35,
+       "opacite": 37,
        "degrade": true
-      }
+      },
+      "hauteurM": 24
      },
      "blocs": [
       {
@@ -89,7 +93,9 @@ window.CONTENU = {
         "lettres": true
        },
        "s": {},
-       "t": {},
+       "t": {
+        "graisse": "600"
+       },
        "a": {
         "type": ""
        }
@@ -98,10 +104,13 @@ window.CONTENU = {
        "id": "bxib01h65",
        "k": "texte",
        "c": {
-        "html": "<p><em>Je produis des films à l&#39;esthétique futuriste et accompagne les esprits créatifs dans leurs projets afin qu&#39;ils voient le jour et trouvent le public qui leur est destiné</em></p>"
+        "html": "<p>Chargé de Production</p>"
        },
        "s": {},
-       "t": {},
+       "t": {
+        "police": "",
+        "taille": 19
+       },
        "a": {
         "type": ""
        }
@@ -110,7 +119,8 @@ window.CONTENU = {
      "s": {
       "largeur": "pleine",
       "pt": 0,
-      "pb": 0
+      "pb": 0,
+      "pbM": 0
      },
      "a": {
       "type": "",
@@ -383,7 +393,9 @@ window.CONTENU = {
      "layout": "colonnes",
      "c": {
       "img": {
-       "src": "images/bibliotheque/dsc-0506-enhanced-nr-sfodg-rognee-2udq9.webp"
+       "src": "images/bibliotheque/dsc-0506-enhanced-nr-sfodg-rognee-2udq9.webp",
+       "nr": 0.7769,
+       "nrs": "images/bibliotheque/dsc-0506-enhanced-nr-sfodg-rognee-2udq9.webp"
       },
       "imageCote": "gauche",
       "proportion": 45
@@ -420,10 +432,13 @@ window.CONTENU = {
        "id": "bff364h65",
        "k": "texte",
        "c": {
-        "html": "<p>À compléter : présente-toi en quelques paragraphes (ton parcours, ce qui t'anime, le type de projets que tu aimes accompagner).</p><p>Tu peux mettre des mots en <strong>gras</strong>, en <em>italique</em>, ou ajouter un <a href=\"https://exemple.com\">lien</a>.</p>"
+        "html": "<p>Je m'appelle Yoann Simonneau, je suis chargé de production, j'aime me mettre au service de projets et de personnes ayant une vision singulière, dans la musique, le clip et le cinéma, afin d'y apporter mon énergie, mon organisation et ma rigueur pour les aider à les concrétiser. Mon but sera toujours de privilégier la créativité en établissant un cadre bienveillant dans lequel chaque personne se sent à l'aise.</p><p>Ingénieur de formation, spécialisé en gestion de projet, je me suis reconverti dans la production audiovisuelle pour m'épanouir dans un milieu qui me ressemble et où je retrouve ce que je sais faire : planifier, coordonner, tenir un budget et gérer les imprévus.</p><p>Je suis co-président de deux associations de production audiovisuelle et musicale, Studio 205 et OMIRA Films, avec lesquelles j'ai produit des formats variés (courts-métrages, docu, ...) tout en produisant de la musique de mon coté depuis maintenant 5 ans. Au sein de mon groupe, je suis artiste interprète, mixeur, arrangeur vocal, directeur artistique, chargé de communication, je filme et monte nos vidéos. Cette double casquette m'a appris à comprendre aussi bien les besoins d'un artiste que les contraintes d'une production.</p><p>Mes inspirations s'étendent de Blade Runner aux clips PNL, en passant par Fallen Angels ou encore l'univers artistique de Dajak pour lequel j'ai beaucoup d'affection.</p><p>En bref je souhaite apporter et produire des œuvres avec une esthétique futuriste, épurée, parfois liminaire dans des univers et contextes sombres et mélancoliques. A termes, je souhaite rallier les genres en faisant des ponts entre clips, courts et longs métrage pour permettre à des artistes et réalisateurs de proposer des univers riches et variés.</p>"
        },
        "s": {},
-       "t": {},
+       "t": {
+        "interligne": 1.5,
+        "interlettrage": -0.02
+       },
        "a": {
         "type": ""
        }
@@ -448,7 +463,9 @@ window.CONTENU = {
        }
       }
      ],
-     "s": {},
+     "s": {
+      "pt": 41
+     },
      "a": {
       "type": "",
       "duree": 0.9,
@@ -462,6 +479,20 @@ window.CONTENU = {
      "layout": "pile",
      "c": {},
      "blocs": [
+      {
+       "id": "bfc2v1ez1",
+       "k": "document",
+       "c": {
+        "texte": "TÉLÉCHARGER MON CV",
+        "src": "",
+        "style": "contour"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
       {
        "id": "b69fvih65",
        "k": "titre",
@@ -485,7 +516,9 @@ window.CONTENU = {
          {
           "sousTitre": "",
           "logo": {
-           "src": "images/bibliotheque/still-2026-09-04-221806-1-7-1-4uxmc.webp"
+           "src": "images/bibliotheque/still-2026-09-04-221806-1-7-1-4uxmc.webp",
+           "nr": 1.7778,
+           "nrs": "images/bibliotheque/still-2026-09-04-221806-1-7-1-4uxmc.webp"
           },
           "lien": "",
           "date": "2024 — 2025",
@@ -495,7 +528,9 @@ window.CONTENU = {
          {
           "sousTitre": "Association Omira Films",
           "logo": {
-           "src": "images/bibliotheque/sans-titre-314ew.webp"
+           "src": "images/bibliotheque/sans-titre-314ew.webp",
+           "nr": 0.7475,
+           "nrs": "images/bibliotheque/sans-titre-314ew.webp"
           },
           "lien": "",
           "date": "2024",
@@ -513,7 +548,9 @@ window.CONTENU = {
        }
       }
      ],
-     "s": {},
+     "s": {
+      "largeurPx": 711
+     },
      "a": {
       "type": "",
       "duree": 0.9,
@@ -713,13 +750,19 @@ window.CONTENU = {
         "survol": "",
         "images": [
          {
-          "src": "images/bibliotheque/1-30t1i.webp"
+          "src": "images/bibliotheque/1-30t1i.webp",
+          "nr": 2.3017,
+          "nrs": "images/bibliotheque/1-30t1i.webp"
          },
          {
-          "src": "images/bibliotheque/2-30ugv.webp"
+          "src": "images/bibliotheque/2-30ugv.webp",
+          "nr": 2.326,
+          "nrs": "images/bibliotheque/2-30ugv.webp"
          },
          {
-          "src": "images/bibliotheque/3-30vpr.webp"
+          "src": "images/bibliotheque/3-30vpr.webp",
+          "nr": 2.2926,
+          "nrs": "images/bibliotheque/3-30vpr.webp"
          }
         ]
        },
@@ -768,10 +811,73 @@ window.CONTENU = {
        "col": "g"
       },
       {
+       "id": "bfa554ccf",
+       "k": "groupe",
+       "c": {
+        "blocs": [
+         {
+          "id": "bwwt0gccf",
+          "k": "titre",
+          "c": {
+           "texte": "Mon travail sur le projet",
+           "niveau": "h2",
+           "taille": "bloc",
+           "lettres": false
+          },
+          "s": {},
+          "t": {},
+          "a": {
+           "type": ""
+          }
+         },
+         {
+          "id": "bam2m0dmx",
+          "k": "surtitre",
+          "c": {
+           "texte": "PRODUCTEUR - DIRECTEUR DE PRODUCTION - DISTRIBUTION"
+          },
+          "s": {},
+          "t": {},
+          "a": {
+           "type": ""
+          }
+         },
+         {
+          "id": "b7imebccf",
+          "k": "texte",
+          "c": {
+           "html": "<p></p><ul><li>Coordination des équipes et différents départements</li><li>Elaboration du budget global et détaillé</li><li>Planning général et détaillé</li><li>Recherche de lieux et négociation des prix</li><li>Recrutements</li><li>Supervision production et post-production</li><li>Gestion des autorisations de tournage, locations matériel, transports, chartes VHSS</li><li>Recherche de festivals et diffuseurs</li></ul><p></p>"
+          },
+          "s": {},
+          "t": {},
+          "a": {
+           "type": ""
+          }
+         }
+        ],
+        "disposition": "pile",
+        "style": "encadre",
+        "espace": 16,
+        "aligner": "haut",
+        "empileM": "",
+        "auto": false
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "g"
+      },
+      {
        "id": "b9zq54h65",
        "k": "credits",
        "c": {
         "lignes": [
+         {
+          "fonction": "Production",
+          "noms": "OMIRA Films"
+         },
          {
           "fonction": "Réalisateur",
           "noms": "Arthur GEOFFROY"
@@ -794,7 +900,7 @@ window.CONTENU = {
          },
          {
           "fonction": "Post-production",
-          "noms": "Théo CAUCHY - Nicolas GOU - Éric FLEURY"
+          "noms": "Théo CAUCHY - Nicolas GAILHOUSTE - Éric FLEURY"
          }
         ]
        },
@@ -831,67 +937,6 @@ window.CONTENU = {
         "type": ""
        },
        "col": "d"
-      },
-      {
-       "id": "bdsh0k93z",
-       "k": "titre",
-       "c": {
-        "texte": "Mon travail",
-        "niveau": "h2",
-        "taille": "bloc",
-        "lettres": false
-       },
-       "s": {
-        "encadre": false
-       },
-       "t": {},
-       "a": {
-        "type": ""
-       },
-       "col": "g"
-      },
-      {
-       "id": "bnm9kepa3",
-       "k": "pastille",
-       "c": {
-        "texte": "Producteur",
-        "textes": [
-         "Producteur",
-         "Directeur de production",
-         "Distribution"
-        ]
-       },
-       "s": {
-        "fond": "",
-        "degrade": {
-         "actif": false
-        },
-        "encadre": false,
-        "bordure": {
-         "couleur": ""
-        },
-        "largeur": 80
-       },
-       "t": {},
-       "a": {
-        "type": ""
-       },
-       "col": "g"
-      },
-      {
-       "id": "biy8unn6u",
-       "k": "texte",
-       "c": {
-        "html": "<p></p><ul><li>Coordination des équipes et différents départements</li><li>Elaboration du budget global et détaillé</li><li>Planning général et détaillé</li><li>Recherche de lieux et négociation des prix</li><li>Recrutements</li><li>Supervision production</li><li>Gestion des autorisations de tournage, locations matériel, transports, chartes VHSS</li><li>Recherche de festivals et diffuseurs</li></ul><p></p>"
-       },
-       "s": {
-        "largeur": 63
-       },
-       "t": {},
-       "a": {
-        "type": ""
-       },
-       "col": "g"
       }
      ],
      "s": {
@@ -925,22 +970,357 @@ window.CONTENU = {
         "survol": "",
         "images": [
          {
-          "src": "images/bibliotheque/8-312zv.webp"
+          "src": "images/bibliotheque/8-312zv.webp",
+          "nr": 2.2917,
+          "nrs": "images/bibliotheque/8-312zv.webp"
          },
          {
-          "src": "images/bibliotheque/7-311mn.webp"
+          "src": "images/bibliotheque/7-311mn.webp",
+          "nr": 2.2946,
+          "nrs": "images/bibliotheque/7-311mn.webp"
          },
          {
-          "src": "images/bibliotheque/6-3107c.webp"
+          "src": "images/bibliotheque/6-3107c.webp",
+          "nr": 2.2992,
+          "nrs": "images/bibliotheque/6-3107c.webp"
          },
          {
-          "src": "images/bibliotheque/5-30yjf.webp"
+          "src": "images/bibliotheque/5-30yjf.webp",
+          "nr": 2.2993,
+          "nrs": "images/bibliotheque/5-30yjf.webp"
          },
          {
-          "src": "images/bibliotheque/4-30xac.webp"
+          "src": "images/bibliotheque/4-30xac.webp",
+          "nr": 2.2964,
+          "nrs": "images/bibliotheque/4-30xac.webp"
          },
          {
-          "src": "images/bibliotheque/img-20260804-wa0018-4nsm2.webp"
+          "src": "images/bibliotheque/img-20260804-wa0018-4nsm2.webp",
+          "nr": 2.2237,
+          "nrs": "images/bibliotheque/img-20260804-wa0018-4nsm2.webp"
+         }
+        ]
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {},
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    }
+   ]
+  },
+  {
+   "id": "the-north-face-x-inoxtag",
+   "titre": "THE NORTH FACE x INOXTAG",
+   "type": "projet",
+   "menu": false,
+   "navigation": true,
+   "carte": {
+    "vignette": "images/bibliotheque/1-1-dsc04166-pgegd.webp",
+    "genre": "Publicité",
+    "genres": [
+     "Publicité"
+    ],
+    "roles": [
+     "Assistant de production"
+    ],
+    "animation": "",
+    "animSurvol": "",
+    "sousTitre": ""
+   },
+   "sections": [
+    {
+     "id": "spcqh19hw",
+     "type": "entete",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bsto549hw",
+       "k": "titre",
+       "c": {
+        "texte": "THE NORTH FACE X INOXTAG",
+        "niveau": "h1",
+        "taille": "page",
+        "lettres": false
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      },
+      {
+       "id": "bb3nif9hw",
+       "k": "pastille",
+       "c": {
+        "texte": "Publicité",
+        "textes": [
+         "Publicité"
+        ]
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {
+      "align": "center",
+      "pt": 36,
+      "pb": 24
+     },
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "s8jfgx9hw",
+     "type": "video",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "bku9ox9hw",
+       "k": "video",
+       "c": {
+        "url": "",
+        "poster": "",
+        "ratio": "16/9",
+        "legende": "",
+        "legendeOn": false
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       }
+      }
+     ],
+     "s": {},
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "s71fg99hw",
+     "type": "fiche",
+     "layout": "deux",
+     "c": {
+      "proportion": 57
+     },
+     "blocs": [
+      {
+       "id": "bwk9t79hw",
+       "k": "texte",
+       "c": {
+        "html": "<h2>Un film précis, sensible et expérimental, à la croisée du film de mode, de la performance outdoor et de la sensibilité cinématographique.</h2><p>Le film « SUMMIT’S CALL » présente la marque SKAINE en collaboration avec THE NORTH FACE. Ce teaser se compose de 3 parties distinctes, afin de révéler la collection.</p><p>Il s’introduit sur une succession de plans forts en studio dévoilant partiellement quelques bribes de vêtement et de texture dans une ambiance sombre et mystérieuse par des passages de lumière vifs. Le modèle se tient assis, immobile, comme attendant d’être réveillé. Des flocons de neige viennent se poser sur lui.</p><p>Attiré par une lumière il se lève et se dirige vers elle. S’en suit une succession de plans avec un montage énergique où la tenue SKAINE fait face aux conditions de l’outdoor : la neige vient s’entrecrocher sur la veste. Le modèle déambule maintenant dans un jour blanc, brumeux et neigeux. Il avance tant bien que mal.</p><p>Puis la brume disparaît, laissant place à un blanc des plus total. Les lumières s’illuminent afin de révéler complètement la collection SKAINE, le modèle se tient cette fois debout, immobile dans ce vaste espace, nous laissant découvrir pleinement sa tenue.</p>"
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "g"
+      },
+      {
+       "id": "bw6efi9hw",
+       "k": "credits",
+       "c": {
+        "lignes": [
+         {
+          "fonction": "Réalisation",
+          "noms": "Jules RICORDEAU"
+         },
+         {
+          "fonction": "Producteur Exécutif",
+          "noms": "Matteo DROUILHAT"
+         },
+         {
+          "fonction": "Production ",
+          "noms": "Yoann SIMONNEAU - Nicolas DROUILHAT"
+         },
+         {
+          "fonction": "Equipe Technique",
+          "noms": "Stella DOUCHAND - Charlotte MESNEL - Sérei OUK - Yanis FRICHOU - Ruben CHRISTEN - Carl PATISSON - Adrien GUIOT VALENTIN - Solal SCHILTON - Fleur CHAMPANHET Victoria BATISTA DE SOUZA-HUARD - Guillaume LARAS Helwane CESSA - Nicolas Rollin - Rayane SAFER - Justine TALLENT - Agathe GUALA - Phan NGUYEN"
+         },
+         {
+          "fonction": "Direction Artistique ",
+          "noms": "Robin RICORDEAU - Samy SAHALI"
+         },
+         {
+          "fonction": "Models",
+          "noms": "Duc DINH"
+         },
+         {
+          "fonction": "Post-Production",
+          "noms": "Hugo GUILLEMARD - Thomas MARTIN"
+         }
+        ]
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      },
+      {
+       "id": "bm2opt9hw",
+       "k": "infos",
+       "c": {
+        "lignes": [
+         {
+          "label": "Durée",
+          "valeur": "30s"
+         },
+         {
+          "label": "Format",
+          "valeur": "16:9"
+         }
+        ],
+        "colonnes": 1
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "d"
+      },
+      {
+       "id": "b79j1efiv",
+       "k": "groupe",
+       "c": {
+        "blocs": [
+         {
+          "id": "bp65qqfiv",
+          "k": "titre",
+          "c": {
+           "texte": "Mon travail sur le projet",
+           "niveau": "h2",
+           "taille": "bloc",
+           "lettres": false
+          },
+          "s": {},
+          "t": {},
+          "a": {
+           "type": ""
+          }
+         },
+         {
+          "id": "bl8bknfiv",
+          "k": "surtitre",
+          "c": {
+           "texte": "ASSISTANT DE PRODUCTION"
+          },
+          "s": {},
+          "t": {},
+          "a": {
+           "type": ""
+          }
+         },
+         {
+          "id": "b5hqu4fiv",
+          "k": "texte",
+          "c": {
+           "html": "<p></p><ul><li>Coordination des équipes et départements</li><li>Plannings détaillés</li><li>Gestion du budget journalier</li><li>Gestion imprévus, droits à l'image, transports, charte VHMSS</li></ul><p></p>"
+          },
+          "s": {},
+          "t": {},
+          "a": {
+           "type": ""
+          }
+         }
+        ],
+        "disposition": "pile",
+        "style": "encadre",
+        "espace": 16,
+        "aligner": "haut",
+        "empileM": "",
+        "auto": false
+       },
+       "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "g"
+      }
+     ],
+     "s": {},
+     "a": {
+      "type": "",
+      "duree": 0.9,
+      "delai": 0,
+      "cible": "section"
+     }
+    },
+    {
+     "id": "sr0tof9hw",
+     "type": "galerie",
+     "layout": "pile",
+     "c": {},
+     "blocs": [
+      {
+       "id": "b67muw9hw",
+       "k": "galerie",
+       "c": {
+        "disposition": "puzzle",
+        "colonnes": 3,
+        "colonnesM": 2,
+        "espacement": 12,
+        "ratio": "4/3",
+        "hauteurRang": 220,
+        "hauteurBande": 440,
+        "defilementAuto": false,
+        "survol": "",
+        "images": [
+         {
+          "src": "images/bibliotheque/1-1-dsc04166-pgegd.webp",
+          "nr": 1.5,
+          "nrs": "images/bibliotheque/1-1-dsc04166-pgegd.webp"
+         },
+         {
+          "src": "images/bibliotheque/1-dsc04706-pgj7v.webp",
+          "nr": 1.5,
+          "nrs": "images/bibliotheque/1-dsc04706-pgj7v.webp"
+         },
+         {
+          "src": "images/bibliotheque/1-2-dsc04590-pgg9g.webp",
+          "nr": 1.5,
+          "nrs": "images/bibliotheque/1-2-dsc04590-pgg9g.webp"
+         },
+         {
+          "src": "images/bibliotheque/87-dsc04110-ph7ig.webp",
+          "nr": 0.6667,
+          "nrs": "images/bibliotheque/87-dsc04110-ph7ig.webp"
+         },
+         {
+          "src": "images/bibliotheque/25-dsc04509-pgvd8.webp",
+          "nr": 1.5,
+          "nrs": "images/bibliotheque/25-dsc04509-pgvd8.webp"
+         },
+         {
+          "src": "images/bibliotheque/5-dsc04668-pglu8.webp",
+          "nr": 1.5,
+          "nrs": "images/bibliotheque/5-dsc04668-pglu8.webp"
          }
         ]
        },
@@ -969,7 +1349,7 @@ window.CONTENU = {
    "masquer": false,
    "navigation": true,
    "carte": {
-    "vignette": "images/films/2072/vignette.jpg",
+    "vignette": "images/bibliotheque/still-2026-09-04-221806-1-7-1-4uxmc.webp",
     "genre": "Mini-série",
     "genres": [
      "Mini-série"
@@ -1055,13 +1435,19 @@ window.CONTENU = {
         "survol": "",
         "images": [
          {
-          "src": "images/bibliotheque/still-2026-09-04-221813-1-8-1-4uyzw.webp"
+          "src": "images/bibliotheque/still-2026-09-04-221813-1-8-1-4uyzw.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/still-2026-09-04-221813-1-8-1-4uyzw.webp"
          },
          {
-          "src": "images/bibliotheque/still-2026-09-04-221708-1-2-1-4usxw.webp"
+          "src": "images/bibliotheque/still-2026-09-04-221708-1-2-1-4usxw.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/still-2026-09-04-221708-1-2-1-4usxw.webp"
          },
          {
-          "src": "images/bibliotheque/still-2026-09-04-221743-1-5-1-4uuoq.webp"
+          "src": "images/bibliotheque/still-2026-09-04-221743-1-5-1-4uuoq.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/still-2026-09-04-221743-1-5-1-4uuoq.webp"
          }
         ]
        },
@@ -1094,9 +1480,72 @@ window.CONTENU = {
        "id": "bpyaoch65",
        "k": "texte",
        "c": {
-        "html": "<h2>Une plongée dans les réalités alternatives de notre avenir</h2><p><em>Parfois, nous nous prenons à rêver et imaginer à quoi pourrait ressembler le monde de demain. Sera-t-il à la hauteur de nos attentes ? Parviendrons-nous à relever les défis climatiques, économiques ou sociétaux dont on nous parle aujourd&#39;hui ? Le futur s&#39;annonce-t-il radieux, ténébreux ou plus nuancé ?</em></p><p>C&#39;est précisément le but de ce projet. Avec « 2072 - Echos du Futur », nous souhaitons parcourir et imaginer les directions alternatives que pourrait prendre notre réalité dans 45 ans aux quatre coins du monde.</p><p>Les thèmes abordés sont divers : climat, technologie, régimes politiques, modes de vie, dynamiques sociales et bien d&#39;autres…</p>"
+        "html": "<h2>Une plongée dans les réalités alternatives de notre avenir</h2><p><em>Parfois, nous nous prenons à rêver et imaginer à quoi pourrait ressembler le monde de demain. Sera-t-il à la hauteur de nos attentes ? Parviendrons-nous à relever les défis climatiques, économiques ou sociétaux dont on nous parle aujourd'hui ? Le futur s'annonce-t-il radieux, ténébreux ou plus nuancé ?</em></p><p>C'est précisément le but de ce projet. Avec « 2072 - Echos du Futur », nous souhaitons parcourir et imaginer les directions alternatives que pourrait prendre notre réalité dans 45 ans aux quatre coins du monde.</p><p>Les thèmes abordés sont divers : climat, technologie, régimes politiques, modes de vie, dynamiques sociales et bien d'autres…</p>"
        },
        "s": {},
+       "t": {},
+       "a": {
+        "type": ""
+       },
+       "col": "g"
+      },
+      {
+       "id": "brk97spgu",
+       "k": "groupe",
+       "c": {
+        "blocs": [
+         {
+          "id": "bcpm1kpgu",
+          "k": "titre",
+          "c": {
+           "texte": "Mon travail sur le projet",
+           "niveau": "h2",
+           "taille": "bloc",
+           "lettres": false
+          },
+          "s": {},
+          "t": {},
+          "a": {
+           "type": ""
+          }
+         },
+         {
+          "id": "bnynzepgu",
+          "k": "surtitre",
+          "c": {
+           "texte": "PRODUCTION - RÉALISATION - POST-PRODUCTION"
+          },
+          "s": {},
+          "t": {},
+          "a": {
+           "type": ""
+          }
+         },
+         {
+          "id": "b9pit8pgu",
+          "k": "texte",
+          "c": {
+           "html": "<p></p><ul><li>Ecriture scénario</li><li>Définition du scope</li><li>Recrutements, plannings</li><li>Distribution</li><li>Captation des vidéos</li><li>Montage, mixage</li></ul><p></p>"
+          },
+          "s": {
+           "largeur": ""
+          },
+          "t": {},
+          "a": {
+           "type": ""
+          }
+         }
+        ],
+        "disposition": "pile",
+        "style": "encadre",
+        "espace": 16,
+        "aligner": "haut",
+        "empileM": "",
+        "auto": false
+       },
+       "s": {
+        "largeur": ""
+       },
        "t": {},
        "a": {
         "type": ""
@@ -1160,7 +1609,8 @@ window.CONTENU = {
         ]
        },
        "s": {
-        "mt": 0
+        "mt": 0,
+        "align": ""
        },
        "t": {},
        "a": {
@@ -1170,80 +1620,6 @@ window.CONTENU = {
       }
      ],
      "s": {},
-     "a": {
-      "type": "",
-      "duree": 0.9,
-      "delai": 0,
-      "cible": "section"
-     }
-    },
-    {
-     "id": "scwvd9h64",
-     "type": "encadre",
-     "layout": "pile",
-     "c": {},
-     "blocs": [
-      {
-       "id": "bhzf98h65",
-       "k": "surtitre",
-       "c": {
-        "texte": "Mon rôle"
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
-       "id": "bpcdizh65",
-       "k": "titre",
-       "c": {
-        "texte": "Mon travail sur le projet",
-        "niveau": "h2",
-        "taille": "texte",
-        "lettres": false
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
-       "id": "bdufgdh65",
-       "k": "texte",
-       "c": {
-        "html": "<p>À compléter : écriture, réalisation de plusieurs épisodes, tournage, montage, étalonnage…</p>"
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
-       "id": "b9btlch65",
-       "k": "tags",
-       "c": {
-        "tags": [
-         "Réalisation",
-         "Production",
-         "Captation",
-         "Post-production"
-        ]
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      }
-     ],
-     "s": {
-      "encadre": true,
-      "largeurPx": 463
-     },
      "a": {
       "type": "",
       "duree": 0.9,
@@ -1272,22 +1648,34 @@ window.CONTENU = {
         "survol": "",
         "images": [
          {
-          "src": "images/bibliotheque/still-2026-09-04-221806-1-7-1-4uxmc.webp"
+          "src": "images/bibliotheque/still-2026-09-04-221806-1-7-1-4uxmc.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/still-2026-09-04-221806-1-7-1-4uxmc.webp"
          },
          {
-          "src": "images/bibliotheque/still-2026-09-04-230610-1-4-1-4v3ht.webp"
+          "src": "images/bibliotheque/still-2026-09-04-230610-1-4-1-4v3ht.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/still-2026-09-04-230610-1-4-1-4v3ht.webp"
          },
          {
-          "src": "images/bibliotheque/whatsapp-image-2026-10-23-at-18-41-12-4xa91.webp"
+          "src": "images/bibliotheque/whatsapp-image-2026-10-23-at-18-41-12-4xa91.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/whatsapp-image-2026-10-23-at-18-41-12-4xa91.webp"
          },
          {
-          "src": "images/bibliotheque/still-2026-09-04-221758-1-6-1-4uw5p.webp"
+          "src": "images/bibliotheque/still-2026-09-04-221758-1-6-1-4uw5p.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/still-2026-09-04-221758-1-6-1-4uw5p.webp"
          },
          {
-          "src": "images/bibliotheque/still-2026-09-04-221825-1-12-1-4v1us.webp"
+          "src": "images/bibliotheque/still-2026-09-04-221825-1-12-1-4v1us.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/still-2026-09-04-221825-1-12-1-4v1us.webp"
          },
          {
-          "src": "images/bibliotheque/still-2026-09-04-221819-1-10-1-4v09f.webp"
+          "src": "images/bibliotheque/still-2026-09-04-221819-1-10-1-4v09f.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/still-2026-09-04-221819-1-10-1-4v09f.webp"
          }
         ]
        },
@@ -1316,13 +1704,13 @@ window.CONTENU = {
    "masquer": false,
    "navigation": true,
    "carte": {
-    "vignette": "images/films/projet-3/vignette.jpg",
+    "vignette": "images/bibliotheque/vlcsnap-2026-03-17-19h07m45s189-fjwff.webp",
     "genre": "Album",
     "genres": [
      "Album"
     ],
     "roles": [
-     "Rôle à compléter"
+     "Pr"
     ],
     "animation": "",
     "animSurvol": "",
@@ -1399,13 +1787,19 @@ window.CONTENU = {
         "survol": "",
         "images": [
          {
-          "src": "images/bibliotheque/vlcsnap-2026-03-17-19h05m41s333-fjuuz.webp"
+          "src": "images/bibliotheque/vlcsnap-2026-03-17-19h05m41s333-fjuuz.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/vlcsnap-2026-03-17-19h05m41s333-fjuuz.webp"
          },
          {
-          "src": "images/bibliotheque/vlcsnap-2026-03-17-19h04m49s336-fjtb7.webp"
+          "src": "images/bibliotheque/vlcsnap-2026-03-17-19h04m49s336-fjtb7.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/vlcsnap-2026-03-17-19h04m49s336-fjtb7.webp"
          },
          {
-          "src": "images/bibliotheque/vlcsnap-2026-03-17-19h07m45s189-fjwff.webp"
+          "src": "images/bibliotheque/vlcsnap-2026-03-17-19h07m45s189-fjwff.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/vlcsnap-2026-03-17-19h07m45s189-fjwff.webp"
          }
         ]
        },
@@ -1531,7 +1925,8 @@ window.CONTENU = {
        },
        "s": {
         "largeur": 19,
-        "align": "center"
+        "align": "center",
+        "mt": 71
        },
        "t": {},
        "a": {
@@ -1645,17 +2040,35 @@ window.CONTENU = {
      "c": {},
      "blocs": [
       {
-       "id": "b07fapkgz",
-       "k": "image",
+       "id": "b2769lqiv",
+       "k": "galerie",
        "c": {
-        "img": {
-         "src": "images/bibliotheque/still-2026-09-04-234347-3-1-1-gi1q5.webp",
-         "posX": 55
-        },
-        "legende": "",
-        "legendeOn": false,
-        "largeur": 100,
-        "hauteur": 0
+        "disposition": "mosaique",
+        "colonnes": 3,
+        "colonnesM": 2,
+        "espacement": 12,
+        "ratio": "4/3",
+        "hauteurRang": 590,
+        "hauteurBande": 440,
+        "defilementAuto": false,
+        "survol": "",
+        "images": [
+         {
+          "src": "images/bibliotheque/still-2026-09-04-234347-3-1-1-gi1q5.webp",
+          "nr": 0.9739,
+          "nrs": "images/bibliotheque/still-2026-09-04-234347-3-1-1-gi1q5.webp"
+         },
+         {
+          "src": "images/bibliotheque/still-2026-09-04-234617-3-1-1-gi2vx.webp",
+          "nr": 1.0445,
+          "nrs": "images/bibliotheque/still-2026-09-04-234617-3-1-1-gi2vx.webp"
+         },
+         {
+          "src": "images/bibliotheque/still-2026-09-04-235236-2-1-1-gi430.webp",
+          "nr": 1.7778,
+          "nrs": "images/bibliotheque/still-2026-09-04-235236-2-1-1-gi430.webp"
+         }
+        ]
        },
        "s": {},
        "t": {},
@@ -1667,7 +2080,7 @@ window.CONTENU = {
      "s": {
       "pb": 0,
       "pt": 37,
-      "largeurPx": 436,
+      "largeurPx": 1220,
       "align": "left"
      },
      "a": {
@@ -1818,7 +2231,7 @@ window.CONTENU = {
   },
   {
    "id": "nouveau-projet",
-   "titre": "RESONANCES",
+   "titre": "RéSONANCES",
    "type": "projet",
    "menu": false,
    "navigation": true,
@@ -1844,7 +2257,7 @@ window.CONTENU = {
        "id": "bvwmnnqls",
        "k": "titre",
        "c": {
-        "texte": "RESONANCES",
+        "texte": "RÉSONANCES",
         "niveau": "h1",
         "taille": "page",
         "lettres": false
@@ -1859,9 +2272,9 @@ window.CONTENU = {
        "id": "bu0iunqls",
        "k": "pastille",
        "c": {
-        "texte": "Court-métrage",
+        "texte": "Moyen métrage",
         "textes": [
-         "Court-métrage"
+         "Moyen métrage"
         ]
        },
        "s": {},
@@ -1904,13 +2317,19 @@ window.CONTENU = {
         "survol": "",
         "images": [
          {
-          "src": "images/bibliotheque/whatsapp-image-2026-11-09-at-18-54-0-rognee-pbzne.webp"
+          "src": "images/bibliotheque/whatsapp-image-2026-11-09-at-18-54-0-rognee-pbzne.webp",
+          "nr": 2.3597,
+          "nrs": "images/bibliotheque/whatsapp-image-2026-11-09-at-18-54-0-rognee-pbzne.webp"
          },
          {
-          "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-45-slnls.webp"
+          "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-45-slnls.webp",
+          "nr": 2.1277,
+          "nrs": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-45-slnls.webp"
          },
          {
-          "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-48-slrab.webp"
+          "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-48-slrab.webp",
+          "nr": 2.1248,
+          "nrs": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-48-slrab.webp"
          }
         ]
        },
@@ -1984,7 +2403,7 @@ window.CONTENU = {
          },
          {
           "fonction": "Equipe technique",
-          "noms": "Léa ARDITTI - Alix SITOLEUX - Laurine JOLY - Néhémie DUFOUR - Julien GUESDON - Sara VUOLLE - Alice XXX - Ulysse GASTELAIS - Nicolas GAILHOUSTE - Lory DANYALIAN - Elona BOUVY - Loïc DAYANT - Ambre le COMPAGNON - Backary XXX - Tom XXXX - Tanais XXXX - Morgane XXXX"
+          "noms": "Léa ARDITTI - Alix SITOLEUX - Laurine JOLY - Néhémie DUFOUR - Julien GUESDON - Sara VUOLLE - Alice XXX - Ulysse GASTELAIS - Nicolas GAILHOUSTE - Lory DANYALIAN - Elona BOUVY - Loïc DAYANT - Ambre le COMPAGNON - Backary DEMBELE - Tom CHOQUART - Tanaïs del MORAL - Morgane MANDON"
          },
          {
           "fonction": "Post-Production",
@@ -2040,18 +2459,6 @@ window.CONTENU = {
      "c": {},
      "blocs": [
       {
-       "id": "bf7mbrqls",
-       "k": "surtitre",
-       "c": {
-        "texte": "Mon rôle"
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
        "id": "btdr9uqls",
        "k": "titre",
        "c": {
@@ -2067,10 +2474,10 @@ window.CONTENU = {
        }
       },
       {
-       "id": "btp0aqqls",
-       "k": "texte",
+       "id": "bf7mbrqls",
+       "k": "surtitre",
        "c": {
-        "html": "<p>Ce que j’ai fait sur ce projet.</p>"
+        "texte": "PRODUCTEUR - DIRECTEUR DE PRODUCTION - DISTRIBUTION"
        },
        "s": {},
        "t": {},
@@ -2079,10 +2486,10 @@ window.CONTENU = {
        }
       },
       {
-       "id": "bgth4xqls",
-       "k": "tags",
+       "id": "btp0aqqls",
+       "k": "texte",
        "c": {
-        "tags": []
+        "html": "<p></p><ul><li>Coordination des équipes et différents départements</li><li>Elaboration du budget global et détaillé</li><li>Planning général et détaillé</li><li>Recherche de lieux et négociation des prix</li><li>Recrutements</li><li>Supervision production et post-production</li><li>Gestion des autorisations de tournage, locations matériel, transports, chartes VHSS</li><li>Recherche de festivals et diffuseurs</li></ul><p></p>"
        },
        "s": {},
        "t": {},
@@ -2092,7 +2499,9 @@ window.CONTENU = {
       }
      ],
      "s": {
-      "encadre": true
+      "encadre": true,
+      "pb": 0,
+      "pt": 0
      },
      "a": {
       "type": "",
@@ -2109,283 +2518,6 @@ window.CONTENU = {
      "blocs": [
       {
        "id": "b6hcu8qls",
-       "k": "galerie",
-       "c": {
-        "disposition": "puzzle",
-        "colonnes": 3,
-        "colonnesM": 2,
-        "espacement": 12,
-        "ratio": "4/3",
-        "hauteurRang": 220,
-        "hauteurBande": 440,
-        "defilementAuto": false,
-        "survol": "",
-        "images": []
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      }
-     ],
-     "s": {},
-     "a": {
-      "type": "",
-      "duree": 0.9,
-      "delai": 0,
-      "cible": "section"
-     }
-    }
-   ]
-  },
-  {
-   "id": "the-north-face-x-inoxtag",
-   "titre": "THE NORTH FACE x INOXTAG",
-   "type": "projet",
-   "menu": false,
-   "navigation": true,
-   "carte": {
-    "vignette": "images/bibliotheque/1-1-dsc04166-pgegd.webp",
-    "genre": "Publicité",
-    "genres": [
-     "Publicité"
-    ],
-    "roles": [
-     "Assistant de production"
-    ],
-    "animation": "",
-    "animSurvol": "",
-    "sousTitre": ""
-   },
-   "sections": [
-    {
-     "id": "spcqh19hw",
-     "type": "entete",
-     "layout": "pile",
-     "c": {},
-     "blocs": [
-      {
-       "id": "bsto549hw",
-       "k": "titre",
-       "c": {
-        "texte": "THE NORTH FACE x INOXTAG",
-        "niveau": "h1",
-        "taille": "page",
-        "lettres": false
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
-       "id": "bb3nif9hw",
-       "k": "pastille",
-       "c": {
-        "texte": "Publicité",
-        "textes": [
-         "Publicité"
-        ]
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      }
-     ],
-     "s": {
-      "align": "center",
-      "pt": 36,
-      "pb": 24
-     },
-     "a": {
-      "type": "",
-      "duree": 0.9,
-      "delai": 0,
-      "cible": "section"
-     }
-    },
-    {
-     "id": "s8jfgx9hw",
-     "type": "video",
-     "layout": "pile",
-     "c": {},
-     "blocs": [
-      {
-       "id": "bku9ox9hw",
-       "k": "video",
-       "c": {
-        "url": "",
-        "poster": "",
-        "ratio": "16/9",
-        "legende": "",
-        "legendeOn": false
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      }
-     ],
-     "s": {},
-     "a": {
-      "type": "",
-      "duree": 0.9,
-      "delai": 0,
-      "cible": "section"
-     }
-    },
-    {
-     "id": "s71fg99hw",
-     "type": "fiche",
-     "layout": "deux",
-     "c": {
-      "proportion": 57
-     },
-     "blocs": [
-      {
-       "id": "bwk9t79hw",
-       "k": "texte",
-       "c": {
-        "html": "<h2>Titre</h2><p>Raconte le projet.</p>"
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       },
-       "col": "g"
-      },
-      {
-       "id": "bm2opt9hw",
-       "k": "infos",
-       "c": {
-        "lignes": [
-         {
-          "label": "Durée",
-          "valeur": ""
-         },
-         {
-          "label": "Format",
-          "valeur": ""
-         }
-        ],
-        "colonnes": 1
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       },
-       "col": "d"
-      },
-      {
-       "id": "bw6efi9hw",
-       "k": "credits",
-       "c": {
-        "lignes": [
-         {
-          "fonction": "Réalisation",
-          "noms": "Prénom NOM"
-         }
-        ]
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       },
-       "col": "d"
-      }
-     ],
-     "s": {},
-     "a": {
-      "type": "",
-      "duree": 0.9,
-      "delai": 0,
-      "cible": "section"
-     }
-    },
-    {
-     "id": "sa9trw9hw",
-     "type": "encadre",
-     "layout": "pile",
-     "c": {},
-     "blocs": [
-      {
-       "id": "bl4jj49hw",
-       "k": "surtitre",
-       "c": {
-        "texte": "Mon rôle"
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
-       "id": "bxee189hw",
-       "k": "titre",
-       "c": {
-        "texte": "Mon travail sur le projet",
-        "niveau": "h2",
-        "taille": "texte",
-        "lettres": false
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
-       "id": "beu4yt9hw",
-       "k": "texte",
-       "c": {
-        "html": "<p>Ce que j’ai fait sur ce projet.</p>"
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      },
-      {
-       "id": "bv0hgn9hw",
-       "k": "tags",
-       "c": {
-        "tags": []
-       },
-       "s": {},
-       "t": {},
-       "a": {
-        "type": ""
-       }
-      }
-     ],
-     "s": {
-      "encadre": true
-     },
-     "a": {
-      "type": "",
-      "duree": 0.9,
-      "delai": 0,
-      "cible": "section"
-     }
-    },
-    {
-     "id": "sr0tof9hw",
-     "type": "galerie",
-     "layout": "pile",
-     "c": {},
-     "blocs": [
-      {
-       "id": "b67muw9hw",
        "k": "galerie",
        "c": {
         "disposition": "puzzle",
