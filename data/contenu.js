@@ -2319,17 +2319,26 @@ window.CONTENU = {
          {
           "src": "images/bibliotheque/whatsapp-image-2026-11-09-at-18-54-0-rognee-pbzne.webp",
           "nr": 2.3597,
-          "nrs": "images/bibliotheque/whatsapp-image-2026-11-09-at-18-54-0-rognee-pbzne.webp"
+          "nrs": "images/bibliotheque/whatsapp-image-2026-11-09-at-18-54-0-rognee-pbzne.webp",
+          "superposition": {
+           "opacite": 3
+          }
          },
          {
           "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-45-slnls.webp",
           "nr": 2.1277,
-          "nrs": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-45-slnls.webp"
+          "nrs": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-45-slnls.webp",
+          "superposition": {
+           "opacite": 25
+          }
          },
          {
           "src": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-48-slrab.webp",
           "nr": 2.1248,
-          "nrs": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-48-slrab.webp"
+          "nrs": "images/films/resonances/whatsapp-image-2026-11-16-at-12-33-48-slrab.webp",
+          "superposition": {
+           "opacite": 19
+          }
          }
         ]
        },
